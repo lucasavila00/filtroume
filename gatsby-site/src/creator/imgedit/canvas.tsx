@@ -1,8 +1,8 @@
-import React from "react";
-import { FabricEditing } from "../types";
-import ReactDOM from "react-dom";
 import { fabric } from "fabric";
-import { registerCanvasOnWindow, getEditing } from "./helpers";
+import React from "react";
+import ReactDOM from "react-dom";
+import { FabricEditing } from "../types";
+import { getEditing, registerCanvasOnWindow } from "./helpers";
 
 export class CanvasEditor extends React.Component<{
   size: number;
@@ -10,8 +10,8 @@ export class CanvasEditor extends React.Component<{
   changeEditing: (editing: FabricEditing) => void;
 }> {
   public componentDidMount() {
-    var el = ReactDOM.findDOMNode(this);
-    var canvas = new fabric.Canvas(el as HTMLCanvasElement);
+    const el = ReactDOM.findDOMNode(this);
+    const canvas = new fabric.Canvas(el as HTMLCanvasElement);
     registerCanvasOnWindow(canvas);
     const { size, changeData, changeEditing } = this.props;
     canvas.selection = false;
@@ -32,6 +32,6 @@ export class CanvasEditor extends React.Component<{
   }
 
   public render() {
-    return <canvas></canvas>;
+    return <canvas />;
   }
 }
