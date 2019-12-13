@@ -1,7 +1,7 @@
 import { fabric } from "fabric";
 import React from "react";
 import ReactDOM from "react-dom";
-import { FabricEditing } from "../types";
+import { FabricEditing } from "../../types";
 import {
   getEditingTypeAndData,
   registerCanvasOnWindow,

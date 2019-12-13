@@ -1,6 +1,6 @@
 import { fabric } from "fabric";
-import { FabricEditing, FabricEditingTypes } from "../types";
-import { makeEditingNone } from "./helpers";
+import { FabricEditing, FabricEditingTypes } from "../../types";
+import { makeEditingNone } from "../helpers";
 
 // access the canvas via a global
 const CANVAS_KEY = "_fabric_canvas";
@@ -22,12 +22,21 @@ const generateShadow = (color: string, size: number) =>
   `${color} ${Math.round(size / 4)}px ${Math.round(size / 2)}px ${Math.round(
     size,
   )}px`;
+
+let counter = 0;
+const getId = () => {
+  const id = "id-" + counter;
+
+  counter++;
+  return id;
+};
 // create objects
 export const addNewText = (canvasSize: number) => {
   const canvas = castedCanvas();
-
+  const nameId = getId();
   canvas.add(
     new fabric.IText("Sample Text", {
+      name: nameId,
       top: canvasSize / 3,
       left: canvasSize / 3,
       textAlign: "center",
@@ -40,7 +49,11 @@ export const addNewText = (canvasSize: number) => {
     }),
   );
   // TODO nao ta ativando o criado!!!
-  canvas.setActiveObject(canvas.getObjects()[0]);
+  canvas.getObjects().forEach((o) => {
+    if (o.name === nameId) {
+      canvas.setActiveObject(o);
+    }
+  });
 
   // when we are done makeing changes send the state from fabric
   canvas.fire("saveData", {});
@@ -147,4 +160,16 @@ export const changeActiveTextShadoweColor = (color: string) => {
   });
 };
 
-export const deleteActiveText = () => {};
+export const deleteActiveText = () => {
+  const canvas = castedCanvas();
+  const obj = canvas.getActiveObject();
+
+  if (obj == null) {
+    return;
+  }
+
+  if (obj.isType("i-text")) {
+    canvas.remove(obj);
+    canvas.fire("saveData", {});
+  }
+};

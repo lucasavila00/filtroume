@@ -16,6 +16,7 @@
         "build-storybook": "build-storybook"
     },
     "dependencies": {
+        "@storybook/addon-actions": "^4.1.1",
         "@storybook/react": "^4.1.1",
         "@uifabric/fluent-theme": "^0.16.7",
         "core-js": "^3.5.0",
@@ -24,14 +25,14 @@
         "office-ui-fabric-react": "^6.176.0",
         "react": "^16.8.6",
         "react-dom": "^16.8.6",
-        "@storybook/addon-actions": "^4.1.1",
         "react-use-dimensions": "^1.2.1"
     },
     "devDependencies": {
         "@babel/core": "^7.7.5",
         "@storybook/addon-links": "^4.1.1",
-        "@storybook/addon-options": "=3.2.3",
-        "@storybook/addons": "^3.0.0",
+        "@storybook/addon-options": "^4.1.1",
+        "@storybook/addon-viewport": "^4.1.1",
+        "@storybook/addons": "^4.1.1",
         "@types/fabric": "^3.5.0",
         "@types/react-dom": "^16.9.4",
         "@types/storybook__addon-actions": "^3.4.1",

@@ -7,6 +7,9 @@ export enum FabricEditingTypes {
 export interface IFabricEditingNone {
   type: FabricEditingTypes.none;
 }
+export interface IFabricEditingImage {
+  type: FabricEditingTypes.image;
+}
 
 export interface IFabricEditingText {
   type: FabricEditingTypes.text;
@@ -18,4 +21,7 @@ export interface IFabricEditingText {
   shadowColor: string;
 }
 
-export type FabricEditing = IFabricEditingNone | IFabricEditingText;
+export type FabricEditing =
+  | IFabricEditingNone
+  | IFabricEditingText
+  | IFabricEditingImage;

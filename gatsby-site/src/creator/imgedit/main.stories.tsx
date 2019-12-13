@@ -4,7 +4,5 @@ import * as React from "react";
 import { ImageEditor } from "./main";
 
 storiesOf("ImageEditor", module).add("default", () => (
-  <div style={{ width: 360 }}>
-    <ImageEditor onDone={action("done-editing")} />
-  </div>
+  <ImageEditor onDone={action("done-editing")} />
 ));

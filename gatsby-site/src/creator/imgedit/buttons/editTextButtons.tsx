@@ -11,8 +11,8 @@ import {
   SwatchColorPicker,
 } from "office-ui-fabric-react";
 import React from "react";
-import { colors, fonts } from "../contants";
-import { IFabricEditingText } from "../types";
+import { colors, fonts } from "../../contants";
+import { IFabricEditingText } from "../../types";
 
 enum MenuTypesKind {
   None,
@@ -152,7 +152,7 @@ export const EditTextButtons: React.FunctionComponent<{
         };
         return (
           <Callout
-            gapSpace={32}
+            gapSpace={96 + 16}
             onDismiss={closeMenus}
             styles={{ root: { marginLeft: marginFromType(menu.colorType) } }}
           >
@@ -189,7 +189,7 @@ export const EditTextButtons: React.FunctionComponent<{
 
         return (
           <Callout
-            gapSpace={32}
+            gapSpace={96 + 16}
             onDismiss={closeMenus}
             styles={fullWidthCalloutStyle}
           >
@@ -205,7 +205,7 @@ export const EditTextButtons: React.FunctionComponent<{
         };
         return (
           <Callout
-            gapSpace={32}
+            gapSpace={96 + 16}
             onDismiss={closeMenus}
             styles={fullWidthCalloutStyle}
           >

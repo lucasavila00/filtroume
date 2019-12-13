@@ -2,7 +2,7 @@ import { action } from "@storybook/addon-actions";
 import { storiesOf } from "@storybook/react";
 import { initializeIcons } from "office-ui-fabric-react";
 import * as React from "react";
-import { FabricEditingTypes, IFabricEditingText } from "../types";
+import { FabricEditingTypes, IFabricEditingText } from "../../types";
 import { EditTextButtons } from "./editTextButtons";
 
 initializeIcons(/* optional base url */);
