@@ -2,10 +2,14 @@ import { fabric } from "fabric";
 import React from "react";
 import ReactDOM from "react-dom";
 import { FabricEditing } from "../types";
-import { getEditing, registerCanvasOnWindow } from "./helpers";
+import {
+  getEditingTypeAndData,
+  registerCanvasOnWindow,
+} from "./canvasController";
 
 export class CanvasEditor extends React.Component<{
   size: number;
+  /// store the state of the canvas when changes happen
   changeData: (data: any) => void;
   changeEditing: (editing: FabricEditing) => void;
 }> {
@@ -20,13 +24,13 @@ export class CanvasEditor extends React.Component<{
     // // on mouse up lets save some state
     canvas.on("mouse:up", () => {
       changeData(canvas.toObject());
-      changeEditing(getEditing(canvas.getActiveObject()));
+      changeEditing(getEditingTypeAndData(canvas.getActiveObject()));
     });
 
     // // an event we will fire when we want to save state
     canvas.on("saveData", () => {
       changeData(canvas.toObject());
-      changeEditing(getEditing(canvas.getActiveObject()));
+      changeEditing(getEditingTypeAndData(canvas.getActiveObject()));
       canvas.renderAll(); // programatic changes we make will not trigger a render in fabric
     });
   }

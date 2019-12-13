@@ -1,6 +1,6 @@
 import { DefaultButton, Stack } from "office-ui-fabric-react";
 import React from "react";
-import { addNewText } from "./helpers";
+import { addNewText } from "./canvasController";
 
 export const InsertButtons: React.FunctionComponent<{ size: number }> = ({
   size,

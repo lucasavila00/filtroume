@@ -3,9 +3,19 @@ import React, { useState } from "react";
 import useDimensions from "react-use-dimensions";
 import { FabricEditingTypes, IFabricEditingText } from "../types";
 import { CanvasEditor } from "./canvas";
+import {
+  changeActiveTextColor,
+  changeActiveTextFont,
+  changeActiveTextShadoweColor,
+  changeActiveTextShadowSize,
+  changeActiveTextStrokeColor,
+  changeActiveTextStrokeWidth,
+  deleteActiveText,
+  unfocusOnCanvas,
+} from "./canvasController";
 import { EditGraphicButtons } from "./editGraphicButtons";
 import { EditTextButtons } from "./editTextButtons";
-import { makeEditingNone, unfocusOnCanvas } from "./helpers";
+import { makeEditingNone } from "./helpers";
 import { InsertButtons } from "./insertButtons";
 
 export const ImageEditor: React.FunctionComponent<{ onDone: () => void }> = ({
@@ -35,20 +45,13 @@ export const ImageEditor: React.FunctionComponent<{ onDone: () => void }> = ({
             editorSize={width}
             info={fabricEditing as IFabricEditingText}
             finishEditing={finishEditing}
-            // tslint:disable-next-line: no-console
-            changeColor={console.warn}
-            // tslint:disable-next-line: no-console
-            deleteText={console.warn}
-            // tslint:disable-next-line: no-console
-            changeFont={console.warn}
-            // tslint:disable-next-line: no-console
-            changeShadowColor={console.warn}
-            // tslint:disable-next-line: no-console
-            changeShadowSize={console.warn}
-            // tslint:disable-next-line: no-console
-            changeStrokeColor={console.warn}
-            // tslint:disable-next-line: no-console
-            changeStrokeWidth={console.warn}
+            changeColor={changeActiveTextColor}
+            changeFont={changeActiveTextFont}
+            deleteText={deleteActiveText}
+            changeShadowColor={changeActiveTextShadoweColor}
+            changeShadowSize={changeActiveTextShadowSize}
+            changeStrokeColor={changeActiveTextStrokeColor}
+            changeStrokeWidth={changeActiveTextStrokeWidth}
           />
         );
       }
@@ -76,7 +79,6 @@ export const ImageEditor: React.FunctionComponent<{ onDone: () => void }> = ({
         <div style={canvasBorderStyle}>
           <CanvasEditor
             size={width}
-            // tslint:disable-next-line: no-console
             changeData={console.warn}
             changeEditing={changeFabricEditing}
           />
@@ -98,11 +100,10 @@ export const ImageEditor: React.FunctionComponent<{ onDone: () => void }> = ({
         <PrimaryButton onClick={onDone}>Save</PrimaryButton>
       </Stack>
       <Stack verticalFill={true} gap="m">
-        <div style={canvasSizerStyle} ref={ref}>
-          {renderButtons()}
-          {renderCanvas()}
-        </div>
+        {renderButtons()}
+        {renderCanvas()}
       </Stack>
+      <div style={canvasSizerStyle} ref={ref} />
     </>
   );
 };

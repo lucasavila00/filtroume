@@ -1,73 +1,18 @@
 import {
   Callout,
+  DefaultButton,
   FontIcon,
   IComponentStyles,
   IconButton,
   IStackSlots,
   mergeStyles,
+  Slider,
   Stack,
   SwatchColorPicker,
 } from "office-ui-fabric-react";
 import React from "react";
+import { colors, fonts } from "../contants";
 import { IFabricEditingText } from "../types";
-
-const iconClass = mergeStyles({
-  fontSize: 24,
-  height: 24,
-  width: 24,
-});
-
-const HackedHorizontalScrollingStack: React.FunctionComponent = ({
-  children,
-}) => {
-  const hackStyle = {
-    flexShrink: 0,
-  };
-  const hackStyles: IComponentStyles<IStackSlots> = {
-    root: { overflowX: "auto", overflowY: "hidden" },
-  };
-  return (
-    <Stack
-      horizontal={true}
-      gap="m"
-      verticalAlign="center"
-      style={hackStyle}
-      styles={hackStyles}
-    >
-      {children}
-    </Stack>
-  );
-};
-
-const HackyColorButton: React.FunctionComponent<{
-  openMenu: () => void;
-  color: string;
-}> = ({ openMenu, color }) => {
-  const colorButtonSwatchStyle = {
-    focusedContainer: { minWidth: 24 },
-    tableCell: { padding: 0 },
-  };
-  return (
-    <SwatchColorPicker
-      isControlled={true}
-      columnCount={1}
-      cellHeight={24}
-      cellWidth={24}
-      cellBorderWidth={0}
-      selectedId={"e"}
-      cellShape={"circle"}
-      colorCells={[{ id: "e", color }]}
-      styles={colorButtonSwatchStyle}
-      onCellFocused={openMenu}
-      onCellHovered={openMenu}
-    />
-  );
-};
-
-const spacerStyle = {
-  display: "flex",
-  flexGrow: 1,
-};
 
 enum MenuTypesKind {
   None,
@@ -108,56 +53,15 @@ type MenuType =
 
 const generateMenuNone = (): IMenuTypeNone => ({ kind: MenuTypesKind.None });
 
-const colorCellsExample2 = [
-  { id: "a", label: "red", color: "#a4262c" },
-  { id: "b", label: "orange", color: "#ca5010" },
-  { id: "c", label: "orangeYellow", color: "#986f0b" },
-  { id: "d", label: "white", color: "#ffffff" },
-  { id: "e", label: "green", color: "#0b6a0b" },
-  { id: "f", label: "cyan", color: "#038387" },
-  { id: "g", label: "cyanBlue", color: "#004e8c" },
-  { id: "h", label: "magenta", color: "#881798" },
-  { id: "i", label: "magentaPink", color: "#9b0062" },
-  { id: "j", label: "black", color: "#000000" },
-  { id: "k", label: "gray", color: "#7a7574" },
-  { id: "l", label: "gray20", color: "#69797e" },
-];
-const ColorPicker: React.FunctionComponent<{
-  selectColor: (color: string, type: ColorType) => void;
-  type: ColorType;
-}> = ({ selectColor, type }) => {
-  const onColorSelected = (
-    _: string | undefined,
-    color: string | undefined,
-  ): void => {
-    if (color != null) {
-      selectColor(color, type);
-    }
-  };
-  return (
-    <SwatchColorPicker
-      onCellFocused={onColorSelected}
-      columnCount={4}
-      cellShape={"circle"}
-      cellHeight={32}
-      cellWidth={32}
-      cellBorderWidth={4}
-      colorCells={colorCellsExample2}
-    />
-  );
-};
+const iconClass = mergeStyles({
+  fontSize: 24,
+  height: 24,
+  width: 24,
+});
 
-const Slider: React.FunctionComponent<{
-  value: number;
-  onChangeValue: (value: number) => void;
-}> = () => {
-  return <div />;
-};
-
-const FontPicker: React.FunctionComponent<{
-  changeFont: (font: string) => void;
-}> = () => {
-  return <div />;
+const spacerStyle = {
+  display: "flex",
+  flexGrow: 1,
 };
 
 export const EditTextButtons: React.FunctionComponent<{
@@ -262,7 +166,9 @@ export const EditTextButtons: React.FunctionComponent<{
           switch (menu.sliderType) {
             case SliderType.stroke: {
               return (
-                <Slider
+                <SliderWrapper
+                  min={0}
+                  max={2}
                   value={info.strokeWidth}
                   onChangeValue={changeStrokeWidth}
                 />
@@ -270,7 +176,9 @@ export const EditTextButtons: React.FunctionComponent<{
             }
             case SliderType.shadow: {
               return (
-                <Slider
+                <SliderWrapper
+                  min={0}
+                  max={32}
                   value={info.shadowSize}
                   onChangeValue={changeShadowSize}
                 />
@@ -291,13 +199,17 @@ export const EditTextButtons: React.FunctionComponent<{
       }
 
       case MenuTypesKind.FontSelect: {
+        const onChangeFont = (f: string): void => {
+          closeMenus();
+          changeFont(f);
+        };
         return (
           <Callout
             gapSpace={32}
             onDismiss={closeMenus}
             styles={fullWidthCalloutStyle}
           >
-            <FontPicker changeFont={changeFont} />
+            <FontPicker changeFont={onChangeFont} />
           </Callout>
         );
       }
@@ -344,5 +256,119 @@ export const EditTextButtons: React.FunctionComponent<{
         </IconButton>
       </HackedHorizontalScrollingStack>
     </>
+  );
+};
+
+const ColorPicker: React.FunctionComponent<{
+  selectColor: (color: string, type: ColorType) => void;
+  type: ColorType;
+}> = ({ selectColor, type }) => {
+  const onColorSelected = (
+    _: string | undefined,
+    color: string | undefined,
+  ): void => {
+    if (color != null) {
+      selectColor(color, type);
+    }
+  };
+  return (
+    <SwatchColorPicker
+      onCellFocused={onColorSelected}
+      columnCount={4}
+      cellShape={"circle"}
+      cellHeight={32}
+      cellWidth={32}
+      cellBorderWidth={4}
+      colorCells={colors}
+    />
+  );
+};
+
+const SliderWrapper: React.FunctionComponent<{
+  value: number;
+  onChangeValue: (value: number) => void;
+  min: number;
+  max: number;
+}> = ({ onChangeValue, value, min, max }) => {
+  const sliderStyles = {
+    root: { marginTop: 16, marginBottom: 16 },
+  };
+  return (
+    <Slider
+      min={min}
+      max={max}
+      value={value}
+      showValue={false}
+      onChange={onChangeValue}
+      styles={sliderStyles}
+      step={(max - min) / 16}
+    />
+  );
+};
+
+const FontPicker: React.FunctionComponent<{
+  changeFont: (font: string) => void;
+}> = ({ changeFont }) => {
+  const renderItems = () => {
+    return fonts.map((f) => {
+      const onChangeFont = () => changeFont(f);
+      return (
+        <DefaultButton key={f} style={{ fontFamily: f }} onClick={onChangeFont}>
+          {f}
+        </DefaultButton>
+      );
+    });
+  };
+  return (
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      {renderItems()}
+    </div>
+  );
+};
+
+const HackedHorizontalScrollingStack: React.FunctionComponent = ({
+  children,
+}) => {
+  const hackStyle = {
+    flexShrink: 0,
+  };
+  const hackStyles: IComponentStyles<IStackSlots> = {
+    root: { overflowX: "auto", overflowY: "hidden" },
+  };
+  return (
+    <Stack
+      horizontal={true}
+      gap="m"
+      verticalAlign="center"
+      style={hackStyle}
+      styles={hackStyles}
+    >
+      {children}
+    </Stack>
+  );
+};
+
+const HackyColorButton: React.FunctionComponent<{
+  openMenu: () => void;
+  color: string;
+}> = ({ openMenu, color }) => {
+  const colorButtonSwatchStyle = {
+    focusedContainer: { minWidth: 24 },
+    tableCell: { padding: 0 },
+  };
+  return (
+    <SwatchColorPicker
+      isControlled={true}
+      columnCount={1}
+      cellHeight={24}
+      cellWidth={24}
+      cellBorderWidth={0}
+      selectedId={"e"}
+      cellShape={"circle"}
+      colorCells={[{ id: "e", color }]}
+      styles={colorButtonSwatchStyle}
+      onCellFocused={openMenu}
+      onCellHovered={openMenu}
+    />
   );
 };
