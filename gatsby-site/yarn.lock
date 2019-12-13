@@ -1309,14 +1309,16 @@
     global "^4.3.2"
     prop-types "^15.6.2"
 
-"@storybook/addon-options@=3.2.3":
-  version "3.2.3"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-options/-/addon-options-3.2.3.tgz#ea3740d289d429ce767e9699bf3a647dd741592d"
-  integrity sha1-6jdA0onUKc52fpaZvzpkfddBWS0=
+"@storybook/addon-options@^4.1.1":
+  version "4.1.18"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-options/-/addon-options-4.1.18.tgz#ad5110a40914ba41c071127ca1759bc184be9e0f"
+  integrity sha512-de8ba7q5Gg0nq+jf0sGZEnoE1fv3Af7/L28pGNc5e5di+E1dyADaEJvJmmBWr/eS+NxoRmQlps+a4XlrxxS2Qg==
   dependencies:
-    "@storybook/addons" "^3.2.0"
+    "@storybook/addons" "4.1.18"
+    core-js "^2.5.7"
+    util-deprecate "^1.0.2"
 
-"@storybook/addon-viewport@^4":
+"@storybook/addon-viewport@^4.1.1":
   version "4.1.18"
   resolved "https://registry.yarnpkg.com/@storybook/addon-viewport/-/addon-viewport-4.1.18.tgz#88ba19bb4a1371067acb7b3dc1a85350c669dbd7"
   integrity sha512-rXvtmw8jxE63TSCbWhlklf5eyotDZPW+PR82XVWjrHLn1mfrNzW36zX3iPF3wLBcs9+H9vRqSGARra17qRKzuQ==
@@ -1330,7 +1332,7 @@
     prop-types "^15.6.2"
     util-deprecate "^1.0.2"
 
-"@storybook/addons@4.1.18":
+"@storybook/addons@4.1.18", "@storybook/addons@^4.1.1":
   version "4.1.18"
   resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-4.1.18.tgz#05f72f19c9e744f1cf24fc9174d5e32f5e94c27d"
   integrity sha512-WBWso2NyZci8/X6t63jNaLyV6ziHtu0cpa3xZ5A2m9KlUf+doyycFis36fBZ+v6xb1FTZuFjEkm3H3IuXE1GUQ==
@@ -1339,11 +1341,6 @@
     "@storybook/components" "4.1.18"
     global "^4.3.2"
     util-deprecate "^1.0.2"
-
-"@storybook/addons@^3.0.0", "@storybook/addons@^3.2.0":
-  version "3.4.12"
-  resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-3.4.12.tgz#b973479b9910d60dd5ab087f875e10085ab3a0f9"
-  integrity sha512-nPNs7zInKE+flZx19f8Fh6E4Cbm3y2Uzm+r7OOm6ZCyoWLTgSzwbycHw+niy1pR0quLW6uRYOZuWZf8t9L9cpA==
 
 "@storybook/channel-postmessage@4.1.18":
   version "4.1.18"

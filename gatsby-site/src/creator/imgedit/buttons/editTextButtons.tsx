@@ -5,7 +5,6 @@ import {
   IComponentStyles,
   IconButton,
   IStackSlots,
-  mergeStyles,
   Slider,
   Stack,
   SwatchColorPicker,
@@ -13,7 +12,7 @@ import {
 import React from "react";
 import { colors, fonts } from "../../contants";
 import { IFabricEditingText } from "../../types";
-
+import { iconClass, sliderStyles, spacerStyle } from "./common";
 enum MenuTypesKind {
   None,
   ColorSwatch,
@@ -52,17 +51,6 @@ type MenuType =
   | IMenuTypeFontSelect;
 
 const generateMenuNone = (): IMenuTypeNone => ({ kind: MenuTypesKind.None });
-
-const iconClass = mergeStyles({
-  fontSize: 24,
-  height: 24,
-  width: 24,
-});
-
-const spacerStyle = {
-  display: "flex",
-  flexGrow: 1,
-};
 
 export const EditTextButtons: React.FunctionComponent<{
   editorSize: number;
@@ -215,12 +203,24 @@ export const EditTextButtons: React.FunctionComponent<{
       }
     }
   };
-
+  const safeColor = (color: string): string => {
+    if (color === "#ffffff" || color === "white") {
+      return "#aaa";
+    }
+    return color;
+  };
   return (
     <>
-      {renderMenu()}
       <HackedHorizontalScrollingStack>
-        <HackyColorButton color={info.color} openMenu={openTextColorMenu} />
+        <IconButton onClick={openTextColorMenu}>
+          {renderMenu()}
+          <FontIcon
+            iconName="FontColor"
+            className={iconClass}
+            style={{ color: safeColor(info.color) }}
+          />
+        </IconButton>
+
         <IconButton onClick={openFontMenu}>
           <FontIcon iconName="Font" className={iconClass} />
         </IconButton>
@@ -229,7 +229,7 @@ export const EditTextButtons: React.FunctionComponent<{
           <FontIcon
             iconName="BorderDash"
             className={iconClass}
-            style={{ color: info.strokeColor }}
+            style={{ color: safeColor(info.strokeColor) }}
           />
         </IconButton>
         <IconButton onClick={openStrokeSizeMenu}>
@@ -240,7 +240,7 @@ export const EditTextButtons: React.FunctionComponent<{
           <FontIcon
             iconName="CheckBoxFill"
             className={iconClass}
-            style={{ color: info.shadowColor }}
+            style={{ color: safeColor(info.shadowColor) }}
           />
         </IconButton>
         <IconButton onClick={openShadowSizeMenu}>
@@ -290,9 +290,6 @@ const SliderWrapper: React.FunctionComponent<{
   min: number;
   max: number;
 }> = ({ onChangeValue, value, min, max }) => {
-  const sliderStyles = {
-    root: { marginTop: 16, marginBottom: 16 },
-  };
   return (
     <Slider
       min={min}
@@ -345,30 +342,5 @@ const HackedHorizontalScrollingStack: React.FunctionComponent = ({
     >
       {children}
     </Stack>
-  );
-};
-
-const HackyColorButton: React.FunctionComponent<{
-  openMenu: () => void;
-  color: string;
-}> = ({ openMenu, color }) => {
-  const colorButtonSwatchStyle = {
-    focusedContainer: { minWidth: 24 },
-    tableCell: { padding: 0 },
-  };
-  return (
-    <SwatchColorPicker
-      isControlled={true}
-      columnCount={1}
-      cellHeight={24}
-      cellWidth={24}
-      cellBorderWidth={0}
-      selectedId={"e"}
-      cellShape={"circle"}
-      colorCells={[{ id: "e", color }]}
-      styles={colorButtonSwatchStyle}
-      onCellFocused={openMenu}
-      onCellHovered={openMenu}
-    />
   );
 };

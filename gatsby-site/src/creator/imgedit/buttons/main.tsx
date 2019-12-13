@@ -1,17 +1,16 @@
 import React from "react";
+import { FabricEditing, FabricEditingTypes } from "../../types";
 import {
-  FabricEditing,
-  FabricEditingTypes,
-  IFabricEditingText,
-} from "../../types";
-import {
+  addNewImage,
   addNewText,
+  changeActiveImageOpacity,
   changeActiveTextColor,
   changeActiveTextFont,
   changeActiveTextShadoweColor,
   changeActiveTextShadowSize,
   changeActiveTextStrokeColor,
   changeActiveTextStrokeWidth,
+  deleteActiveImage,
   deleteActiveText,
 } from "../canvas/canvasController";
 import { EditGraphicButtons } from "./editGraphicButtons";
@@ -31,13 +30,19 @@ export const ImageEditorButtons: React.FunctionComponent<{
   switch (fabricEditing.type) {
     case FabricEditingTypes.none: {
       const onAddNewText = () => addNewText(width);
-      return <InsertButtons onAddNewText={onAddNewText} />;
+      const onAddNewImage = (url: string) => addNewImage(url, width);
+      return (
+        <InsertButtons
+          onAddNewText={onAddNewText}
+          onAddNewImage={onAddNewImage}
+        />
+      );
     }
     case FabricEditingTypes.text: {
       return (
         <EditTextButtons
           editorSize={width}
-          info={fabricEditing as IFabricEditingText}
+          info={fabricEditing}
           finishEditing={finishEditing}
           changeColor={changeActiveTextColor}
           changeFont={changeActiveTextFont}
@@ -51,7 +56,15 @@ export const ImageEditorButtons: React.FunctionComponent<{
     }
 
     case FabricEditingTypes.image: {
-      return <EditGraphicButtons size={width} />;
+      return (
+        <EditGraphicButtons
+          editorSize={width}
+          onFinishEditing={finishEditing}
+          onDelete={deleteActiveImage}
+          info={fabricEditing}
+          onChangeOpacity={changeActiveImageOpacity}
+        />
+      );
     }
   }
 };

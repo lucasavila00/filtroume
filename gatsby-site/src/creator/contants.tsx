@@ -19,3 +19,20 @@ export const fonts = [
   "SF",
   "San Francisco",
 ];
+export const galleryImages = [
+  {
+    src: "https://picsum.photos/200",
+  },
+  {
+    src: "https://picsum.photos/200",
+  },
+  {
+    src: "https://picsum.photos/200",
+  },
+  {
+    src: "https://picsum.photos/200",
+  },
+  {
+    src: "https://picsum.photos/200",
+  },
+];

@@ -1,10 +1,15 @@
-import { configure, action } from "@storybook/react"
+import { configure, action, addParameters } from "@storybook/react";
 
+addParameters({
+    viewport: {
+        defaultViewport: "iPhone 6",
+    },
+});
 // automatically import all files ending in *.stories.js
-const req = require.context("../src", true, /.stories.tsx$/)
+const req = require.context("../src", true, /.stories.tsx$/);
 
 function loadStories() {
-    req.keys().forEach(filename => req(filename))
+    req.keys().forEach((filename) => req(filename));
 }
 
 // Gatsby's Link overrides:
@@ -12,16 +17,16 @@ function loadStories() {
 global.___loader = {
     enqueue: () => {},
     hovering: () => {},
-}
+};
 
 // Gatsby internal mocking to prevent unnecessary errors in storybook testing environment
-global.__PATH_PREFIX__ = ""
+global.__PATH_PREFIX__ = "";
 
 // This is to utilized to override the window.___navigate method Gatsby defines
 // and uses to report what path a Link would be taking us to if it wasn't inside
 // a storybook
-window.___navigate = pathname => {
-    action("NavigateTo:")(pathname)
-}
+window.___navigate = (pathname) => {
+    action("NavigateTo:")(pathname);
+};
 
-configure(loadStories, module)
+configure(loadStories, module);

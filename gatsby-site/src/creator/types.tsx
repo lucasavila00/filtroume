@@ -9,6 +9,7 @@ export interface IFabricEditingNone {
 }
 export interface IFabricEditingImage {
   type: FabricEditingTypes.image;
+  opacity: number;
 }
 
 export interface IFabricEditingText {

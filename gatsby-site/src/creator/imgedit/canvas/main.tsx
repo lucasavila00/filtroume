@@ -11,6 +11,10 @@ export const CanvasRenderer: React.FunctionComponent<{
   if (width == null) {
     return <div />;
   } else {
+    const canvasWrapperStyle = {
+      display: "flex",
+      justifyContent: "center",
+    };
     const canvasBorderStyle = {
       width,
       height: width,
@@ -19,12 +23,14 @@ export const CanvasRenderer: React.FunctionComponent<{
       borderWidth: 2,
     };
     return (
-      <div style={canvasBorderStyle}>
-        <CanvasEditor
-          size={width}
-          changeData={console.warn}
-          changeEditing={changeFabricEditing}
-        />
+      <div style={canvasWrapperStyle}>
+        <div style={canvasBorderStyle}>
+          <CanvasEditor
+            size={width}
+            changeData={console.warn}
+            changeEditing={changeFabricEditing}
+          />
+        </div>
       </div>
     );
   }

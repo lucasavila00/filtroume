@@ -59,6 +59,28 @@ export const addNewText = (canvasSize: number) => {
   canvas.fire("saveData", {});
 };
 
+export const addNewImage = (url: string, canvasSize: number) => {
+  const canvas = castedCanvas();
+  const nameId = getId();
+
+  fabric.Image.fromURL(url, (oImg) => {
+    // scale image down, and flip it, before adding it onto canvas
+    // oImg.scale(0.5).set("flipX", true);
+    oImg.set("name", nameId);
+    oImg.set("top", canvasSize / 3);
+    oImg.set("left", canvasSize / 3);
+    canvas.add(oImg);
+    canvas.getObjects().forEach((o) => {
+      if (o.name === nameId) {
+        canvas.setActiveObject(o);
+      }
+    });
+
+    // when we are done makeing changes send the state from fabric
+    canvas.fire("saveData", {});
+  });
+};
+
 // handle focus
 export const unfocusOnCanvas = () => {
   const canvas = castedCanvas();
@@ -83,6 +105,16 @@ export const getEditingTypeAndData = (obj: fabric.Object): FabricEditing => {
       strokeWidth: textobj.strokeWidth ?? defaultStrokeWidth,
       shadowColor: getColorFromShadow(String(textobj.shadow)),
       shadowSize: getSizeFromShadow(String(textobj.shadow)),
+    };
+  }
+
+  if (obj.isType("image")) {
+    const imgobj = obj as fabric.Image;
+    // console.log({ obj });
+
+    return {
+      type: FabricEditingTypes.image,
+      opacity: imgobj.opacity ?? 1,
     };
   }
   return makeEditingNone();
@@ -169,6 +201,43 @@ export const deleteActiveText = () => {
   }
 
   if (obj.isType("i-text")) {
+    canvas.remove(obj);
+    canvas.fire("saveData", {});
+  }
+};
+
+// changes on active image
+
+export const changeActiveImage = (cb: (obj: fabric.Image) => void) => {
+  const canvas = castedCanvas();
+  const obj = canvas.getActiveObject();
+
+  if (obj == null) {
+    return;
+  }
+
+  if (obj.isType("image")) {
+    const textobj = obj as fabric.Image;
+    cb(textobj);
+    canvas.fire("saveData", {});
+  }
+};
+
+export const changeActiveImageOpacity = (opacity: number) => {
+  changeActiveImage((img) => {
+    img.set("opacity", opacity);
+  });
+};
+
+export const deleteActiveImage = () => {
+  const canvas = castedCanvas();
+  const obj = canvas.getActiveObject();
+
+  if (obj == null) {
+    return;
+  }
+
+  if (obj.isType("image")) {
     canvas.remove(obj);
     canvas.fire("saveData", {});
   }

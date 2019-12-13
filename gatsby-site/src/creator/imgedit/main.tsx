@@ -24,12 +24,29 @@ export const ImageEditor: React.FunctionComponent<{
     width: "100%",
   };
 
+  const getGoodWidth = (): number | undefined => {
+    if (width == null) {
+      return undefined;
+    }
+
+    if (typeof window == null) {
+      return undefined;
+    }
+
+    const height = window.innerHeight * 0.8;
+
+    if (height > width) {
+      return width;
+    }
+    return height;
+  };
+
   return (
     <Stack
       verticalFill={true}
       verticalAlign="space-between"
       padding="s1"
-      styles={{ root: { maxHeight: "99vh", maxWidth: 720, width: "100%" } }}
+      styles={{ root: { maxWidth: 720, width: "100%" } }}
       gap="m"
     >
       <div style={canvasSizerStyle} ref={ref}>
@@ -48,11 +65,14 @@ export const ImageEditor: React.FunctionComponent<{
       </div>
 
       <ImageEditorButtons
-        width={width}
+        width={getGoodWidth()}
         finishEditing={finishEditing}
         fabricEditing={fabricEditing}
       />
-      <CanvasRenderer width={width} changeFabricEditing={changeFabricEditing} />
+      <CanvasRenderer
+        width={getGoodWidth()}
+        changeFabricEditing={changeFabricEditing}
+      />
       <LutsPicker />
     </Stack>
   );

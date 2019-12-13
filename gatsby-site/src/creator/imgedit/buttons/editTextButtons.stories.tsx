@@ -17,19 +17,16 @@ const textInfo: IFabricEditingText = {
   shadowColor: "#000000",
 };
 storiesOf("EditTextButtons", module).add("with white color", () => (
-  <div style={{ width: 360 }}>
-    <EditTextButtons
-      editorSize={360}
-      info={textInfo}
-      // tslint:disable-next-line: no-console
-      finishEditing={action("finish-editing")}
-      changeColor={action("change-color")}
-      deleteText={action("delete-text")}
-      changeFont={action("change-font")}
-      changeShadowColor={action("change-shadow-color")}
-      changeShadowSize={action("change-shadow-size")}
-      changeStrokeColor={action("change-stroke-color")}
-      changeStrokeWidth={action("change-stroke-width")}
-    />
-  </div>
+  <EditTextButtons
+    editorSize={360}
+    info={textInfo}
+    finishEditing={action("finish-editing")}
+    changeColor={action("change-color")}
+    deleteText={action("delete-text")}
+    changeFont={action("change-font")}
+    changeShadowColor={action("change-shadow-color")}
+    changeShadowSize={action("change-shadow-size")}
+    changeStrokeColor={action("change-stroke-color")}
+    changeStrokeWidth={action("change-stroke-width")}
+  />
 ));
