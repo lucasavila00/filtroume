@@ -20,6 +20,11 @@ export const ImageEditor: React.FunctionComponent<{ onDone: () => void }> = ({
     unfocusOnCanvas();
   };
   const renderButtons = () => {
+    if (width == null) {
+      // only renders if width is known
+
+      return <div />;
+    }
     switch (fabricEditing.type) {
       case FabricEditingTypes.none: {
         return <InsertButtons size={width} />;
@@ -27,9 +32,23 @@ export const ImageEditor: React.FunctionComponent<{ onDone: () => void }> = ({
       case FabricEditingTypes.text: {
         return (
           <EditTextButtons
-            size={width}
+            editorSize={width}
             info={fabricEditing as IFabricEditingText}
             finishEditing={finishEditing}
+            // tslint:disable-next-line: no-console
+            changeColor={console.warn}
+            // tslint:disable-next-line: no-console
+            deleteText={console.warn}
+            // tslint:disable-next-line: no-console
+            changeFont={console.warn}
+            // tslint:disable-next-line: no-console
+            changeShadowColor={console.warn}
+            // tslint:disable-next-line: no-console
+            changeShadowSize={console.warn}
+            // tslint:disable-next-line: no-console
+            changeStrokeColor={console.warn}
+            // tslint:disable-next-line: no-console
+            changeStrokeWidth={console.warn}
           />
         );
       }
@@ -79,8 +98,8 @@ export const ImageEditor: React.FunctionComponent<{ onDone: () => void }> = ({
         <PrimaryButton onClick={onDone}>Save</PrimaryButton>
       </Stack>
       <Stack verticalFill={true} gap="m">
-        {renderButtons()}
         <div style={canvasSizerStyle} ref={ref}>
+          {renderButtons()}
           {renderCanvas()}
         </div>
       </Stack>

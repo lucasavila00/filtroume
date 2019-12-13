@@ -79,8 +79,8 @@ export const getEditing = (obj: fabric.Object): FabricEditing => {
 
     return {
       type: FabricEditingTypes.text,
-      color: textobj.fill!,
-    };
+      color: String(textobj.fill!),
+    } as any;
   }
   return makeEditingNone();
 };

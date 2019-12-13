@@ -10,7 +10,12 @@ export interface IFabricEditingNone {
 
 export interface IFabricEditingText {
   type: FabricEditingTypes.text;
-  color: string | fabric.Pattern | fabric.Gradient;
+  color: string;
+  font: string;
+  strokeWidth: number;
+  strokeColor: string;
+  shadowSize: number;
+  shadowColor: string;
 }
 
 export type FabricEditing = IFabricEditingNone | IFabricEditingText;
