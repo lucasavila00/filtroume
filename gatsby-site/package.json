@@ -10,21 +10,38 @@
         "format": "prettier --write src/**/*.{js,jsx}",
         "start": "npm run develop",
         "serve": "gatsby serve",
-        "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\""
+        "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\"",
+        "ts": "tsc --noEmit",
+        "storybook": "start-storybook -p 6006",
+        "build-storybook": "build-storybook"
     },
     "dependencies": {
-        "@types/fabric": "^3.5.0",
         "@uifabric/fluent-theme": "^0.16.7",
         "fabric": "^3.5.1",
         "gatsby": "^2.4.0",
         "office-ui-fabric-react": "^6.176.0",
         "react": "^16.8.6",
         "react-dom": "^16.8.6",
+        "@storybook/react": "^4.1.1",
         "react-use-dimensions": "^1.2.1"
     },
     "devDependencies": {
-        "gatsby-plugin-typescript": "^2.0.13",
-        "prettier": "^1.17.0"
+        "@babel/core": "^7.7.5",
+        "@storybook/addon-actions": "^4.1.1",
+        "@storybook/addon-links": "^4.1.1",
+        "@storybook/addons": "^4.1.1",
+        "@types/fabric": "^3.5.0",
+        "@types/react-dom": "^16.9.4",
+        "@types/storybook__addon-actions": "^3.4.1",
+        "@types/storybook__addon-links": "^3.3.3",
+        "@types/storybook__react": "^4.0.0",
+        "awesome-typescript-loader": "^5.2.1",
+        "babel-loader": "^8.0.6",
+        "gatsby-plugin-typescript": "^2.1.23",
+        "prettier": "^1.17.0",
+        "tslint": "^5.20.1",
+        "tslint-react": "^4.1.0",
+        "typescript": "^3.7.3"
     },
     "repository": {
         "type": "git",

@@ -1,32 +1,27 @@
-import React from "react"
 import {
-  Stack,
-  Text,
-  Link,
   FontWeights,
   PrimaryButton,
-  IStackTokens,
-} from "office-ui-fabric-react"
+  Stack,
+  Text,
+} from "office-ui-fabric-react";
+import React from "react";
 
-const boldStyle = { root: { fontWeight: FontWeights.semibold } }
+const boldStyle = { root: { fontWeight: FontWeights.semibold } };
+const loginStyle = {
+  root: {
+    margin: "0 auto",
+    textAlign: "center",
+    color: "#605e5c",
+  },
+};
 
 const Login: React.FunctionComponent = () => {
   return (
-    <Stack
-      verticalAlign="start"
-      verticalFill
-      styles={{
-        root: {
-          margin: "0 auto",
-          textAlign: "center",
-          color: "#605e5c",
-        },
-      }}
-    >
+    <Stack verticalAlign="start" verticalFill={true} styles={loginStyle}>
       <Stack
         horizontalAlign="center"
         verticalAlign="center"
-        verticalFill
+        verticalFill={true}
         gap="m"
         padding="m"
       >
@@ -37,7 +32,7 @@ const Login: React.FunctionComponent = () => {
         <PrimaryButton href="/create">Google Login</PrimaryButton>
       </Stack>
     </Stack>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

@@ -1,31 +1,27 @@
-import React from "react"
 import {
+  FontWeights,
+  initializeIcons,
+  Link,
+  PrimaryButton,
   Stack,
   Text,
-  Link,
-  FontWeights,
-  PrimaryButton,
-  IStackTokens,
-} from "office-ui-fabric-react"
-import "./index.css"
-import "./normalize.css"
-import { initializeIcons } from "office-ui-fabric-react/lib/Icons"
-initializeIcons(/* optional base url */)
-const boldStyle = { root: { fontWeight: FontWeights.semibold } }
+} from "office-ui-fabric-react";
+import React from "react";
+import "./index.css";
+import "./normalize.css";
+initializeIcons(/* optional base url */);
+const boldStyle = { root: { fontWeight: FontWeights.semibold } };
+const appStyle = {
+  root: {
+    margin: "0 auto",
+    textAlign: "center",
+    color: "#605e5c",
+  },
+};
 
 const App: React.FunctionComponent = () => {
   return (
-    <Stack
-      verticalAlign="start"
-      verticalFill
-      styles={{
-        root: {
-          margin: "0 auto",
-          textAlign: "center",
-          color: "#605e5c",
-        },
-      }}
-    >
+    <Stack verticalAlign="start" verticalFill={true} styles={appStyle}>
       <Stack
         horizontalAlign="end"
         styles={{ root: { marginTop: 8, marginRight: 16 } }}
@@ -36,7 +32,7 @@ const App: React.FunctionComponent = () => {
       <Stack
         horizontalAlign="center"
         verticalAlign="center"
-        verticalFill
+        verticalFill={true}
         gap="m"
         padding="m"
       >
@@ -46,18 +42,8 @@ const App: React.FunctionComponent = () => {
         <Text variant="large">Unleash your creativity now!</Text>
         <PrimaryButton href="/create">CREATE NEW FILTER</PrimaryButton>
       </Stack>
-
-      {/* <Stack horizontal gap={15} horizontalAlign="center">
-        <Link href="https://stackoverflow.com/questions/tagged/office-ui-fabric">
-          Stack Overflow
-        </Link>
-        <Link href="https://github.com/officeDev/office-ui-fabric-react/">
-          Github
-        </Link>
-        <Link href="https://twitter.com/officeuifabric">Twitter</Link>
-      </Stack> */}
     </Stack>
-  )
-}
+  );
+};
 
-export default App
+export default App;
