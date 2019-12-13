@@ -16,20 +16,22 @@
         "build-storybook": "build-storybook"
     },
     "dependencies": {
+        "@storybook/react": "^4.1.1",
         "@uifabric/fluent-theme": "^0.16.7",
+        "core-js": "^3.5.0",
         "fabric": "^3.5.1",
         "gatsby": "^2.4.0",
         "office-ui-fabric-react": "^6.176.0",
         "react": "^16.8.6",
         "react-dom": "^16.8.6",
-        "@storybook/react": "^4.1.1",
+        "@storybook/addon-actions": "^4.1.1",
         "react-use-dimensions": "^1.2.1"
     },
     "devDependencies": {
         "@babel/core": "^7.7.5",
-        "@storybook/addon-actions": "^4.1.1",
         "@storybook/addon-links": "^4.1.1",
-        "@storybook/addons": "^4.1.1",
+        "@storybook/addon-options": "=3.2.3",
+        "@storybook/addons": "^3.0.0",
         "@types/fabric": "^3.5.0",
         "@types/react-dom": "^16.9.4",
         "@types/storybook__addon-actions": "^3.4.1",
@@ -39,6 +41,7 @@
         "babel-loader": "^8.0.6",
         "gatsby-plugin-typescript": "^2.1.23",
         "prettier": "^1.17.0",
+        "storybook-readme": "^3.3.0",
         "tslint": "^5.20.1",
         "tslint-react": "^4.1.0",
         "typescript": "^3.7.3"

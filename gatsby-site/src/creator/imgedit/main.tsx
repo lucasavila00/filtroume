@@ -5,6 +5,7 @@ import { FabricEditingTypes, IFabricEditingText } from "../types";
 import { CanvasEditor } from "./canvas";
 import { EditGraphicButtons } from "./editGraphicButtons";
 import { EditTextButtons } from "./editTextButtons";
+import { makeEditingNone, unfocusOnCanvas } from "./helpers";
 import { InsertButtons } from "./insertButtons";
 
 export const ImageEditor: React.FunctionComponent<{ onDone: () => void }> = ({
@@ -14,6 +15,10 @@ export const ImageEditor: React.FunctionComponent<{ onDone: () => void }> = ({
   const [fabricEditing, changeFabricEditing] = useState({
     type: FabricEditingTypes.none,
   });
+  const finishEditing = () => {
+    changeFabricEditing(makeEditingNone());
+    unfocusOnCanvas();
+  };
   const renderButtons = () => {
     switch (fabricEditing.type) {
       case FabricEditingTypes.none: {
@@ -24,7 +29,7 @@ export const ImageEditor: React.FunctionComponent<{ onDone: () => void }> = ({
           <EditTextButtons
             size={width}
             info={fabricEditing as IFabricEditingText}
-            changeEditing={changeFabricEditing}
+            finishEditing={finishEditing}
           />
         );
       }
