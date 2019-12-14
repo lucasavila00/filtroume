@@ -5,7 +5,8 @@ import { ImageDialog } from "./imageDialog";
 export const InsertButtons: React.FunctionComponent<{
   onAddNewText: () => void;
   onAddNewImage: (url: string) => void;
-}> = ({ onAddNewText, onAddNewImage }) => {
+  onUploadImage: (image: File) => void;
+}> = ({ onAddNewText, onAddNewImage, onUploadImage }) => {
   const [open, setOpenDialog] = useState(false);
   const closeDialog = () => setOpenDialog(false);
   const showDialog = () => setOpenDialog(true);
@@ -18,6 +19,7 @@ export const InsertButtons: React.FunctionComponent<{
         open={open}
         closeDialog={closeDialog}
         onAddNewImage={onAddNewImage}
+        uploadImage={onUploadImage}
       />
     </Stack>
   );

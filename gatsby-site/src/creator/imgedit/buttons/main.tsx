@@ -12,6 +12,7 @@ import {
   changeActiveTextStrokeWidth,
   deleteActiveImage,
   deleteActiveText,
+  uploadNewImage,
 } from "../canvas/canvasController";
 import { EditGraphicButtons } from "./editGraphicButtons";
 import { EditTextButtons } from "./editTextButtons";
@@ -31,10 +32,12 @@ export const ImageEditorButtons: React.FunctionComponent<{
     case FabricEditingTypes.none: {
       const onAddNewText = () => addNewText(width);
       const onAddNewImage = (url: string) => addNewImage(url, width);
+      const onUploadImage = (image: File) => uploadNewImage(image, width);
       return (
         <InsertButtons
           onAddNewText={onAddNewText}
           onAddNewImage={onAddNewImage}
+          onUploadImage={onUploadImage}
         />
       );
     }

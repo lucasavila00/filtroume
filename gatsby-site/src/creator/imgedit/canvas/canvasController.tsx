@@ -80,7 +80,17 @@ export const addNewImage = (url: string, canvasSize: number) => {
     canvas.fire("saveData", {});
   });
 };
+export const uploadNewImage = (file: File, canvasSize: number) => {
+  const reader = new FileReader();
 
+  // reader.readAsDataURL(file);
+  reader.onload = (e) => {
+    const data = String(e?.target?.result ?? "");
+    addNewImage(data, canvasSize);
+  };
+
+  reader.readAsDataURL(file);
+};
 // handle focus
 export const unfocusOnCanvas = () => {
   const canvas = castedCanvas();

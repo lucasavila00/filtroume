@@ -33,6 +33,10 @@ export class CanvasEditor extends React.Component<{
       changeEditing(getEditingTypeAndData(canvas.getActiveObject()));
       canvas.renderAll(); // programatic changes we make will not trigger a render in fabric
     });
+
+    canvas.on("object:selected", (options) => {
+      options?.target?.bringToFront();
+    });
   }
 
   public render() {

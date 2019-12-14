@@ -6,7 +6,8 @@ export const ImageDialog: React.FunctionComponent<{
   onAddNewImage: (url: string) => void;
   open: boolean;
   closeDialog: () => void;
-}> = ({ onAddNewImage, open, closeDialog }) => {
+  uploadImage: (image: File) => void;
+}> = ({ onAddNewImage, open, closeDialog, uploadImage }) => {
   const modalProps = {
     isBlocking: false,
     // topOffsetFixed: true,
@@ -34,10 +35,24 @@ export const ImageDialog: React.FunctionComponent<{
     justifyContent: "space-between",
     alignItems: "space-between",
   };
+  const onFileChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const first = event?.target?.files?.[0];
+    if (first != null) {
+      uploadImage(first);
+      closeDialog();
+    }
+  };
   return (
     <Dialog hidden={!open} onDismiss={closeDialog} modalProps={modalProps}>
       <Stack gap="s1">
-        <PrimaryButton>Upload Image</PrimaryButton>
+        <div>
+          <PrimaryButton>Upload Image</PrimaryButton>
+          <input
+            type="file"
+            style={{ position: "absolute", top: 0, left: 0, opacity: 0 }}
+            onChange={onFileChange}
+          />
+        </div>
 
         <Text variant="large">Gallery</Text>
         <div style={galleryStyle}>{renderChoices()}</div>
@@ -48,6 +63,8 @@ export const ImageDialog: React.FunctionComponent<{
 function makeImageStyle(opt: { src: string }): React.CSSProperties | undefined {
   return {
     backgroundImage: `url(${opt.src})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
     width: 64,
     height: 64,
     marginBottom: 16,

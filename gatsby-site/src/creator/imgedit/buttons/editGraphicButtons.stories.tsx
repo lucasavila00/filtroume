@@ -7,7 +7,7 @@ const imageInfo: IFabricEditingImage = {
   type: FabricEditingTypes.image,
   opacity: 0.75,
 };
-storiesOf("EditGraphicButtons", module).add("default", () => (
+storiesOf("EditGraphicButtons", module).add("default edit", () => (
   <EditGraphicButtons
     editorSize={720}
     onDelete={action("delete-image")}
