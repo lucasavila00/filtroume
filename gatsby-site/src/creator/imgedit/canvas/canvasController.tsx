@@ -1,7 +1,7 @@
 import { fabric } from "fabric";
+// import FontFaceObserver from "fontfaceobserver";
 import { FabricEditing, FabricEditingTypes } from "../../types";
 import { makeEditingNone } from "../helpers";
-
 // access the canvas via a global
 const CANVAS_KEY = "_fabric_canvas";
 const castedCanvas = () => (window as any)[CANVAS_KEY] as fabric.Canvas;
@@ -10,13 +10,13 @@ export const registerCanvasOnWindow = (canvas: fabric.Canvas) => {
 };
 
 // text constants
-const defaultFontSize = 36;
+// const defaultFontSize = 36;
 const defaultFontFamily = "sans-serif";
-const defaultTextColor = "white";
+const defaultTextColor = "black";
 const defaultShadowColor = "black";
 const defaultStrokeColor = "black";
-const defaultStrokeWidth = 1;
-const defaultShadowSize = 16;
+const defaultStrokeWidth = 0;
+const defaultShadowSize = 0;
 
 const generateShadow = (color: string, size: number) =>
   `${color} ${Math.round(size / 4)}px ${Math.round(size / 2)}px ${Math.round(
@@ -37,10 +37,10 @@ export const addNewText = (canvasSize: number) => {
   canvas.add(
     new fabric.IText("Sample Text", {
       name: nameId,
-      top: canvasSize / 3,
-      left: canvasSize / 3,
+      top: canvasSize / 4,
+      left: canvasSize / 4,
       textAlign: "center",
-      fontSize: defaultFontSize,
+      fontSize: canvasSize / 10,
       fontFamily: defaultFontFamily,
       fill: defaultTextColor,
       stroke: defaultStrokeColor,
@@ -63,22 +63,36 @@ export const addNewImage = (url: string, canvasSize: number) => {
   const canvas = castedCanvas();
   const nameId = getId();
 
-  fabric.Image.fromURL(url, (oImg) => {
-    // scale image down, and flip it, before adding it onto canvas
-    // oImg.scale(0.5).set("flipX", true);
-    oImg.set("name", nameId);
-    oImg.set("top", canvasSize / 3);
-    oImg.set("left", canvasSize / 3);
-    canvas.add(oImg);
-    canvas.getObjects().forEach((o) => {
-      if (o.name === nameId) {
-        canvas.setActiveObject(o);
-      }
-    });
+  fabric.Image.fromURL(
+    url,
+    (oImg) => {
+      // scale image down, and flip it, before adding it onto canvas
+      // oImg.scale(0.5).set("flipX", true);
 
-    // when we are done makeing changes send the state from fabric
-    canvas.fire("saveData", {});
-  });
+      const originalWidth = oImg.width ?? 512;
+
+      const newWidth = canvasSize / 3;
+
+      const factor = newWidth / originalWidth;
+
+      oImg.set("width", (oImg.width ?? 512) * factor);
+      oImg.set("height", (oImg.height ?? 512) * factor);
+
+      oImg.set("name", nameId);
+      oImg.set("top", canvasSize / 3);
+      oImg.set("left", canvasSize / 3);
+      canvas.add(oImg);
+      canvas.getObjects().forEach((o) => {
+        if (o.name === nameId) {
+          canvas.setActiveObject(o);
+        }
+      });
+
+      // when we are done makeing changes send the state from fabric
+      canvas.fire("saveData", {});
+    },
+    { crossOrigin: "anonymous" },
+  );
 };
 export const uploadNewImage = (file: File, canvasSize: number) => {
   const reader = new FileReader();
@@ -94,7 +108,11 @@ export const uploadNewImage = (file: File, canvasSize: number) => {
 // handle focus
 export const unfocusOnCanvas = () => {
   const canvas = castedCanvas();
+  const obj = canvas.getActiveObject();
+  // it will not go to front if only discarded...
+  obj.bringToFront();
   canvas.discardActiveObject();
+
   canvas.fire("saveData", {});
 };
 
@@ -153,7 +171,9 @@ export const changeActiveTextColor = (color: string) => {
 };
 
 export const changeActiveTextFont = (font: string) => {
-  changeActiveText((textobj) => {
+  changeActiveText(async (textobj) => {
+    // const myfont = new FontFaceObserver(font);
+    // await myfont.load();
     textobj.set("fontFamily", font);
   });
 };
@@ -251,4 +271,16 @@ export const deleteActiveImage = () => {
     canvas.remove(obj);
     canvas.fire("saveData", {});
   }
+};
+
+export const exportCanvasAsPng = (canvasSize: number) => {
+  const canvas = castedCanvas();
+  const desiredSize = 1024;
+  const multiplier = desiredSize / canvasSize;
+  const png = canvas.toDataURL({
+    format: "png",
+
+    multiplier,
+  });
+  return png;
 };

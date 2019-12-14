@@ -14,3 +14,7 @@ export const capText = (text: string): string => {
     return text.substr(0, CAP_LIMIT - LIMITER.length) + LIMITER;
   }
 };
+export const extractLut = (lut: string): string => {
+  console.warn(lut);
+  return lut;
+};

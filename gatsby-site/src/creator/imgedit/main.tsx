@@ -1,16 +1,28 @@
-import { Button, Link, PrimaryButton, Stack } from "office-ui-fabric-react";
+import {
+  DefaultButton,
+  Link,
+  PrimaryButton,
+  Stack,
+} from "office-ui-fabric-react";
 import React, { useState } from "react";
 import useDimensions from "react-use-dimensions";
+import { luts } from "../contants";
 import { FabricEditing, FabricEditingTypes } from "../types";
 import { ImageEditorButtons } from "./buttons/main";
-import { unfocusOnCanvas } from "./canvas/canvasController";
+import { exportCanvasAsPng, unfocusOnCanvas } from "./canvas/canvasController";
 import { CanvasRenderer } from "./canvas/main";
-import { makeEditingNone } from "./helpers";
+import { extractLut, makeEditingNone } from "./helpers";
 import { LutsPicker } from "./luts/main";
+import { Previewer } from "./previewer/main";
 
 export const ImageEditor: React.FunctionComponent<{
-  onDone: () => void;
-}> = ({}) => {
+  onDone: (args: { croppedLut: string; planeImg: string }) => void;
+}> = ({ onDone }) => {
+  const [previewing, setPreviewing] = useState(false);
+  const startPreviewing = () => setPreviewing(true);
+  const finishPreviewing = () => setPreviewing(false);
+
+  const [lut, changeLut] = useState(luts[0]);
   const [ref, { width }] = useDimensions();
   const [fabricEditing, changeFabricEditing] = useState<FabricEditing>({
     type: FabricEditingTypes.none,
@@ -19,11 +31,6 @@ export const ImageEditor: React.FunctionComponent<{
     changeFabricEditing(makeEditingNone());
     unfocusOnCanvas();
   };
-
-  const canvasSizerStyle = {
-    width: "100%",
-  };
-
   const getGoodWidth = (): number | undefined => {
     if (width == null) {
       return undefined;
@@ -40,6 +47,35 @@ export const ImageEditor: React.FunctionComponent<{
     }
     return height;
   };
+
+  const onPublish = () => {
+    const w = getGoodWidth();
+    if (w != null) {
+      const planeImg = exportCanvasAsPng(w);
+      onDone({ croppedLut: extractLut(lut), planeImg });
+    }
+  };
+
+  const canvasSizerStyle = {
+    width: "100%",
+  };
+  if (previewing) {
+    const w = getGoodWidth();
+    if (w != null) {
+      const croppedLut = extractLut(lut);
+      const planeImg = exportCanvasAsPng(w);
+
+      return (
+        <Previewer
+          lut={croppedLut}
+          img={planeImg}
+          finishPreviewing={finishPreviewing}
+        />
+      );
+    } else {
+      return <div>Error. Width undefined while previewing</div>;
+    }
+  }
 
   return (
     <Stack
@@ -58,8 +94,8 @@ export const ImageEditor: React.FunctionComponent<{
         >
           <Link href="/">Filtre.me</Link>
           <Stack horizontal={true} gap="s1">
-            <Button href="asdasd">Preview</Button>
-            <PrimaryButton href="asdasd">Publish</PrimaryButton>
+            <DefaultButton onClick={startPreviewing}>Preview</DefaultButton>
+            <PrimaryButton onClick={onPublish}>Publish</PrimaryButton>
           </Stack>
         </Stack>
       </div>
@@ -72,8 +108,9 @@ export const ImageEditor: React.FunctionComponent<{
       <CanvasRenderer
         width={getGoodWidth()}
         changeFabricEditing={changeFabricEditing}
+        backgroundImage={lut}
       />
-      <LutsPicker />
+      <LutsPicker onChangeLut={changeLut} currentLut={lut} />
     </Stack>
   );
 };

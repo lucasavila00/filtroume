@@ -7,11 +7,20 @@ import {
   Text,
 } from "office-ui-fabric-react";
 import React from "react";
+import { luts } from "../../contants";
 
-export const LutsPicker: React.FunctionComponent<{}> = ({}) => {
+export const LutsPicker: React.FunctionComponent<{
+  onChangeLut: (lut: string) => void;
+  currentLut: string;
+}> = ({ currentLut, onChangeLut }) => {
   const renderLuts = () => {
-    return [1, 1, 1, 1, 1].map((_, index) => (
-      <PlaceholderPersona key={index} index={index} />
+    return luts.map((src) => (
+      <PlaceholderPersona
+        key={src}
+        src={src}
+        currentLut={currentLut}
+        onChangeLut={onChangeLut}
+      />
     ));
   };
 
@@ -31,15 +40,21 @@ export const LutsPicker: React.FunctionComponent<{}> = ({}) => {
   );
 };
 
-const PlaceholderPersona: React.FunctionComponent<{ index: number }> = ({
-  index,
-}) => {
+const PlaceholderPersona: React.FunctionComponent<{
+  src: string;
+  currentLut: string;
+  onChangeLut: (lut: string) => void;
+}> = ({ src, currentLut, onChangeLut }) => {
+  const presence =
+    src === currentLut ? PersonaPresence.online : PersonaPresence.none;
+  const onClick = () => onChangeLut(src);
   return (
     <Persona
+      onClick={onClick}
       initialsColor={PersonaInitialsColor.blue}
       size={PersonaSize.large}
-      presence={index === 0 ? PersonaPresence.online : PersonaPresence.none}
-      imageUrl="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-react-assets/persona-female.png"
+      presence={presence}
+      imageUrl={src}
       text=""
       hidePersonaDetails={true}
     />

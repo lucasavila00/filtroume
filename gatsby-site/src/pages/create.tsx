@@ -11,11 +11,9 @@ const createCentralizeStyle = {
 
 const Create: React.FunctionComponent = () => {
   return (
-    <>
-      <div style={createCentralizeStyle}>
-        <ImageEditor onDone={console.warn} />
-      </div>
-    </>
+    <div style={createCentralizeStyle}>
+      <ImageEditor onDone={console.warn} />
+    </div>
   );
 };
 

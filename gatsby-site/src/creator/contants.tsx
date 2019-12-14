@@ -1,3 +1,5 @@
+export const luts = ["/luts/lut0.png", "/luts/lut1.png", "/luts/lut2.png"];
+
 export const colors = [
   { id: "a", label: "red", color: "#a4262c" },
   { id: "b", label: "orange", color: "#ca5010" },
@@ -12,13 +14,15 @@ export const colors = [
   { id: "k", label: "gray", color: "#7a7574" },
   { id: "l", label: "gray20", color: "#69797e" },
 ];
+
 export const fonts = [
   "sans-serif",
-  "Times New Roman",
-  "Arial",
-  "SF",
-  "San Francisco",
+  "Pacifico",
+  "VT323",
+  "Quicksand",
+  "Inconsolata",
 ];
+
 export const galleryImages = [
   {
     src: "https://picsum.photos/200",
