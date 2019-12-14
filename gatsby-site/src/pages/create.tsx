@@ -1,5 +1,6 @@
 import React from "react";
 
+import { makeNotificationNone } from "../creator/imgedit/helpers";
 import { ImageEditor } from "../creator/imgedit/main";
 
 const createCentralizeStyle = {
@@ -12,7 +13,11 @@ const createCentralizeStyle = {
 const Create: React.FunctionComponent = () => {
   return (
     <div style={createCentralizeStyle}>
-      <ImageEditor onDone={console.warn} />
+      <ImageEditor
+        onPublish={console.warn}
+        notification={makeNotificationNone()}
+        onDismissNotification={console.warn}
+      />
     </div>
   );
 };

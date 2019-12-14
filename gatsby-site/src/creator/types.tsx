@@ -26,3 +26,30 @@ export type FabricEditing =
   | IFabricEditingNone
   | IFabricEditingText
   | IFabricEditingImage;
+
+// notif
+
+export enum NotificationTypeEnum {
+  uploaded,
+  error,
+  none,
+}
+
+export interface INotificationNone {
+  type: NotificationTypeEnum.none;
+}
+
+export interface INotificationUploaded {
+  type: NotificationTypeEnum.uploaded;
+  url: string;
+}
+
+export interface INotificationError {
+  type: NotificationTypeEnum.error;
+  message?: string;
+}
+
+export type NotificationType =
+  | INotificationUploaded
+  | INotificationError
+  | INotificationNone;

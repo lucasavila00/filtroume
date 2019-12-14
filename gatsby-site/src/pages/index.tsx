@@ -1,7 +1,6 @@
 import {
   FontWeights,
   initializeIcons,
-  Link,
   PrimaryButton,
   Stack,
   Text,
@@ -21,27 +20,22 @@ const appStyle = {
 
 const App: React.FunctionComponent = () => {
   return (
-    <Stack verticalAlign="start" verticalFill={true} styles={appStyle}>
-      <Stack
-        horizontalAlign="end"
-        styles={{ root: { marginTop: 8, marginRight: 16 } }}
-      >
-        <Link href="/creations">My Creations</Link>
-      </Stack>
-
-      <Stack
-        horizontalAlign="center"
-        verticalAlign="center"
-        verticalFill={true}
-        gap="m"
-        padding="m"
-      >
-        <Text variant="xxLarge" styles={boldStyle}>
-          FILTRE
-        </Text>
-        <Text variant="large">Unleash your creativity now!</Text>
-        <PrimaryButton href="/create">CREATE NEW FILTER</PrimaryButton>
-      </Stack>
+    <Stack
+      horizontalAlign="center"
+      verticalAlign="center"
+      verticalFill={true}
+      gap="m"
+      padding="m"
+      styles={appStyle}
+    >
+      <Text variant="xxLarge" styles={boldStyle}>
+        FILTRE
+      </Text>
+      <Text variant="large">Unleash your creativity now!</Text>
+      <PrimaryButton href="/create">CREATE NEW FILTER</PrimaryButton>
+      <Text variant="medium">
+        todo: create an instagram or snap like filter
+      </Text>
     </Stack>
   );
 };

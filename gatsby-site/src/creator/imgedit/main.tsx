@@ -7,19 +7,27 @@ import {
 import React, { useState } from "react";
 import useDimensions from "react-use-dimensions";
 import { luts } from "../contants";
-import { FabricEditing, FabricEditingTypes } from "../types";
+import { FabricEditing, FabricEditingTypes, NotificationType } from "../types";
 import { ImageEditorButtons } from "./buttons/main";
 import { exportCanvasAsPng, unfocusOnCanvas } from "./canvas/canvasController";
 import { CanvasRenderer } from "./canvas/main";
 import { extractLut, makeEditingNone } from "./helpers";
 import { LutsPicker } from "./luts/main";
+import { NotificationRenderer } from "./notifications/main";
 import { Previewer } from "./previewer/main";
 
 export const ImageEditor: React.FunctionComponent<{
-  onDone: (args: { croppedLut: string; planeImg: string }) => void;
-}> = ({ onDone }) => {
+  onPublish: (args: { croppedLut: string; planeImg: string }) => void;
+  notification: NotificationType;
+  onDismissNotification: () => void;
+}> = ({ onPublish: onDone, notification, onDismissNotification }) => {
   const [previewing, setPreviewing] = useState(false);
-  const startPreviewing = () => setPreviewing(true);
+  const [extractedLut, setExtractedLut] = useState("");
+  const startPreviewing = async () => {
+    const ex = await extractLut(lut);
+    setExtractedLut(ex);
+    setPreviewing(true);
+  };
   const finishPreviewing = () => setPreviewing(false);
 
   const [lut, changeLut] = useState(luts[0]);
@@ -48,11 +56,11 @@ export const ImageEditor: React.FunctionComponent<{
     return height;
   };
 
-  const onPublish = () => {
+  const onPublish = async () => {
     const w = getGoodWidth();
     if (w != null) {
       const planeImg = exportCanvasAsPng(w);
-      onDone({ croppedLut: extractLut(lut), planeImg });
+      onDone({ croppedLut: await extractLut(lut), planeImg });
     }
   };
 
@@ -62,12 +70,11 @@ export const ImageEditor: React.FunctionComponent<{
   if (previewing) {
     const w = getGoodWidth();
     if (w != null) {
-      const croppedLut = extractLut(lut);
       const planeImg = exportCanvasAsPng(w);
 
       return (
         <Previewer
-          lut={croppedLut}
+          lut={extractedLut}
           img={planeImg}
           finishPreviewing={finishPreviewing}
         />
@@ -85,6 +92,7 @@ export const ImageEditor: React.FunctionComponent<{
       styles={{ root: { maxWidth: 720, width: "100%" } }}
       gap="m"
     >
+      {/* Hack to know proper size of canvas */}
       <div style={canvasSizerStyle} ref={ref}>
         <Stack
           horizontal={true}
@@ -94,6 +102,10 @@ export const ImageEditor: React.FunctionComponent<{
         >
           <Link href="/">Filtre.me</Link>
           <Stack horizontal={true} gap="s1">
+            <NotificationRenderer
+              notification={notification}
+              onDismiss={onDismissNotification}
+            />
             <DefaultButton onClick={startPreviewing}>Preview</DefaultButton>
             <PrimaryButton onClick={onPublish}>Publish</PrimaryButton>
           </Stack>

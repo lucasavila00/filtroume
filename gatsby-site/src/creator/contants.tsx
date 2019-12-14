@@ -15,6 +15,7 @@ export const colors = [
   { id: "l", label: "gray20", color: "#69797e" },
 ];
 
+// sync with storybook config and gatsby index.css
 export const fonts = [
   "sans-serif",
   "Pacifico",

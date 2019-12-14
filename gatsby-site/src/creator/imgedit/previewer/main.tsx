@@ -31,16 +31,16 @@ export const Previewer: React.FunctionComponent<{
   img: string;
   lut: string;
   finishPreviewing: () => void;
-}> = ({ img, lut }) => {
+}> = ({ img, lut, finishPreviewing }) => {
   (window as any)._lut = lut;
   (window as any)._img = img;
 
   return (
     <div style={mainStyle}>
       <div style={menuStyle}>
-        <PrimaryButton>Back</PrimaryButton>
+        <PrimaryButton onClick={finishPreviewing}>Back</PrimaryButton>
         <div style={textStyle}>
-          <Text styles={boldStyle}>Previewing</Text>
+          <Text styles={boldStyle}>Preview</Text>
         </div>
       </div>
       <iframe frameBorder={0} style={frameStyle} src="/view/index.html" />
