@@ -1,85 +1,99 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import * as c from "cors";
 import { generateShortId } from "./shortId";
 import { uploadBase64 } from "./upload";
-admin.initializeApp(functions.config().firebase);
 
+admin.initializeApp();
+
+// CORS Express middleware to enable CORS Requests.
+const cors = c({
+  origin: true,
+});
 // Shell
 // filterUrls.get({ qs:{ id:"example-id" } })
 export const filterUrls = functions.https.onRequest(
-  async (request, response) => {
-    response.set("Access-Control-Allow-Origin", "*");
+  (request, response) => {
+    return cors(
+      request,
+      response,
+      async () => {
+        const id = request.query.id;
 
-    const id = request.query.id;
+        if (id == null) {
+          response.json({ error: "Invalid filter id" });
+        } else {
+          const db = admin.firestore();
+          const res = await db
+            .collection("filters")
+            .where("shortId", "==", id)
+            .get();
+          let foundValue = false;
+          res.forEach(doc => {
+            if (foundValue) {
+              return;
+            }
+            // TODO: add to analytics that it was shown
+            foundValue = true;
+            const data = doc.data();
+            const image = data.imageUrl;
+            const lut = data.lutUrl;
+            response.json({ image, lut });
+          });
 
-    if (id == null) {
-      response.json({ error: "Invalid filter id" });
-    } else {
-      const db = admin.firestore();
-      const res = await db
-        .collection("filters")
-        .where("shortId", "==", id)
-        .get();
-      let foundValue = false;
-      res.forEach(doc => {
-        if (foundValue) {
-          return;
+          if (!foundValue) {
+            response.json({
+              error: "Filter not found by id",
+            });
+          }
         }
-        // TODO: add to analytics that it was shown
-        foundValue = true;
-        const data = doc.data();
-        const image = data.imageUrl;
-        const lut = data.lutUrl;
-        response.json({ image, lut });
-      });
-
-      if (!foundValue) {
-        response.json({ error: "Filter not found by id" });
-      }
-    }
-  },
-);
+      }, // end cors cb
+    ); // end cors
+  }, // end handler cn
+); // end handler
 
 // shell: createFilter.post().json({lut: "", image: ""})
 export const createFilter = functions.https.onRequest(
-  async (request, response) => {
-    response.set("Access-Control-Allow-Origin", "*");
+  (request, response) => {
+    return cors(
+      request,
+      response,
+      async () => {
+        const lutData = request.body.lut;
+        const imageData = request.body.image;
 
-    const _data = JSON.parse(request.body);
+        if (!lutData || !imageData) {
+          response.json({ error: "invalid image data" });
+        } else {
+          // tem as imagens
+          const db = admin.firestore();
+          const bucket = admin.storage().bucket();
+          const shortId = await generateShortId({ db });
 
-    const lutData = _data.lut;
-    const imageData = _data.image;
+          const lutUrl = await uploadBase64({
+            data: lutData,
+            shortId,
+            type: "lut",
+            bucket,
+          });
+          const imageUrl = await uploadBase64({
+            data: imageData,
+            shortId,
+            type: "image",
+            bucket,
+          });
 
-    if (!lutData || !imageData) {
-      response.send("0err0");
-    } else {
-      // tem as imagens
-      const db = admin.firestore();
-      const bucket = admin.storage().bucket();
-      const shortId = await generateShortId({ db });
+          await db.collection("filters").add({
+            shortId,
+            lutUrl,
+            imageUrl,
+            views: 0,
+          });
 
-      const lutUrl = await uploadBase64({
-        data: lutData,
-        shortId,
-        type: "lut",
-        bucket,
-      });
-      const imageUrl = await uploadBase64({
-        data: imageData,
-        shortId,
-        type: "image",
-        bucket,
-      });
-
-      await db.collection("filters").add({
-        shortId,
-        lutUrl,
-        imageUrl,
-        views: 0,
-      });
-
-      response.send(shortId);
-      // TODO: add to analytics that it was created
-    }
-  },
-);
+          response.json({ shortId });
+          // TODO: add to analytics that it was created
+        }
+      }, // end cors cb
+    ); // end cors
+  }, // end handler cn
+); // end handler

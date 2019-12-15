@@ -28,13 +28,13 @@ const postData = async (url = "", data = {}) => {
     cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
     credentials: "same-origin", // include, *same-origin, omit
     headers: {
-      "Content-Type": "text/plain",
+      "Content-Type": "application/json",
     },
     redirect: "follow", // manual, *follow, error
     referrer: "no-referrer", // no-referrer, *client
     body: JSON.stringify(data), // body data type must match "Content-Type" header
   });
-  return response.text(); // parses JSON response into native JavaScript objects
+  return response.json(); // parses JSON response into native JavaScript objects
 };
 
 const shortIdToUrl = (shortId: string) =>
@@ -68,10 +68,10 @@ const Create: React.FunctionComponent = () => {
     try {
       const data = await postData(url, { lut: croppedLut, image: planeImg });
 
-      if (data === "0err0") {
-        setNotifErr("0err0");
+      if (data.error) {
+        setNotifErr(data.error);
       } else {
-        const shortId = data;
+        const shortId = data.shortId;
         setNotifUploaded(shortId);
       }
     } catch (err) {
