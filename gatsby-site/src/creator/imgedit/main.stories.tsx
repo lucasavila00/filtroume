@@ -26,6 +26,7 @@ storiesOf("ImageEditor", module)
       onPublish={action("done-editing")}
       notification={makeNotificationNone()}
       onDismissNotification={action("dismiss notification")}
+      loading={false}
     />
   ))
   .add("notification error and no message", () => (
@@ -33,6 +34,7 @@ storiesOf("ImageEditor", module)
       onPublish={action("done-editing")}
       notification={notificationErrorNoMessage}
       onDismissNotification={action("dismiss notification")}
+      loading={false}
     />
   ))
   .add("notification error with message", () => (
@@ -40,6 +42,7 @@ storiesOf("ImageEditor", module)
       onPublish={action("done-editing")}
       notification={notificationError}
       onDismissNotification={action("dismiss notification")}
+      loading={false}
     />
   ))
   .add("notification uploaded", () => (
@@ -47,5 +50,6 @@ storiesOf("ImageEditor", module)
       onPublish={action("done-editing")}
       notification={notificationUploaded}
       onDismissNotification={action("dismiss notification")}
+      loading={false}
     />
   ));

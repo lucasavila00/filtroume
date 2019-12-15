@@ -1,9 +1,4 @@
-import {
-  DefaultButton,
-  Link,
-  PrimaryButton,
-  Stack,
-} from "office-ui-fabric-react";
+import { Stack } from "office-ui-fabric-react";
 import React, { useState } from "react";
 import useDimensions from "react-use-dimensions";
 import { luts } from "../contants";
@@ -11,16 +6,17 @@ import { FabricEditing, FabricEditingTypes, NotificationType } from "../types";
 import { ImageEditorButtons } from "./buttons/main";
 import { exportCanvasAsPng, unfocusOnCanvas } from "./canvas/canvasController";
 import { CanvasRenderer } from "./canvas/main";
-import { extractLut,  makeEditingNone } from "./helpers";
+import { Header } from "./header/main";
+import { extractLut, makeEditingNone } from "./helpers";
 import { LutsPicker } from "./luts/main";
-import { NotificationRenderer } from "./notifications/main";
 import { Previewer } from "./previewer/main";
 
 export const ImageEditor: React.FunctionComponent<{
   onPublish: (args: { croppedLut: string; planeImg: string }) => void;
   notification: NotificationType;
   onDismissNotification: () => void;
-}> = ({ onPublish: onDone, notification, onDismissNotification }) => {
+  loading: boolean;
+}> = ({ onPublish: onDone, loading, notification, onDismissNotification }) => {
   const [previewing, setPreviewing] = useState(false);
   const [extractedLut, setExtractedLut] = useState("");
   const [flippedImage, setFlippedImage] = useState("");
@@ -110,22 +106,13 @@ export const ImageEditor: React.FunctionComponent<{
       >
         {/* Hack to know proper size of canvas */}
         <div style={canvasSizerStyle} ref={ref}>
-          <Stack
-            horizontal={true}
-            gap="m"
-            horizontalAlign="space-between"
-            verticalAlign="center"
-          >
-            <Link href="/">Filtre.me</Link>
-            <Stack horizontal={true} gap="s1">
-              <NotificationRenderer
-                notification={notification}
-                onDismiss={onDismissNotification}
-              />
-              <DefaultButton onClick={startPreviewing}>Preview</DefaultButton>
-              <PrimaryButton onClick={onPublish}>Publish</PrimaryButton>
-            </Stack>
-          </Stack>
+          <Header
+            loading={loading}
+            notification={notification}
+            onDismissNotification={onDismissNotification}
+            onPublish={onPublish}
+            startPreviewing={startPreviewing}
+          />
         </div>
 
         <ImageEditorButtons

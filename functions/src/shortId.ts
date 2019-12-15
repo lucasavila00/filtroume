@@ -31,7 +31,13 @@ const getPositionIndex = async ({
 const HASH_ID_SALT = "89fd";
 const hashNumberToText = (n: number): string => {
   // converte pra hash id
-  const hashids = new Hashids(HASH_ID_SALT);
+  const hashids = new Hashids(
+    HASH_ID_SALT,
+    0,
+    "abcdefghijklmnopqrstuvwxyz",
+  );
+  // const hashids = new Hashids('', 0, 'abcdefghijklmnopqrstuvwxyz') // all lowercase
+
   return hashids.encode(n);
 };
 

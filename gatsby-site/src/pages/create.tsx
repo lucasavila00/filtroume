@@ -39,7 +39,10 @@ const postData = async (url = "", data = {}) => {
 
 const shortIdToUrl = (shortId: string) =>
   "https://filterme.firebaseapp.com/" + shortId;
+
 const Create: React.FunctionComponent = () => {
+  const [loading, setLoading] = React.useState(false);
+
   const [notif, setNotif] = React.useState<NotificationType>(
     makeNotificationNone(),
   );
@@ -64,6 +67,7 @@ const Create: React.FunctionComponent = () => {
     croppedLut: string;
     planeImg: string;
   }) => {
+    setLoading(true);
     const url = "https://us-central1-filterme.cloudfunctions.net/createFilter";
     try {
       const data = await postData(url, { lut: croppedLut, image: planeImg });
@@ -76,6 +80,8 @@ const Create: React.FunctionComponent = () => {
       }
     } catch (err) {
       setNotifErr();
+    } finally {
+      setLoading(false);
     }
   };
   const onDismissNotification = () => {
@@ -87,6 +93,7 @@ const Create: React.FunctionComponent = () => {
         onPublish={onPublish}
         notification={notif}
         onDismissNotification={onDismissNotification}
+        loading={loading}
       />
     </div>
   );
