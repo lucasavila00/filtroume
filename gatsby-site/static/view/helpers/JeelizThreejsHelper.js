@@ -9,14 +9,14 @@ THREE.JeelizHelper = (function() {
         rotationOffsetX: 0, //negative -> look upper. in radians
         pivotOffsetYZ: [0.4, 0.2], //[0.2,0.2], //XYZ of the distance between the center of the cube and the pivot. enable _settings.isDebugPivotPoint to set this value
 
-        detectionThreshold: 0.5, //sensibility, between 0 and 1. Less -> more sensitive
+        detectionThreshold: 0.325, //sensibility, between 0 and 1. Less -> more sensitive
         detectionHysteresis: 0.1,
 
         tweakMoveYRotateY: 0.5, //tweak value: move detection window along Y axis when rotate the face
 
         cameraMinVideoDimFov: 46, //Field of View for the smallest dimension of the video in degrees
 
-        isDebugPivotPoint: false //display a small cube for the pivot point
+        isDebugPivotPoint: false, //display a small cube for the pivot point
     };
 
     //private vars :
@@ -61,26 +61,33 @@ THREE.JeelizHelper = (function() {
             _threeScene.add(threeCompositeObject);
 
             if (_settings.isDebugPivotPoint) {
-                const pivotCubeMesh = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshNormalMaterial({
-                    side: THREE.DoubleSide,
-                    depthTest: false
-                }));
+                const pivotCubeMesh = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.1, 0.1, 0.1),
+                    new THREE.MeshNormalMaterial({
+                        side: THREE.DoubleSide,
+                        depthTest: false,
+                    }),
+                );
                 pivotCubeMesh.position.copy(threeCompositeObjectPIVOTED.position);
                 threeCompositeObject.add(pivotCubeMesh);
                 window.pivot = pivotCubeMesh;
-                console.log('DEBUG in JeelizHelper: set the position of <pivot> in the console and report the value into JeelizThreejsHelper.js for _settings.pivotOffsetYZ');
+                console.log(
+                    "DEBUG in JeelizHelper: set the position of <pivot> in the console and report the value into JeelizThreejsHelper.js for _settings.pivotOffsetYZ",
+                );
             }
         }
     }
 
     function create_videoScreen() {
-        const videoScreenVertexShaderSource = "attribute vec2 position;\n\
+        const videoScreenVertexShaderSource =
+            "attribute vec2 position;\n\
         varying vec2 vUV;\n\
         void main(void){\n\
           gl_Position = vec4(position, 0., 1.);\n\
           vUV = 0.5+0.5*position;\n\
         }";
-        const videoScreenFragmentShaderSource = "precision lowp float;\n\
+        const videoScreenFragmentShaderSource =
+            "precision lowp float;\n\
         uniform sampler2D samplerVideo;\n\
         varying vec2 vUV;\n\
         void main(void){\n\
@@ -93,27 +100,45 @@ THREE.JeelizHelper = (function() {
                 _gl.shaderSource(shader, source);
                 _gl.compileShader(shader);
                 if (!_gl.getShaderParameter(shader, _gl.COMPILE_STATUS)) {
-                    alert("ERROR IN " + typeString + " SHADER : " + _gl.getShaderInfoLog(shader));
+                    alert(
+                        "ERROR IN " +
+                        typeString +
+                        " SHADER : " +
+                        _gl.getShaderInfoLog(shader),
+                    );
                     return false;
                 }
                 return shader;
             };
 
-            const shader_vertex = compile_shader(videoScreenVertexShaderSource, _gl.VERTEX_SHADER, 'VERTEX');
-            const shader_fragment = compile_shader(videoScreenFragmentShaderSource, _gl.FRAGMENT_SHADER, 'FRAGMENT');
+            const shader_vertex = compile_shader(
+                videoScreenVertexShaderSource,
+                _gl.VERTEX_SHADER,
+                "VERTEX",
+            );
+            const shader_fragment = compile_shader(
+                videoScreenFragmentShaderSource,
+                _gl.FRAGMENT_SHADER,
+                "FRAGMENT",
+            );
 
             _glShpCopy = _gl.createProgram();
             _gl.attachShader(_glShpCopy, shader_vertex);
             _gl.attachShader(_glShpCopy, shader_fragment);
 
             _gl.linkProgram(_glShpCopy);
-            const samplerVideo = _gl.getUniformLocation(_glShpCopy, 'samplerVideo');
+            const samplerVideo = _gl.getUniformLocation(_glShpCopy, "samplerVideo");
 
             return;
         }
 
         //init video texture with red
-        _threeVideoTexture = new THREE.DataTexture(new Uint8Array([255, 0, 0]), 1, 1, THREE.RGBFormat);
+        _threeVideoTexture = new THREE.DataTexture(
+            new Uint8Array([255, 0, 0]),
+            1,
+            1,
+            THREE.RGBFormat,
+        );
         _threeVideoTexture.needsUpdate = true;
 
         //CREATE THE VIDEO BACKGROUND
@@ -123,13 +148,18 @@ THREE.JeelizHelper = (function() {
             vertexShader: videoScreenVertexShaderSource,
             fragmentShader: videoScreenFragmentShaderSource,
             uniforms: {
-                samplerVideo: { value: _threeVideoTexture }
-            }
+                samplerVideo: { value: _threeVideoTexture },
+            },
         });
-        const videoGeometry = new THREE.BufferGeometry()
+        const videoGeometry = new THREE.BufferGeometry();
         const videoScreenCorners = new Float32Array([-1, -1, 1, -1, 1, 1, -1, 1]);
-        videoGeometry.addAttribute('position', new THREE.BufferAttribute(videoScreenCorners, 2));
-        videoGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array([0, 1, 2, 0, 2, 3]), 1));
+        videoGeometry.addAttribute(
+            "position",
+            new THREE.BufferAttribute(videoScreenCorners, 2),
+        );
+        videoGeometry.setIndex(
+            new THREE.BufferAttribute(new Uint16Array([0, 1, 2, 0, 2, 3]), 1),
+        );
         _threeVideoMesh = new THREE.Mesh(videoGeometry, videoMaterial);
         that.apply_videoTexture(_threeVideoMesh);
         _threeVideoMesh.renderOrder = -1000; //render first
@@ -141,13 +171,18 @@ THREE.JeelizHelper = (function() {
         _threeCompositeObjects.forEach(function(threeCompositeObject, i) {
             _isDetected = threeCompositeObject.visible;
             const ds = detectState[i];
-            if (_isDetected && ds.detected < _settings.detectionThreshold - _settings.detectionHysteresis) {
-
+            if (
+                _isDetected &&
+                ds.detected <
+                _settings.detectionThreshold - _settings.detectionHysteresis
+            ) {
                 //DETECTION LOST
                 if (_detect_callback) _detect_callback(i, false);
                 threeCompositeObject.visible = false;
-            } else if (!_isDetected && ds.detected > _settings.detectionThreshold + _settings.detectionHysteresis) {
-
+            } else if (!_isDetected &&
+                ds.detected >
+                _settings.detectionThreshold + _settings.detectionHysteresis
+            ) {
                 //FACE DETECTED
                 if (_detect_callback) _detect_callback(i, true);
                 threeCompositeObject.visible = true;
@@ -156,7 +191,9 @@ THREE.JeelizHelper = (function() {
     }
 
     function update_positions3D(ds, threeCamera) {
-        const halfTanFOV = Math.tan(threeCamera.aspect * threeCamera.fov * Math.PI / 360); //tan(<horizontal FoV>/2), in radians (threeCamera.fov is vertical FoV)
+        const halfTanFOV = Math.tan(
+            (threeCamera.aspect * threeCamera.fov * Math.PI) / 360,
+        ); //tan(<horizontal FoV>/2), in radians (threeCamera.fov is vertical FoV)
 
         _threeCompositeObjects.forEach(function(threeCompositeObject, i) {
             if (!threeCompositeObject.visible) return;
@@ -177,20 +214,29 @@ THREE.JeelizHelper = (function() {
             const D = 1 / (2 * W * halfTanFOV); //distance between the front face of the cube and the camera
 
             //coords in 2D of the center of the detection window in the viewport:
-            const xv = (detectState.x * _scaleW + xTweak);
-            const yv = (detectState.y + yTweak);
+            const xv = detectState.x * _scaleW + xTweak;
+            const yv = detectState.y + yTweak;
 
             // coords in 3D of the center of the cube (in the view coordinates system)
             const z = -D - 0.5; // minus because view coordinate system Z goes backward. -0.5 because z is the coord of the center of the cube (not the front face)
             const x = xv * D * halfTanFOV;
-            const y = yv * D * halfTanFOV / threeCamera.aspect;
+            const y = (yv * D * halfTanFOV) / threeCamera.aspect;
 
             // the pivot position depends on rz rotation:
-            _threePivotedObjects[i].position.set(-sz * _settings.pivotOffsetYZ[0], -cz * _settings.pivotOffsetYZ[0], -_settings.pivotOffsetYZ[1]);
+            _threePivotedObjects[i].position.set(-sz * _settings.pivotOffsetYZ[0], -cz * _settings.pivotOffsetYZ[0], -_settings.pivotOffsetYZ[1], );
 
             // move and rotate the cube:
-            threeCompositeObject.position.set(x, y + _settings.pivotOffsetYZ[0], z + _settings.pivotOffsetYZ[1]);
-            threeCompositeObject.rotation.set(detectState.rx + _settings.rotationOffsetX, detectState.ry, detectState.rz, "ZXY");
+            threeCompositeObject.position.set(
+                x,
+                y + _settings.pivotOffsetYZ[0],
+                z + _settings.pivotOffsetYZ[1],
+            );
+            threeCompositeObject.rotation.set(
+                detectState.rx + _settings.rotationOffsetX,
+                detectState.ry,
+                detectState.rz,
+                "ZXY",
+            );
         }); //end loop on composite objects
     }
 
@@ -202,7 +248,7 @@ THREE.JeelizHelper = (function() {
             _glVideoTexture = spec.videoTexture;
             _gl = spec.GL;
             _faceFilterCv = spec.canvasElement;
-            _isMultiFaces = (_maxFaces > 1);
+            _isMultiFaces = _maxFaces > 1;
             _videoElement = spec.videoElement;
 
             // enable 2 canvas mode if necessary:
@@ -211,22 +257,22 @@ THREE.JeelizHelper = (function() {
                 _isSeparateThreejsCanvas = true;
                 // adjust the threejs canvas size to the threejs canvas:
                 threejsCanvas = document.getElementById(spec.threejsCanvasId);
-                threejsCanvas.setAttribute('width', _faceFilterCv.width);
-                threejsCanvas.setAttribute('height', _faceFilterCv.height);
+                threejsCanvas.setAttribute("width", _faceFilterCv.width);
+                threejsCanvas.setAttribute("height", _faceFilterCv.height);
             } else {
                 threejsCanvas = _faceFilterCv;
             }
 
-            if (typeof(detectCallback) !== 'undefined') {
+            if (typeof detectCallback !== "undefined") {
                 _detect_callback = detectCallback;
             }
 
             // init THREE.JS context:
             _threeRenderer = new THREE.WebGLRenderer({
                 // context: (_isSeparateThreejsCanvas) ? null : WebGLDebugUtils.makeDebugContext(_gl),
-                context: (_isSeparateThreejsCanvas) ? null : _gl,
+                context: _isSeparateThreejsCanvas ? null : _gl,
                 canvas: threejsCanvas,
-                alpha: (_isSeparateThreejsCanvas || spec.alpha) ? true : false
+                alpha: _isSeparateThreejsCanvas || spec.alpha ? true : false,
             });
 
             _threeScene = new THREE.Scene();
@@ -236,21 +282,27 @@ THREE.JeelizHelper = (function() {
                 magFilter: THREE.LinearFilter,
                 format: THREE.RGBFormat,
             };
-            _threeComposer = new THREE.EffectComposer(_threeRenderer, new THREE.WebGLRenderTarget(1, 1, rtParameters));
-
+            _threeComposer = new THREE.EffectComposer(
+                _threeRenderer,
+                new THREE.WebGLRenderTarget(1, 1, rtParameters),
+            );
 
             create_threeCompositeObjects();
             create_videoScreen();
 
             // handle device orientation change:
-            window.addEventListener('orientationchange', function() {
-                setTimeout(JEEFACEFILTERAPI.resize, 1000);
-            }, false);
+            window.addEventListener(
+                "orientationchange",
+                function() {
+                    setTimeout(JEEFACEFILTERAPI.resize, 1000);
+                },
+                false,
+            );
 
             const returnedDict = {
                 videoMesh: _threeVideoMesh,
                 renderer: _threeRenderer,
-                scene: _threeScene
+                scene: _threeScene,
             };
             if (_isMultiFaces) {
                 returnedDict.faceObjects = _threePivotedObjects;
@@ -261,7 +313,7 @@ THREE.JeelizHelper = (function() {
         }, //end that.init()
 
         detect: function(detectState) {
-            const ds = (_isMultiFaces) ? detectState : [detectState];
+            const ds = _isMultiFaces ? detectState : [detectState];
 
             // update detection states:
             detect(ds);
@@ -275,16 +327,13 @@ THREE.JeelizHelper = (function() {
             _threeComposer.addPass(renderAll);
             _threeComposer.setSize(_faceFilterCv.width, _faceFilterCv.height);
 
-
-
-
             const LutShader = {
                 uniforms: {
-                    "tDiffuse": { value: null },
+                    tDiffuse: { value: null },
                     lutMap: {
-                        value: null
+                        value: null,
                     },
-                    lutMapSize: { value: 2, },
+                    lutMapSize: { value: 2 },
                 },
                 vertexShader: `
                 varying highp vec2 vUv;
@@ -321,40 +370,70 @@ THREE.JeelizHelper = (function() {
                     vec4 originalColor = texture2D(tDiffuse, vUv);
                     gl_FragColor = sampleAs3DTexture(lutMap, originalColor.xyz, lutMapSize);
                 }
-                `
+                `,
             };
             const pixelPass = new THREE.ShaderPass(LutShader);
             pixelPass.renderToScreen = true;
             _threeComposer.addPass(pixelPass);
-            const makeIdentityLutTexture = function() {
+            const makeIdentityLutTexture = (function() {
                 const identityLUT = new Uint8Array([
-                    0, 0, 0, 255, // black
-                    255, 0, 0, 255, // red
-                    0, 0, 255, 255, // blue
-                    255, 0, 255, 255, // magenta
-                    0, 255, 0, 255, // green
-                    255, 255, 0, 255, // yellow
-                    0, 255, 255, 255, // cyan
-                    255, 255, 255, 255, // white
+                    0,
+                    0,
+                    0,
+                    255, // black
+                    255,
+                    0,
+                    0,
+                    255, // red
+                    0,
+                    0,
+                    255,
+                    255, // blue
+                    255,
+                    0,
+                    255,
+                    255, // magenta
+                    0,
+                    255,
+                    0,
+                    255, // green
+                    255,
+                    255,
+                    0,
+                    255, // yellow
+                    0,
+                    255,
+                    255,
+                    255, // cyan
+                    255,
+                    255,
+                    255,
+                    255, // white
                 ]);
 
                 return function(filter) {
-                    const texture = new THREE.DataTexture(identityLUT, 4, 2, THREE.RGBAFormat);
+                    const texture = new THREE.DataTexture(
+                        identityLUT,
+                        4,
+                        2,
+                        THREE.RGBAFormat,
+                    );
                     texture.minFilter = filter;
                     texture.magFilter = filter;
                     texture.needsUpdate = true;
                     texture.flipY = false;
                     return texture;
                 };
-            }();
+            })();
 
-            const makeLUTTexture = function() {
+            const makeLUTTexture = (function() {
                 const imgLoader = new THREE.ImageLoader();
-                const ctx = document.createElement('canvas').getContext('2d');
+                const ctx = document.createElement("canvas").getContext("2d");
 
                 return function(info) {
                     const texture = makeIdentityLutTexture(
-                        info.filter ? THREE.LinearFilter : THREE.NearestFilter);
+                        info.filter ? THREE.LinearFilter : THREE.NearestFilter,
+                    );
 
                     if (info.url) {
                         const lutSize = info.size;
@@ -380,30 +459,25 @@ THREE.JeelizHelper = (function() {
 
                             pixelPass.uniforms.lutMap.value = texture;
                             pixelPass.uniforms.lutMapSize.value = lutSize;
-
                         });
                     }
 
                     return texture;
                 };
-            }();
+            })();
             const info = {
-
-                name: 'custom',
+                name: "custom",
                 url: lut.url,
                 size: lut.size,
-                filter: true
-
+                filter: true,
             };
             makeLUTTexture(info);
 
             pixelPass.uniforms.lutMap.value = info.texture;
             pixelPass.uniforms.lutMapSize.value = info.size;
-
-
         },
         render: function(detectState, threeCamera) {
-            const ds = (_isMultiFaces) ? detectState : [detectState];
+            const ds = _isMultiFaces ? detectState : [detectState];
 
             //update detection states
             detect(ds);
@@ -424,19 +498,23 @@ THREE.JeelizHelper = (function() {
 
             //trigger the render of the THREE.JS SCENE
             _threeComposer.render();
-
         },
 
-        sortFaces: function(bufferGeometry, axis, isInv) { //sort faces long an axis
+        sortFaces: function(bufferGeometry, axis, isInv) {
+            //sort faces long an axis
             // Useful when a bufferGeometry has alpha : we should render the last faces first
             const axisOffset = { X: 0, Y: 1, Z: 2 }[axis.toUpperCase()];
-            const sortWay = (isInv) ? -1 : 1;
+            const sortWay = isInv ? -1 : 1;
 
             // fill the faces array:
             const nFaces = bufferGeometry.index.count / 3;
             const faces = new Array(nFaces);
             for (let i = 0; i < nFaces; ++i) {
-                faces[i] = [bufferGeometry.index.array[3 * i], bufferGeometry.index.array[3 * i + 1], bufferGeometry.index.array[3 * i + 2]];
+                faces[i] = [
+                    bufferGeometry.index.array[3 * i],
+                    bufferGeometry.index.array[3 * i + 1],
+                    bufferGeometry.index.array[3 * i + 2],
+                ];
             }
 
             // compute centroids:
@@ -444,9 +522,15 @@ THREE.JeelizHelper = (function() {
             const centroids = faces.map(function(face, faceIndex) {
                 return [
                     (aPos[3 * face[0]] + aPos[3 * face[1]] + aPos[3 * face[2]]) / 3, //X
-                    (aPos[3 * face[0] + 1] + aPos[3 * face[1] + 1] + aPos[3 * face[2] + 1]) / 3, //Y
-                    (aPos[3 * face[0] + 2] + aPos[3 * face[1] + 2] + aPos[3 * face[2] + 2]) / 3, //Z
-                    face
+                    (aPos[3 * face[0] + 1] +
+                        aPos[3 * face[1] + 1] +
+                        aPos[3 * face[2] + 1]) /
+                    3, //Y
+                    (aPos[3 * face[0] + 2] +
+                        aPos[3 * face[1] + 2] +
+                        aPos[3 * face[2] + 2]) /
+                    3, //Z
+                    face,
                 ];
             });
 
@@ -475,32 +559,40 @@ THREE.JeelizHelper = (function() {
             threeMesh.onAfterRender = function() {
                 // Replace _threeVideoTexture.__webglTexture by the real video texture:
                 try {
-                    _threeRenderer.properties.update(_threeVideoTexture, '__webglTexture', _glVideoTexture);
+                    _threeRenderer.properties.update(
+                        _threeVideoTexture,
+                        "__webglTexture",
+                        _glVideoTexture,
+                    );
                     _threeVideoTexture.magFilter = THREE.LinearFilter;
                     _threeVideoTexture.minFilter = THREE.LinearFilter;
                     _isVideoTextureReady = true;
                 } catch (e) {
-                    console.log('WARNING in THREE.JeelizHelper : the glVideoTexture is not fully initialized');
+                    console.log(
+                        "WARNING in THREE.JeelizHelper : the glVideoTexture is not fully initialized",
+                    );
                 }
-                delete(threeMesh.onAfterRender);
+                delete threeMesh.onAfterRender;
             };
         },
 
         // create an occluder, IE a transparent object which writes on the depth buffer:
         create_threejsOccluder: function(occluderURL, callback) {
             const occluderMesh = new THREE.Mesh();
-            new THREE.BufferGeometryLoader().load(occluderURL, function(occluderGeometry) {
+            new THREE.BufferGeometryLoader().load(occluderURL, function(
+                occluderGeometry,
+            ) {
                 const mat = new THREE.ShaderMaterial({
                     vertexShader: THREE.ShaderLib.basic.vertexShader,
                     fragmentShader: "precision lowp float;\n void main(void){\n gl_FragColor=vec4(1.,0.,0.,1.);\n }",
                     uniforms: THREE.ShaderLib.basic.uniforms,
-                    colorWrite: false
+                    colorWrite: false,
                 });
 
                 occluderMesh.renderOrder = -1; //render first
                 occluderMesh.material = mat;
                 occluderMesh.geometry = occluderGeometry;
-                if (typeof(callback) !== 'undefined' && callback) callback(occluderMesh);
+                if (typeof callback !== "undefined" && callback) callback(occluderMesh);
             });
             return occluderMesh;
         },
@@ -510,7 +602,12 @@ THREE.JeelizHelper = (function() {
         },
 
         create_camera: function(zNear, zFar) {
-            const threeCamera = new THREE.PerspectiveCamera(1, 1, (zNear) ? zNear : 0.1, (zFar) ? zFar : 100);
+            const threeCamera = new THREE.PerspectiveCamera(
+                1,
+                1,
+                zNear ? zNear : 0.1,
+                zFar ? zFar : 100,
+            );
             that.update_camera(threeCamera);
 
             return threeCamera;
@@ -527,7 +624,7 @@ THREE.JeelizHelper = (function() {
             const vw = _videoElement.videoWidth;
             const vh = _videoElement.videoHeight;
             const videoAspectRatio = vw / vh;
-            const fovFactor = (vh > vw) ? (1.0 / videoAspectRatio) : 1.0;
+            const fovFactor = vh > vw ? 1.0 / videoAspectRatio : 1.0;
             const fov = _settings.cameraMinVideoDimFov * fovFactor;
 
             // compute X and Y offsets in pixels:
@@ -548,14 +645,17 @@ THREE.JeelizHelper = (function() {
             // apply parameters:
             threeCamera.aspect = canvasAspectRatio;
             threeCamera.fov = fov;
-            console.log('INFO in JeelizThreejsHelper.update_camera() : camera vertical estimated FoV is', fov);
+            console.log(
+                "INFO in JeelizThreejsHelper.update_camera() : camera vertical estimated FoV is",
+                fov,
+            );
             threeCamera.setViewOffset(cvws, cvhs, offsetX, offsetY, cvw, cvh);
             threeCamera.updateProjectionMatrix();
 
             // update drawing area:
             _threeRenderer.setSize(cvw, cvh);
             _threeRenderer.setViewport(0, 0, cvw, cvh);
-        }
-    }
+        },
+    };
     return that;
 })();

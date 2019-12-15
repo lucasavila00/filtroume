@@ -1,7 +1,7 @@
 import { fabric } from "fabric";
 // import FontFaceObserver from "fontfaceobserver";
 import { FabricEditing, FabricEditingTypes } from "../../types";
-import { makeEditingNone } from "../helpers";
+import { flipPng, makeEditingNone } from "../helpers";
 // access the canvas via a global
 const CANVAS_KEY = "_fabric_canvas";
 const castedCanvas = () => (window as any)[CANVAS_KEY] as fabric.Canvas;
@@ -273,7 +273,7 @@ export const deleteActiveImage = () => {
   }
 };
 
-export const exportCanvasAsPng = (canvasSize: number) => {
+export const exportCanvasAsPng = async (canvasSize: number) => {
   const canvas = castedCanvas();
   const desiredSize = 1024;
   const multiplier = desiredSize / canvasSize;
@@ -282,5 +282,8 @@ export const exportCanvasAsPng = (canvasSize: number) => {
 
     multiplier,
   });
-  return png;
+
+  const flipped = await flipPng(png);
+
+  return flipped;
 };

@@ -18,11 +18,9 @@
     "dependencies": {
         "@storybook/addon-actions": "^4.1.1",
         "@storybook/react": "^4.1.1",
-        "@types/fontfaceobserver": "^0.0.6",
         "@uifabric/fluent-theme": "^0.16.7",
         "core-js": "^3.5.0",
         "fabric": "^3.5.1",
-        "fontfaceobserver": "^2.1.0",
         "gatsby": "^2.4.0",
         "office-ui-fabric-react": "^6.176.0",
         "react": "^16.8.6",

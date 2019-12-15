@@ -1,6 +1,6 @@
 import {
   FontWeights,
-  initializeIcons,
+  // initializeIcons,
   PrimaryButton,
   Stack,
   Text,
@@ -8,7 +8,7 @@ import {
 import React from "react";
 import "./index.css";
 import "./normalize.css";
-initializeIcons(/* optional base url */);
+// initializeIcons(/* optional base url */);
 const boldStyle = { root: { fontWeight: FontWeights.semibold } };
 const appStyle = {
   root: {

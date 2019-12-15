@@ -15,6 +15,11 @@ export class CanvasEditor extends React.Component<{
   changeEditing: (editing: FabricEditing) => void;
 }> {
   public componentDidMount() {
+    // const isSSR = typeof window === "undefined";
+
+    // if (isSSR) {
+    //   return;
+    // }
     const el = ReactDOM.findDOMNode(this);
     const canvas = new fabric.Canvas(el as HTMLCanvasElement);
     registerCanvasOnWindow(canvas);

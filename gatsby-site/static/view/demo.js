@@ -17,44 +17,46 @@ function init_threeScene(spec, images) {
     const threeStuffs = THREE.JeelizHelper.init(spec, detect_callback);
     const mat = new THREE.MeshBasicMaterial({
         map: new THREE.TextureLoader().load(images.top),
+        transparent: true,
     });
-    const CLOUDMESH = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat);
-    CLOUDMESH.position.setY(1.5);
+    const CLOUDMESH = new THREE.Mesh(new THREE.PlaneGeometry(3.75, 3.75), mat);
+    CLOUDMESH.position.setY(0.325);
     CLOUDMESH.frustumCulled = false;
     CLOUDMESH.renderOrder = 10000;
 
-    const mat2 = new THREE.MeshBasicMaterial({
-        map: new THREE.TextureLoader().load(images.bottom),
-    });
-    const CLOUDMESH2 = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat2);
-    CLOUDMESH2.position.setY(-1.5);
-    CLOUDMESH2.frustumCulled = false;
-    CLOUDMESH2.renderOrder = 10000;
-
     const CLOUDOBJ3D = new THREE.Object3D();
     CLOUDOBJ3D.add(CLOUDMESH);
-    CLOUDOBJ3D.add(CLOUDMESH2);
 
     threeStuffs.faceObject.add(CLOUDOBJ3D);
 
     // CREATE THE CAMERA
     THREECAMERA = THREE.JeelizHelper.create_camera();
 } // end init_threeScene()
+const defaultLut = "/luts/lut0.png"; // TODO: substituir pelo png no tamanho certo
+const defaultImage = "/luts/lut0.png"; // TODO: substituir por algo transparente
+const getLutUrl = () => {
+    if (window.parent && window.parent._lut) {
+        return window.parent._lut;
+    }
 
+    return defaultLut;
+};
+const getImageUrl = () => {
+    if (window.parent && window.parent._img) {
+        return window.parent._img;
+    }
+
+    return defaultImage;
+};
 //launched by body.onload() :
 function main() {
-    if (window.parent) {
-        console.log({ lut: window.parent._lut, img: window.parent._img });
-    }
-    // TODO: construir a info com a url
     const info = {
         lut: {
-            url: "https://threejsfundamentals.org/threejs/resources/images/lut/saturated-s8.png",
-            size: 8,
+            url: getLutUrl(),
+            size: 16,
         },
         images: {
-            top: "./models/a.jpg",
-            bottom: "./models/a.jpg",
+            top: getImageUrl(),
         },
     };
     JeelizResizer.size_canvas({

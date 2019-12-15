@@ -1,7 +1,11 @@
 import React from "react";
 
+import { initializeIcons } from "office-ui-fabric-react";
 import { makeNotificationNone } from "../creator/imgedit/helpers";
 import { ImageEditor } from "../creator/imgedit/main";
+import "./index.css";
+import "./normalize.css";
+initializeIcons(/* optional base url */);
 
 const createCentralizeStyle = {
   height: "100%",

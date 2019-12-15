@@ -11,7 +11,7 @@ import { FabricEditing, FabricEditingTypes, NotificationType } from "../types";
 import { ImageEditorButtons } from "./buttons/main";
 import { exportCanvasAsPng, unfocusOnCanvas } from "./canvas/canvasController";
 import { CanvasRenderer } from "./canvas/main";
-import { extractLut, makeEditingNone } from "./helpers";
+import { extractLut,  makeEditingNone } from "./helpers";
 import { LutsPicker } from "./luts/main";
 import { NotificationRenderer } from "./notifications/main";
 import { Previewer } from "./previewer/main";
@@ -23,11 +23,22 @@ export const ImageEditor: React.FunctionComponent<{
 }> = ({ onPublish: onDone, notification, onDismissNotification }) => {
   const [previewing, setPreviewing] = useState(false);
   const [extractedLut, setExtractedLut] = useState("");
+  const [flippedImage, setFlippedImage] = useState("");
+
   const startPreviewing = async () => {
-    const ex = await extractLut(lut);
-    setExtractedLut(ex);
-    setPreviewing(true);
+    const w = getGoodWidth();
+
+    if (w != null) {
+      const ex = await extractLut(lut);
+      setExtractedLut(ex);
+
+      const planeImg = await exportCanvasAsPng(w);
+      setFlippedImage(planeImg);
+
+      setPreviewing(true);
+    }
   };
+
   const finishPreviewing = () => setPreviewing(false);
 
   const [lut, changeLut] = useState(luts[0]);
@@ -59,70 +70,76 @@ export const ImageEditor: React.FunctionComponent<{
   const onPublish = async () => {
     const w = getGoodWidth();
     if (w != null) {
-      const planeImg = exportCanvasAsPng(w);
-      onDone({ croppedLut: await extractLut(lut), planeImg });
+      const planeImg = await exportCanvasAsPng(w);
+      const croppedLut = await extractLut(lut);
+      onDone({ croppedLut, planeImg });
     }
   };
 
   const canvasSizerStyle = {
     width: "100%",
   };
-  if (previewing) {
-    const w = getGoodWidth();
-    if (w != null) {
-      const planeImg = exportCanvasAsPng(w);
-
-      return (
-        <Previewer
-          lut={extractedLut}
-          img={planeImg}
-          finishPreviewing={finishPreviewing}
-        />
-      );
+  const renderPreview = () => {
+    if (previewing) {
+      const w = getGoodWidth();
+      if (w != null) {
+        return (
+          <Previewer
+            lut={extractedLut}
+            img={flippedImage}
+            finishPreviewing={finishPreviewing}
+          />
+        );
+      } else {
+        return <div>Error. Width undefined while previewing</div>;
+      }
     } else {
-      return <div>Error. Width undefined while previewing</div>;
+      return <></>;
     }
-  }
+  };
 
   return (
-    <Stack
-      verticalFill={true}
-      verticalAlign="space-between"
-      padding="s1"
-      styles={{ root: { maxWidth: 720, width: "100%" } }}
-      gap="m"
-    >
-      {/* Hack to know proper size of canvas */}
-      <div style={canvasSizerStyle} ref={ref}>
-        <Stack
-          horizontal={true}
-          gap="m"
-          horizontalAlign="space-between"
-          verticalAlign="center"
-        >
-          <Link href="/">Filtre.me</Link>
-          <Stack horizontal={true} gap="s1">
-            <NotificationRenderer
-              notification={notification}
-              onDismiss={onDismissNotification}
-            />
-            <DefaultButton onClick={startPreviewing}>Preview</DefaultButton>
-            <PrimaryButton onClick={onPublish}>Publish</PrimaryButton>
+    <>
+      {renderPreview()}
+      <Stack
+        verticalFill={true}
+        verticalAlign="space-between"
+        padding="s1"
+        styles={{ root: { maxWidth: 720, width: "100%" } }}
+        gap="m"
+      >
+        {/* Hack to know proper size of canvas */}
+        <div style={canvasSizerStyle} ref={ref}>
+          <Stack
+            horizontal={true}
+            gap="m"
+            horizontalAlign="space-between"
+            verticalAlign="center"
+          >
+            <Link href="/">Filtre.me</Link>
+            <Stack horizontal={true} gap="s1">
+              <NotificationRenderer
+                notification={notification}
+                onDismiss={onDismissNotification}
+              />
+              <DefaultButton onClick={startPreviewing}>Preview</DefaultButton>
+              <PrimaryButton onClick={onPublish}>Publish</PrimaryButton>
+            </Stack>
           </Stack>
-        </Stack>
-      </div>
+        </div>
 
-      <ImageEditorButtons
-        width={getGoodWidth()}
-        finishEditing={finishEditing}
-        fabricEditing={fabricEditing}
-      />
-      <CanvasRenderer
-        width={getGoodWidth()}
-        changeFabricEditing={changeFabricEditing}
-        backgroundImage={lut}
-      />
-      <LutsPicker onChangeLut={changeLut} currentLut={lut} />
-    </Stack>
+        <ImageEditorButtons
+          width={getGoodWidth()}
+          finishEditing={finishEditing}
+          fabricEditing={fabricEditing}
+        />
+        <CanvasRenderer
+          width={getGoodWidth()}
+          changeFabricEditing={changeFabricEditing}
+          backgroundImage={lut}
+        />
+        <LutsPicker onChangeLut={changeLut} currentLut={lut} />
+      </Stack>
+    </>
   );
 };

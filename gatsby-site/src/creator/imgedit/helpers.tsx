@@ -46,3 +46,26 @@ export const extractLut = (lut: string): Promise<string> => {
     image.src = lut;
   });
 };
+
+export const flipPng = (png: string): Promise<string> => {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  const image = new Image();
+
+  return new Promise<string>((rs) => {
+    image.onload = () => {
+      if (ctx) {
+        ctx.canvas.width = image.width;
+        ctx.canvas.height = image.height;
+        ctx.translate(image.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(image, 0, 0);
+        const url = canvas.toDataURL();
+        rs(url);
+      }
+    };
+
+    image.src = png;
+  });
+};
