@@ -44,12 +44,14 @@ export const filterUrls = functions.https.onRequest(
 export const createFilter = functions.https.onRequest(
   async (request, response) => {
     response.set("Access-Control-Allow-Origin", "*");
-    response.set("Content-Type", "application/json");
-    const lutData = request.body.lut;
-    const imageData = request.body.image;
+
+    const _data = JSON.parse(request.body);
+
+    const lutData = _data.lut;
+    const imageData = _data.image;
 
     if (!lutData || !imageData) {
-      response.json({ error: "inavalid images" });
+      response.send("0err0");
     } else {
       // tem as imagens
       const db = admin.firestore();
@@ -76,7 +78,7 @@ export const createFilter = functions.https.onRequest(
         views: 0,
       });
 
-      response.json({ shortId: shortId });
+      response.send(shortId);
       // TODO: add to analytics that it was created
     }
   },

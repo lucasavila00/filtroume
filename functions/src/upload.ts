@@ -29,19 +29,17 @@ export const uploadBase64 = async ({
         }),
       )
       .on("error", reject)
-      .on("finish", (fileRef: any) => {
+      .on("finish", () => {
         // The file upload is complete.
         console.log(
           "news.provider#uploadPicture - Image successfully uploaded: ",
-          JSON.stringify(fileRef),
         );
 
-        const config = {
-          action: "read",
-          expires: "03-01-2500",
-        };
-        fileRef.getSignedUrl(
-          config,
+        file.getSignedUrl(
+          {
+            action: "read",
+            expires: "03-01-2500",
+          },
           (error: any, url: any) => {
             if (error) {
               reject(error);
