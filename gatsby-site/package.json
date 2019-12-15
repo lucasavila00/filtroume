@@ -13,7 +13,8 @@
         "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\"",
         "ts": "tsc --noEmit && tslint -c tslint.json 'src/**/*.{ts,tsx}'",
         "storybook": "start-storybook -s ./static -p 6006",
-        "build-storybook": "build-storybook -s ./static"
+        "build-storybook": "build-storybook -s ./static",
+        "deploy": "npm run build && firebase deploy --only hosting"
     },
     "dependencies": {
         "@storybook/addon-actions": "^4.1.1",
