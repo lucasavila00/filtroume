@@ -75,21 +75,20 @@ const getInfo = (cb) => {
   }
 
   const parsed = parseURL(window.location.href);
-  const pathname = parsed.pathname;
+  const pathname = parsed.pathname.split("/").join("");
   const url =
     "https://us-central1-filterme.cloudfunctions.net/filterUrls?id=" + pathname;
-  console.log({ pathname, url });
 
   return fetch(url)
-    .then((res) => {
-      const data = res.json();
-      console.log({ data });
+    .then((res) => res.json())
+    .then((data) => {
       if (!data) {
         cb(null);
       } else if (data.error) {
         cb(null);
       } else {
         cb({
+          pathname,
           lut: {
             url: data.lut,
             size: 16,
@@ -103,6 +102,38 @@ const getInfo = (cb) => {
     .catch(() => cb(null));
 };
 
+function hideLoading() {
+  // TODO: hide loading...
+}
+
+function showError(type) {
+  hideLoading();
+  // TODO: show error...
+  if (type === "webcam") {
+    showNoWebcamError();
+  } else if (type === "notfound") {
+    showErrorNotFound();
+  } else {
+    showUnknownError();
+  }
+}
+
+function showNoWebcamError() {
+  // TODO: show error
+}
+
+function showErrorNotFound() {
+  // TODO: show error
+}
+
+function showUnknownError() {
+  // TODO: show error
+}
+
+function showInfoPathname(pathname) {
+  // TODO: mostrar o pathname
+}
+
 //launched by body.onload() :
 function main() {
   getInfo((info) => {
@@ -111,15 +142,23 @@ function main() {
         isFullScreen: true,
         canvasId: "jeeFaceFilterCanvas",
         callback: function(isError, bestVideoSettings) {
-          init_faceFilter(bestVideoSettings, info);
+          if (isError) {
+            showError("jeeliz");
+          } else {
+            hideLoading();
+            init_faceFilter(bestVideoSettings, info);
+            if (info.pathname) {
+              showInfoPathname(info.pathname);
+            }
+          }
         },
         onResize: function() {
           THREE.JeelizHelper.update_camera(THREECAMERA);
         },
       });
     } else {
-      console.error("could not get image!!!!");
       // mostra erro
+      showError("notfound");
     }
   });
 } //end main()
@@ -135,10 +174,11 @@ function init_faceFilter(videoSettings, info) {
     },
     followZRot: true,
     canvasId: "jeeFaceFilterCanvas",
-    NNCpath: "./dist/", // root of NNC.json file
+    NNCpath: "/view/dist/", // root of NNC.json file
     callbackReady: function(errCode, spec) {
       if (errCode) {
         console.log("AN ERROR HAPPENS. SORRY BRO :( . ERR =", errCode);
+        showError("webcam");
         return;
       }
 

@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["node"],
     "module": "commonjs",
     "outDir": "lib",
     "sourceMap": true,
