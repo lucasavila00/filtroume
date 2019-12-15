@@ -13,11 +13,16 @@ export const uploadBase64 = async ({
   type: string;
   bucket: Bucket;
 }): Promise<string> => {
-  const destination = `/v1/${type}/${shortId}.png`;
+  const destination = `v1/${type}/${shortId}.png`;
   const metadata = { contentType: "image/png" };
   return new Promise<string>((resolve, reject) => {
     const bufferStream = new stream.PassThrough();
-    bufferStream.end(Buffer.from(data, "base64"));
+    bufferStream.end(
+      Buffer.from(
+        data.replace("data:image/png;base64", ""),
+        "base64",
+      ),
+    );
 
     // Create a reference to the new image file
     const file = bucket.file(destination);
@@ -31,9 +36,6 @@ export const uploadBase64 = async ({
       .on("error", reject)
       .on("finish", () => {
         // The file upload is complete.
-        console.log(
-          "news.provider#uploadPicture - Image successfully uploaded: ",
-        );
 
         file.getSignedUrl(
           {
@@ -44,7 +46,6 @@ export const uploadBase64 = async ({
             if (error) {
               reject(error);
             }
-            console.log("download url ", url);
             resolve(url);
           },
         );

@@ -10,6 +10,22 @@ admin.initializeApp();
 const cors = c({
   origin: true,
 });
+
+// const sign = async ({
+//   destination,
+// }: {
+//   destination: string;
+// }): Promise<string> => {
+//   const bucket = admin.storage().bucket();
+
+//   const res = await bucket.file(destination).getSignedUrl({
+//     action: "read",
+//     expires: new Date().getTime() + 1000 * 60 * 60 * 24 * 5,
+//     version: "v4",
+//   });
+//   console.log({ signedUrl: res });
+//   return String(res);
+// };
 // Shell
 // filterUrls.get({ qs:{ id:"example-id" } })
 export const filterUrls = functions.https.onRequest(
