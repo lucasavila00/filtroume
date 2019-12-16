@@ -1,0 +1,20 @@
+{
+  "scripts": {
+    "start": "node server.js & yarn parcel src/index.html "
+  },
+  "author": "justadudewhohacks",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^12.12.18",
+    "add": "^2.0.6",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "face-api.js": "^0.22.0",
+    "kalmanjs": "^1.1.0",
+    "parcel-bundler": "^1.12.4",
+    "typescript": "^3.7.3"
+  },
+  "browserslist": [
+    "last 1 Chrome versions"
+  ]
+}
