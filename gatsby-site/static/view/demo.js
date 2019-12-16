@@ -103,10 +103,13 @@ const getInfo = (cb) => {
 };
 
 function hideLoading() {
-  // TODO: hide loading...
+  const ref = document.getElementsByClassName("loader")[0];
+
+  ref.style.display = "none";
 }
 
 function showError(type) {
+  console.error("GOT ERROR: " + type);
   hideLoading();
   // TODO: show error...
   if (type === "webcam") {
@@ -120,18 +123,38 @@ function showError(type) {
 
 function showNoWebcamError() {
   // TODO: show error
+
+  const ref = document.getElementsByClassName("webCamError")[0];
+
+  ref.style.display = "inline";
 }
 
 function showErrorNotFound() {
   // TODO: show error
+  const ref = document.getElementsByClassName("notFoundError")[0];
+
+  ref.style.display = "inline";
 }
 
 function showUnknownError() {
   // TODO: show error
+  const ref = document.getElementsByClassName("unknownError")[0];
+
+  ref.style.display = "inline";
 }
 
 function showInfoPathname(pathname) {
+  console.log({ pathname });
   // TODO: mostrar o pathname
+}
+
+function showTutorial() {
+  hideLoading();
+  const ref = document.getElementsByClassName("tutorial")[0];
+  ref.style.display = "inline";
+  setTimeout(() => {
+    ref.style.display = "none";
+  }, 9000);
 }
 
 //launched by body.onload() :
@@ -145,8 +168,8 @@ function main() {
           if (isError) {
             showError("jeeliz");
           } else {
-            hideLoading();
             init_faceFilter(bestVideoSettings, info);
+            showTutorial();
             if (info.pathname) {
               showInfoPathname(info.pathname);
             }

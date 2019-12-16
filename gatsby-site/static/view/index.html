@@ -3,6 +3,10 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta http-equiv="content-language" content="en-EN" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
 
     <title>JEELIZ FACE FILTER : CLOUD</title>
 
@@ -26,14 +30,106 @@
     <!-- INCLUDE DEMO SCRIPT -->
     <script src="/view/demo.js"></script>
 
-    <link
-      rel="stylesheet"
-      href="/view/appearance/styleFullScreen.css"
-      type="text/css"
-    />
+    <link rel="stylesheet" href="/view/appearance/loader.css" type="text/css" />
+    <style>
+      a {
+        color: #eee;
+        text-decoration: none;
+      }
+
+      a:hover {
+        color: blue;
+      }
+
+      body {
+        overflow: auto;
+        overflow-y: auto;
+        margin: 0px;
+        background-color: #000;
+      }
+
+      .infoWrapper {
+        z-index: 10;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0px;
+        left: 0px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: -1;
+      }
+
+      #jeeFaceFilterCanvas {
+        z-index: 10;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0px;
+        left: 0px;
+        transform: rotateY(180deg);
+      }
+
+      .commonError {
+        display: none;
+        color: white;
+        text-align: center;
+        font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI",
+          -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue",
+          sans-serif;
+      }
+      #camerabtn {
+        width: 128px;
+        height: 128px;
+        position: absolute;
+        bottom: 0px;
+        left: 128px;
+        z-index: 99999;
+        background-color: white;
+      }
+    </style>
   </head>
 
   <body onload="main()" style="color: black">
+    <div class="infoWrapper">
+      <div class="loader"></div>
+      <div class="commonError tutorial">
+        <div style="font-size: 2em;">
+          Find a face
+        </div>
+        <div style="font-size: 1em;">
+          TODO: change this text
+        </div>
+      </div>
+      <div class="commonError unknownError">
+        <div style="font-size: 2em;">
+          An error ocurred
+        </div>
+        <div style="font-size: 1em;">
+          Try again later
+        </div>
+      </div>
+
+      <div class="commonError notFoundError">
+        <div style="font-size: 2em;">
+          Effect not found
+        </div>
+        <div style="font-size: 1em;">
+          Check the url
+        </div>
+      </div>
+
+      <div class="commonError webCamError">
+        <div style="font-size: 2em;">
+          Camera not found
+        </div>
+        <div style="font-size: 1em;">
+          Try on another device
+        </div>
+      </div>
+    </div>
     <canvas width="600" height="600" id="jeeFaceFilterCanvas"></canvas>
+    <button id="camerabtn">asdasd</button>
   </body>
 </html>
