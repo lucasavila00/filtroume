@@ -4121,6 +4121,11 @@ posthtml@^0.12.0:
     posthtml-parser "^0.4.1"
     posthtml-render "^1.1.5"
 
+postprocessing@^6.9.0:
+  version "6.9.0"
+  resolved "https://registry.yarnpkg.com/postprocessing/-/postprocessing-6.9.0.tgz#e664a4df895a1b0a38efbcdf0bcb4962faed16c1"
+  integrity sha512-MBagzxYzvn53eG5HguMycr5DE2sKw8Jg9rEaeslVZHiz7M/wn8+Yvi8W2hlIypQG+0PlADJoksAUY9vTkKUdPQ==
+
 prelude-ls@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"
@@ -4931,6 +4936,11 @@ terser@^4.3.9:
     commander "^2.20.0"
     source-map "~0.6.1"
     source-map-support "~0.5.12"
+
+three@^0.111.0:
+  version "0.111.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.111.0.tgz#9cedb73e79b7f6bf2440cb67a273f883faa923b6"
+  integrity sha512-AcTqyGJ3H75AIusOuADy0LsP958QKQwm/YhABHFMzd6RFXPNVay1rlSbbG6WYv7KM72G2THMMwqbjQd4dVHMkQ==
 
 through2@^2.0.0, through2@~2.0.3:
   version "2.0.5"

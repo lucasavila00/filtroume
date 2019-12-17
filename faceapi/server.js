@@ -2,11 +2,11 @@ const express = require("express");
 const path = require("path");
 var https = require("https");
 var fs = require("fs");
-var cors = require('cors')
+var cors = require("cors");
 
 const app = express();
 
-app.use(cors({origin: true}))
+app.use(cors({ origin: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -17,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 // );
 app.use(express.static(path.join(__dirname, "./opencv")));
 app.use(express.static(path.join(__dirname, "./weights")));
+app.use(express.static(path.join(__dirname, "./dist")));
 // app.use(express.static(path.join(__dirname, "./build")));
 
 https
@@ -28,6 +29,5 @@ https
     app,
   )
   .listen(3007, () =>
-    console.log("Listening on port 3000!"),
+    console.log("Listening on port 3007!"),
   );
-
