@@ -121,8 +121,9 @@ function init_threeScene() {
       depthTest: false,
     }),
   );
+  pivotCubeMesh.frustumCulled = false;
   const threeCompositeObject = new THREE.Object3D();
-  threeCompositeObject.position.set(-10, -10, -10);
+
   threeCompositeObject.add(pivotCubeMesh);
   _threeScene!.add(threeCompositeObject);
 } // end init_threeScene()
@@ -206,7 +207,7 @@ const create_videoScreen = () => {
   apply_videoTexture(_threeVideoMesh);
   _threeVideoMesh.renderOrder = -1000; //render first
   _threeVideoMesh.frustumCulled = false;
-  _threeScene!.add(_threeVideoMesh);
+  // _threeScene!.add(_threeVideoMesh);
 };
 const apply_videoTexture = (threeMesh: THREE.Mesh) => {
   if (_isVideoTextureReady) {
@@ -242,7 +243,22 @@ const init = () => {
   });
 
   _threeScene = new THREE.Scene();
+  // var scene = new THREE.Scene();
+  _threeCamera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+  );
+  var geometry = new THREE.BoxGeometry(1, 1, 1);
 
+  var material = new THREE.MeshBasicMaterial({
+    color: 0xff0000,
+  });
+  var cube = new THREE.Mesh(geometry, material);
+  _threeScene.add(cube);
+  cube.position.z = -5;
+  cube.rotation.x = 10;
+  cube.rotation.y = 5;
+  // _threeRenderer.render(_threeScene, _threeCamera);
   // const rtParameters = {
   //   minFilter: THREE.LinearFilter,
   //   magFilter: THREE.LinearFilter,
@@ -254,7 +270,7 @@ const init = () => {
   // );
 
   // create_threeCompositeObjects();
-  create_videoScreen();
+  // create_videoScreen();
 
   const returnedDict = {
     videoMesh: _threeVideoMesh,
@@ -299,9 +315,12 @@ const create_camera = function(
     zNear ? zNear : 0.1,
     zFar ? zFar : 100,
   );
-  // threeCamera.position.y = -100;
+
   update_camera(threeCamera);
 
+  // threeCamera.position.set(30, 0, 0);
+  // threeCamera.up = new THREE.Vector3(0, 0, 1);
+  // threeCamera.lookAt(new THREE.Vector3(0, 0, 0));
   return threeCamera;
 };
 const _settings = {
@@ -387,7 +406,7 @@ export const start = ({
   _videoElement = videoElement;
 
   init();
-  init_threeScene();
+  // init_threeScene();
   _threeCamera = create_camera();
   // registerCamera(
   //   _threeCamera,
