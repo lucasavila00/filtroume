@@ -10,16 +10,7 @@ app.use(cors({ origin: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// const viewsDir = path.join(__dirname, "public");
-// app.use(express.static(viewsDir));
-// app.use(
-//   express.static(path.join(__dirname, "./weights")),
-// );
-app.use(express.static(path.join(__dirname, "./opencv")));
-app.use(express.static(path.join(__dirname, "./weights")));
-app.use(express.static(path.join(__dirname, "./luts")));
-// app.use(express.static(path.join(__dirname, "./dist")));
-// app.use(express.static(path.join(__dirname, "./build")));
+app.use(express.static(path.join(__dirname, "./static")));
 
 https
   .createServer(

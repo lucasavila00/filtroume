@@ -10,13 +10,13 @@ let _videoEl: HTMLVideoElement | null = null;
 let _videoTexture: WebGLTexture | null = null;
 let _gl: WebGLRenderingContext | null = null;
 
-async function onPlay(): Promise<void> {
+const renderLoop = async () => {
   if (
     _videoEl == null ||
     _videoEl.paused ||
     _videoEl.ended
   ) {
-    setTimeout(() => onPlay());
+    setTimeout(() => renderLoop());
     return;
   }
   drawOnVideoTexture(_gl!, _videoTexture!, _videoEl);
@@ -45,16 +45,16 @@ async function onPlay(): Promise<void> {
   }
   threeManager.render(!!result);
 
-  setTimeout(() => onPlay());
-}
+  setTimeout(() => renderLoop());
+};
 
-const initThree = () => {
+const prepareScene = async () => {
   if (
     _videoEl == null ||
     _videoEl.paused ||
     _videoEl.ended
   ) {
-    setTimeout(initThree, 16);
+    setTimeout(prepareScene, 16);
     return;
   }
   const canvas: HTMLCanvasElement | null = document.getElementById(
@@ -67,7 +67,7 @@ const initThree = () => {
   _gl = canvas.getContext("webgl");
 
   if (_gl == null) {
-    setTimeout(initThree, 16);
+    setTimeout(prepareScene, 16);
     return;
   }
 
@@ -75,17 +75,15 @@ const initThree = () => {
 
   drawOnVideoTexture(_gl!, _videoTexture!, _videoEl);
 
-  threeManager.start({
+  await threeManager.start({
     videoElement: _videoEl!,
     canvasElement: canvas,
     videoTexture: _videoTexture!,
     GL: _gl!,
   });
-
-  onPlay();
 };
 
-const downloadModelsAndRun = async () => {
+const prepareModels = async () => {
   await faceapi.nets.tinyFaceDetector.loadFromUri(
     "https://192.168.0.108:3007/",
   );
@@ -93,7 +91,8 @@ const downloadModelsAndRun = async () => {
   await faceapi.nets.faceLandmark68TinyNet.loadFromUri(
     "https://192.168.0.108:3007/",
   );
-
+};
+const prepareVideo = async () => {
   // try to access users webcam and stream the images
   // to the video element
   const stream = await navigator.mediaDevices.getUserMedia(
@@ -104,8 +103,12 @@ const downloadModelsAndRun = async () => {
   video.setAttribute("autoplay", "true");
   video.srcObject = stream;
   _videoEl = video;
-
-  initThree();
 };
 
-downloadModelsAndRun();
+const main = async () => {
+  await prepareModels();
+  await prepareVideo();
+  await prepareScene();
+  renderLoop();
+};
+main();

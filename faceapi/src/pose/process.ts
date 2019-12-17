@@ -1,11 +1,10 @@
 import * as faceapi from "face-api.js";
-import * as THREE from "three";
 import { CV } from "../opencv";
 import { generateImageAndObjectPoints } from "./prepare";
 import { generateCameraMatrix } from "./camera";
 import { gotTvec, gotRvec } from "../three/main";
-import { drawCube } from "../debugPaint";
 declare var cv: CV;
+
 let selectedOpenCvMethoed = 4; //cv.SOLVEPNP_UPNP;
 
 export function extractHeadPoseInfo(
@@ -86,19 +85,17 @@ export function extractHeadPoseInfo(
 
     let outrvec = new cv.Mat();
     (cv as any).Rodrigues(transposed, outrvec);
-    // console.log({ outrvec });
     gotRvec(outrvec);
     gotTvec(
       outvec.data64F[0],
       outvec.data64F[1],
       outvec.data64F[2],
     );
-    // dst.delete()
-    // rout.delete()
-    // transposed.delete()
+    minusR.delete();
+    rout.delete();
+    transposed.delete();
 
-    // console.log((cv as any).Rodrigues(rvec));
-    // console.log({ tvec });
+    // const debug2d = () => {
     // const canvas: HTMLCanvasElement | null = document.getElementById(
     //   "overlay2",
     // ) as HTMLCanvasElement;
@@ -113,15 +110,15 @@ export function extractHeadPoseInfo(
     //   positions,
     //   canvas,
     // );
-
     // faceapi.draw.drawDetections(canvas, resizedResult);
     // faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
+    // }
   } catch (err) {
     console.error(err);
     throw err;
   } finally {
-    // rvec.delete();
-    // tvec.delete();
+    rvec.delete();
+    tvec.delete();
     outinliers.delete();
     imagePoints.delete();
     objectPoints.delete();

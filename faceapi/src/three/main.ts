@@ -60,7 +60,7 @@ export const render = (foundFace: boolean) => {
   _threeComposer.render(clock.getDelta());
 };
 
-export const start = ({
+export const start = async ({
   videoElement,
   canvasElement,
   videoTexture,
@@ -76,7 +76,12 @@ export const start = ({
   _faceFilterCv = canvasElement;
   _videoElement = videoElement;
 
-  const info = getInfo();
+  const info = await getInfo();
+  if (!info) {
+    // display error info
+    console.error("info not found!!!!");
+    return;
+  }
 
   _threeRenderer = new THREE.WebGLRenderer({
     context: _gl!,
@@ -105,15 +110,12 @@ const makeLUTTexture = function(info: {
   const texture = makeIdentityLutTexture(
     THREE.LinearFilter,
   );
-  console.log("maeking textureeeee");
   if (info.url && ctx) {
     const lutSize = info.size;
-    console.log("has url and canvas lut");
 
     // set the size to 2 (the identity size). We'll restore it when the
     // image has loaded. This way the code using the lut doesn't have to
     // care if the image has loaded or not
-
     imgLoader.load(info.url, function(image) {
       const width = lutSize * lutSize;
       const height = lutSize;

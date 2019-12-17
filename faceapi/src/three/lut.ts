@@ -54,39 +54,16 @@ export class ColorTransformEffect extends Effect {
 export const makeIdentityLutTexture = function(
   filter: THREE.TextureFilter,
 ) {
+  // prettier-ignore
   const identityLUT = new Uint8Array([
-    0,
-    0,
-    0,
-    255, // black
-    255,
-    0,
-    0,
-    255, // red
-    0,
-    0,
-    255,
-    255, // blue
-    255,
-    0,
-    255,
-    255, // magenta
-    0,
-    255,
-    0,
-    255, // green
-    255,
-    255,
-    0,
-    255, // yellow
-    0,
-    255,
-    255,
-    255, // cyan
-    255,
-    255,
-    255,
-    255, // white
+    0,      0,      0,      255, // black
+    255,    0,      0,      255, // red
+    0,      0,      255,    255, // blue
+    255,    0,      255,    255, // magenta
+    0,      255,    0,      255, // green
+    255,    255,    0,      255, // yellow
+    0,      255,    255,    255, // cyan
+    255,    255,    255,    255, // white
   ]);
 
   const texture = new THREE.DataTexture(
