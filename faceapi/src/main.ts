@@ -48,13 +48,13 @@ const renderLoop = async () => {
   setTimeout(() => renderLoop());
 };
 
-const prepareScene = async () => {
+const prepareSceneAndRun = async () => {
   if (
     _videoEl == null ||
     _videoEl.paused ||
     _videoEl.ended
   ) {
-    setTimeout(prepareScene, 16);
+    setTimeout(prepareSceneAndRun, 16);
     return;
   }
   const canvas: HTMLCanvasElement | null = document.getElementById(
@@ -67,7 +67,7 @@ const prepareScene = async () => {
   _gl = canvas.getContext("webgl");
 
   if (_gl == null) {
-    setTimeout(prepareScene, 16);
+    setTimeout(prepareSceneAndRun, 16);
     return;
   }
 
@@ -81,15 +81,17 @@ const prepareScene = async () => {
     videoTexture: _videoTexture!,
     GL: _gl!,
   });
+
+  renderLoop();
 };
 
 const prepareModels = async () => {
   await faceapi.nets.tinyFaceDetector.loadFromUri(
-    "https://192.168.0.108:3007/",
+    "https://filterme.firebaseapp.com/weights/",
   );
 
   await faceapi.nets.faceLandmark68TinyNet.loadFromUri(
-    "https://192.168.0.108:3007/",
+    "https://filterme.firebaseapp.com/weights/",
   );
 };
 const prepareVideo = async () => {
@@ -108,7 +110,6 @@ const prepareVideo = async () => {
 const main = async () => {
   await prepareModels();
   await prepareVideo();
-  await prepareScene();
-  renderLoop();
+  await prepareSceneAndRun();
 };
 main();

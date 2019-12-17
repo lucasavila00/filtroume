@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "start": "node server.js & yarn parcel src/index.html "
+    "start": "yarn parcel src/index.html ",
+    "build": "yarn parcel build src/index.html  --out-dir ../gatsby-site/static/view"
   },
   "author": "justadudewhohacks",
   "license": "MIT",
