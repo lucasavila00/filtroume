@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import KalmanFilter from "kalmanjs";
 import { CV } from "../opencv";
+import { Vector3 } from "three";
 declare var cv: CV;
 
 const kalmanconfig = { R: 1, Q: 50 };
@@ -12,7 +13,7 @@ export const gotTvec = (
   y: number,
   z: number,
 ) => {
-  // console.log({ x, y, z });
+  console.log({ x, y, z });
   // threeCompositeObject.position.set(x / 1, y / 1, z / 1);
   _threeCamera!.position.set(
     txKalman.filter(x),
@@ -20,7 +21,12 @@ export const gotTvec = (
     tzKalman.filter(z),
   );
 };
-
+// let _xrot = 0;
+// const fun = () => {
+//   _xrot += 0.01;
+//   setTimeout(fun, 50);
+// };
+// fun();
 const raKalman = new KalmanFilter(kalmanconfig);
 const rbKalman = new KalmanFilter(kalmanconfig);
 const rcKalman = new KalmanFilter(kalmanconfig);
@@ -39,6 +45,13 @@ export const gotRvec = (
   var mat = new THREE.Matrix4();
   // console.log({ rout });
   const r = rout.data64F;
+  // // prettier-ignore
+  // mat.set(
+  //   r[0], r[3], r[6],   0,
+  //   r[1], r[4], r[7],   0,
+  //   r[2], r[5], r[8],   0,
+  //   0,    0,    0,      1
+  // );
   // prettier-ignore
   mat.set(
       r[0], r[1], r[2],   0,
@@ -47,10 +60,13 @@ export const gotRvec = (
       0,    0,    0,      1
     );
   quaternion.setFromRotationMatrix(mat);
-  // const euler = new THREE.Euler();
-  // euler.setFromQuaternion(quaternion);
+  const euler = new THREE.Euler();
+  euler.setFromQuaternion(quaternion);
+  _threeCamera!.rotation.x = euler.x - Math.PI;
+  _threeCamera!.rotation.y = -euler.y;
+  _threeCamera!.rotation.z = -euler.z;
 
-  _threeCamera!.rotation.setFromQuaternion(quaternion);
+  rout.delete();
 };
 // import {
 //   EffectComposer,
@@ -200,7 +216,7 @@ function init_threeScene() {
 let line: THREE.Line;
 const lines = () => {
   var material = new THREE.LineBasicMaterial({
-    color: "black",
+    color: "green",
     linewidth: 25,
   });
   var geometry = new THREE.Geometry();
@@ -298,7 +314,7 @@ const create_videoScreen = () => {
   uniform sampler2D samplerVideo;\n\
   varying vec2 vUV;\n\
   void main(void){\n\
-    gl_FragColor = texture2D(samplerVideo, vec2(1.0-vUV.x, 1.0-vUV.y));\n\
+    gl_FragColor = texture2D(samplerVideo, vec2(vUV.x, 1.0-vUV.y));\n\
   }";
 
   //init video texture with red

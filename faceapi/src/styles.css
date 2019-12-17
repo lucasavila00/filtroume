@@ -13,3 +13,11 @@ body {
   left: 0px;
   /* transform: rotateY(180deg); */
 }
+
+#overlay2 {
+  z-index: 25;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  /* transform: rotateY(180deg); */
+}

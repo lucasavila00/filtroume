@@ -87,8 +87,15 @@ const initThree = () => {
     "overlay",
   ) as HTMLCanvasElement;
 
+  // const canvas2: HTMLCanvasElement | null = document.getElementById(
+  //   "overlay2",
+  // ) as HTMLCanvasElement;
+  // canvas2.width = _videoEl.videoWidth;
+  // canvas2.height = _videoEl.videoHeight;
+
   canvas.width = _videoEl.videoWidth;
   canvas.height = _videoEl.videoHeight;
+
   _gl = canvas.getContext("webgl");
 
   if (_gl == null) {

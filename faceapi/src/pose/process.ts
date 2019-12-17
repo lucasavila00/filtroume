@@ -4,6 +4,7 @@ import { CV } from "../opencv";
 import { generateImageAndObjectPoints } from "./prepare";
 import { generateCameraMatrix } from "./camera";
 import { gotTvec, gotRvec } from "../three/main";
+import { drawCube } from "../debugPaint";
 declare var cv: CV;
 let selectedOpenCvMethoed = 4; //cv.SOLVEPNP_UPNP;
 
@@ -48,38 +49,62 @@ export function extractHeadPoseInfo(
       tvec,
     );
 
-    // let rout = new cv.Mat();
-    // (cv as any).Rodrigues(rvec, rout);
-    // rout = rout.t();
+    let rout = new cv.Mat();
+    (cv as any).Rodrigues(rvec, rout);
+    const transposed = rout.t();
+    let minusR = new cv.Mat();
 
-    // let dst = new cv.Mat();
-
-    // cv.multiply(
-    //   rout,
-    //   cv.matFromArray(3, 1, cv.CV_64F, [-1, -1, -1]),
-    //   dst,
-    // );
-
-    // cv.multiply(dst, tvec, rout);
-
-    // tvec = rout
-    //   .mul(
-    //     cv.matFromArray(3, 1, cv.CV_64F, [-1, -1, -1]),
-    //     1,
-    //   )
-    //   .mul(tvec, 1);
-
-    // (cv as any).Rodrigues(rout, rvec);
-
-    // gotRvec(rvec);
-    gotTvec(
-      tvec.data64F[0],
-      tvec.data64F[1],
-      tvec.data64F[2],
+    cv.multiply(
+      transposed,
+      cv.matFromArray(3, 3, cv.CV_64F, [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+      ]),
+      minusR,
     );
+
+    let outvec = new cv.Mat();
+    const src3 = cv.matFromArray(3, 3, cv.CV_64F, [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+    ]);
+    cv.gemm(minusR, tvec, 1, src3, 0, outvec);
+
+    let outrvec = new cv.Mat();
+    (cv as any).Rodrigues(transposed, outrvec);
+    console.log({ outrvec });
+    gotRvec(outrvec);
+    gotTvec(
+      outvec.data64F[0],
+      outvec.data64F[1],
+      outvec.data64F[2],
+    );
+    // dst.delete()
+    // rout.delete()
+    // transposed.delete()
 
     // console.log((cv as any).Rodrigues(rvec));
     // console.log({ tvec });
+    // const canvas: HTMLCanvasElement | null = document.getElementById(
+    //   "overlay2",
+    // ) as HTMLCanvasElement;
+    // canvas
+    //   .getContext("2d")!
+    //   .clearRect(0, 0, canvas.width, canvas.height);
     // drawCube(
     //   rvec,
     //   tvec,
@@ -88,7 +113,17 @@ export function extractHeadPoseInfo(
     //   positions,
     //   canvas,
     // );
+
+    // faceapi.draw.drawDetections(canvas, resizedResult);
+    // faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
   } catch (err) {
     console.error(err);
+    throw err;
+  } finally {
+    // rvec.delete();
+    // tvec.delete();
+    outinliers.delete();
+    imagePoints.delete();
+    objectPoints.delete();
   }
 }
