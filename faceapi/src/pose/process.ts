@@ -86,7 +86,7 @@ export function extractHeadPoseInfo(
 
     let outrvec = new cv.Mat();
     (cv as any).Rodrigues(transposed, outrvec);
-    console.log({ outrvec });
+    // console.log({ outrvec });
     gotRvec(outrvec);
     gotTvec(
       outvec.data64F[0],

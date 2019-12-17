@@ -68,7 +68,7 @@ async function onPlay(): Promise<void> {
     //   //     // faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
     //   //   }
   }
-  threeManager.render();
+  threeManager.render(!!result);
 
   setTimeout(() => onPlay());
 }

@@ -37,4 +37,5 @@ export const drawOnVideoTexture = (
     gl.TEXTURE_MAG_FILTER,
     gl.LINEAR,
   );
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 };
