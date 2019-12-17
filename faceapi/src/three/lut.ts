@@ -51,7 +51,7 @@ export class ColorTransformEffect extends Effect {
     lutTexture.needsUpdate = true;
   }
 }
-const makeIdentityLutTexture = function(
+export const makeIdentityLutTexture = function(
   filter: THREE.TextureFilter,
 ) {
   const identityLUT = new Uint8Array([
@@ -99,56 +99,5 @@ const makeIdentityLutTexture = function(
   texture.magFilter = filter;
   texture.needsUpdate = true;
   texture.flipY = false;
-  return texture;
-};
-
-export const makeLUTTexture = function(
-  info: {
-    url: string;
-    size: number;
-  },
-  _lutEf: any,
-) {
-  const imgLoader = new THREE.ImageLoader();
-  const ctx = document
-    .createElement("canvas")
-    .getContext("2d");
-  const texture = makeIdentityLutTexture(
-    THREE.LinearFilter,
-  );
-  console.log("maeking textureeeee");
-  if (info.url && ctx) {
-    const lutSize = info.size;
-    console.log("has url and canvas lut");
-
-    // set the size to 2 (the identity size). We'll restore it when the
-    // image has loaded. This way the code using the lut doesn't have to
-    // care if the image has loaded or not
-
-    imgLoader.load(info.url, function(image) {
-      const width = lutSize * lutSize;
-      const height = lutSize;
-      ctx.canvas.width = width;
-      ctx.canvas.height = height;
-      ctx.drawImage(image, 0, 0);
-      const imageData = ctx.getImageData(
-        0,
-        0,
-        width,
-        height,
-      );
-
-      (texture.image as any).data = new Uint8Array(
-        imageData.data.buffer,
-      );
-      (texture.image as any).width = width;
-      (texture.image as any).height = height;
-      texture.needsUpdate = true;
-      (_lutEf.uniforms as Map<string, THREE.Uniform>).get(
-        "lutMapSize",
-      )!.value = lutSize;
-    });
-  }
-
   return texture;
 };

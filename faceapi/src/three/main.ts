@@ -9,8 +9,9 @@ import {
 } from "postprocessing";
 import {
   ColorTransformEffect,
-  makeLUTTexture,
+  makeIdentityLutTexture,
 } from "./lut";
+import { calcCameraParams } from "./camera";
 
 const clock = new THREE.Clock();
 
@@ -93,6 +94,53 @@ export const start = ({
 
   initComposer(info);
 };
+const makeLUTTexture = function(info: {
+  url: string;
+  size: number;
+}) {
+  const imgLoader = new THREE.ImageLoader();
+  const ctx = document
+    .createElement("canvas")
+    .getContext("2d");
+  const texture = makeIdentityLutTexture(
+    THREE.LinearFilter,
+  );
+  console.log("maeking textureeeee");
+  if (info.url && ctx) {
+    const lutSize = info.size;
+    console.log("has url and canvas lut");
+
+    // set the size to 2 (the identity size). We'll restore it when the
+    // image has loaded. This way the code using the lut doesn't have to
+    // care if the image has loaded or not
+
+    imgLoader.load(info.url, function(image) {
+      const width = lutSize * lutSize;
+      const height = lutSize;
+      ctx.canvas.width = width;
+      ctx.canvas.height = height;
+      ctx.drawImage(image, 0, 0);
+      const imageData = ctx.getImageData(
+        0,
+        0,
+        width,
+        height,
+      );
+
+      (_lutEf.uniforms as Map<string, THREE.Uniform>).get(
+        "lutMapSize",
+      )!.value = lutSize;
+      (texture.image as any).data = new Uint8Array(
+        imageData.data.buffer,
+      );
+      (texture.image as any).width = width;
+      (texture.image as any).height = height;
+      texture.needsUpdate = true;
+    });
+  }
+
+  return texture;
+};
 const initComposer = (info: IInfo) => {
   const rtParameters = {
     minFilter: THREE.LinearFilter,
@@ -105,7 +153,7 @@ const initComposer = (info: IInfo) => {
   );
 
   _lutEf = new ColorTransformEffect({
-    lutTexture: makeLUTTexture(info.lut, _lutEf),
+    lutTexture: makeLUTTexture(info.lut),
   });
   const effectPass = new EffectPass(
     _threeCamera,
@@ -201,90 +249,59 @@ const create_videoScreen = () => {
     videoGeometry,
     videoMaterial,
   );
+  const apply_videoTexture = (threeMesh: THREE.Mesh) => {
+    if (_isVideoTextureReady) {
+      return;
+    }
+    threeMesh.onAfterRender = function() {
+      // Replace _threeVideoTexture.__webglTexture by the real video texture:
+      try {
+        _threeRenderer!.properties.update(
+          _threeVideoTexture,
+          "__webglTexture",
+          _glVideoTexture,
+        );
+        _threeVideoTexture!.magFilter = THREE.LinearFilter;
+        _threeVideoTexture!.minFilter = THREE.LinearFilter;
+        _isVideoTextureReady = true;
+        // console.log("updated...");
+      } catch (e) {
+        console.log(
+          "WARNING in THREE.JeelizHelper : the glVideoTexture is not fully initialized",
+        );
+      }
+      delete threeMesh.onAfterRender;
+    };
+  };
+
   apply_videoTexture(_threeVideoMesh);
   _threeVideoMesh.renderOrder = -1000; //render first
   _threeVideoMesh.frustumCulled = false;
   _threeScene!.add(_threeVideoMesh);
 };
-const apply_videoTexture = (threeMesh: THREE.Mesh) => {
-  if (_isVideoTextureReady) {
-    return;
-  }
-  threeMesh.onAfterRender = function() {
-    // Replace _threeVideoTexture.__webglTexture by the real video texture:
-    try {
-      _threeRenderer!.properties.update(
-        _threeVideoTexture,
-        "__webglTexture",
-        _glVideoTexture,
-      );
-      _threeVideoTexture!.magFilter = THREE.LinearFilter;
-      _threeVideoTexture!.minFilter = THREE.LinearFilter;
-      _isVideoTextureReady = true;
-      // console.log("updated...");
-    } catch (e) {
-      console.log(
-        "WARNING in THREE.JeelizHelper : the glVideoTexture is not fully initialized",
-      );
-    }
-    delete threeMesh.onAfterRender;
-  };
-};
 
-const create_camera = function(
-  zNear?: number,
-  zFar?: number,
-) {
+const create_camera = function(zNear = 0.1, zFar = 10000) {
   const threeCamera = new THREE.PerspectiveCamera(
     1,
     1,
-    zNear ? zNear : 0.1,
-    zFar ? zFar : 10000,
+    zNear,
+    zFar,
   );
-  const _settings = {
-    cameraMinVideoDimFov: 28, //Field of View for the smallest dimension of the video in degrees
-  };
-  // compute aspectRatio:
-  const canvasElement = _threeRenderer!.domElement;
-  const cvw = canvasElement.width;
-  const cvh = canvasElement.height;
-  // console.log({ cvw, cvh });
-  const canvasAspectRatio = cvw / cvh;
-
-  // compute vertical field of view:
-  const vw = _videoElement!.videoWidth;
-  const vh = _videoElement!.videoHeight;
-  const videoAspectRatio = vw / vh;
-  const fovFactor = vh > vw ? 1.0 / videoAspectRatio : 1.0;
-  // const fovh = 2 * Math.atan(cvh / (2 * cvw));
-  // const fovw = 2 * Math.atan(cvw / (2 * cvw));
-  // const fov = vh > vw ? fovh : fovw;
-  const fov = _settings.cameraMinVideoDimFov * fovFactor;
-
-  // console.log({ fovFactor, fovh, fovw });
-
-  // compute X and Y offsets in pixels:
-  let scale = 1.0;
-  if (canvasAspectRatio > videoAspectRatio) {
-    // the canvas is more in landscape format than the video, so we crop top and bottom margins:
-    scale = cvw / vw;
-  } else {
-    // the canvas is more in portrait format than the video, so we crop right and left margins:
-    scale = cvh / vh;
-  }
-  const cvws = vw * scale,
-    cvhs = vh * scale;
-  const offsetX = (cvws - cvw) / 2.0;
-  const offsetY = (cvhs - cvh) / 2.0;
-  // _scaleW = cvw / cvws;
-  // console.log({ _scaleW, offsetX, offsetY });
+  const {
+    canvasAspectRatio,
+    fov,
+    cvws,
+    cvhs,
+    offsetX,
+    offsetY,
+    cvw,
+    cvh,
+  } = calcCameraParams(_threeRenderer, _videoElement);
 
   // apply parameters:
   threeCamera.aspect = canvasAspectRatio;
 
   threeCamera.fov = fov;
-
-  // console.log({ offsetX, offsetY });
 
   threeCamera.setViewOffset(
     cvws,
