@@ -7,18 +7,9 @@ export function PrecisionRound(num: number, prec = 2) {
   return Math.floor(num * f) / f;
 }
 
-export function isFaceDetectionModelLoaded() {
-  return true;
-  // return !!faceapi.nets.tinyFaceDetector.params;
-}
-
 export function getFaceDetectorOptions() {
   return new faceapi.TinyFaceDetectorOptions({
     inputSize,
     scoreThreshold,
   });
-}
-
-export function changeInputSize(size: string | number) {
-  inputSize = parseInt(String(size), 10);
 }

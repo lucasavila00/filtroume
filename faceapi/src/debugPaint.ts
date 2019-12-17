@@ -1,5 +1,6 @@
 import KalmanFilter from "kalmanjs";
 import * as faceapi from "face-api.js";
+import * as THREE from "three";
 import { CV } from "./opencv";
 declare var cv: CV;
 
@@ -153,3 +154,76 @@ export function drawCube(
     sidey,
   );
 }
+
+export const lines = (
+  threeCompositeObject: THREE.Object3D,
+) => {
+  var material = new THREE.LineBasicMaterial({
+    color: "green",
+    linewidth: 25,
+  });
+  var geometry = new THREE.Geometry();
+
+  //nose tips
+  geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+  // bottom nose
+  geometry.vertices.push(
+    new THREE.Vector3(0.0, -60.0, -78.0),
+  );
+  // left nostril
+  geometry.vertices.push(
+    new THREE.Vector3(-67.0, -58.0, -100.0),
+  );
+  //nose tips
+  geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+  // bottom nose
+  geometry.vertices.push(
+    new THREE.Vector3(0.0, -60.0, -78.0),
+  );
+  // right nostril
+  geometry.vertices.push(
+    new THREE.Vector3(67.0, -58.0, -100.0),
+  );
+  //nose tips
+  geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+  //righteyerightcorner
+  geometry.vertices.push(
+    new THREE.Vector3(262.0, 168.0, -240.0),
+  );
+  //righteyeleftcorner
+  geometry.vertices.push(
+    new THREE.Vector3(115.0, 170.0, -210.0),
+  );
+  //nose tips
+  geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+  //lefteyeleftcorner
+  geometry.vertices.push(
+    new THREE.Vector3(-262.0, 168.0, -240.0),
+  );
+  //lefteyerightcorner
+  geometry.vertices.push(
+    new THREE.Vector3(-115.0, 170.0, -210.0),
+  );
+  //nose tips
+  geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+  // bottom nose
+  geometry.vertices.push(
+    new THREE.Vector3(0.0, -60.0, -78.0),
+  );
+  // left mouth corner
+  geometry.vertices.push(
+    new THREE.Vector3(-148.0, -192.0, -181.0),
+  );
+  //rightmouthcorner
+  geometry.vertices.push(
+    new THREE.Vector3(148.0, -192.0, -181.0),
+  );
+  // bottom nose
+  geometry.vertices.push(
+    new THREE.Vector3(0.0, -60.0, -78.0),
+  );
+  const line = new THREE.Line(geometry, material);
+  line.frustumCulled = false;
+  line.renderOrder = 50000;
+  threeCompositeObject.add(line);
+};
