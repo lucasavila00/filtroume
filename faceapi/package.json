@@ -12,6 +12,7 @@
     "face-api.js": "^0.22.0",
     "kalmanjs": "^1.1.0",
     "parcel-bundler": "^1.12.4",
+    "postprocessing": "^6.9.0",
     "three": "^0.111.0",
     "typescript": "^3.7.3"
   },

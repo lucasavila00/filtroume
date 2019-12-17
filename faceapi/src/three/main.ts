@@ -1,8 +1,68 @@
 import * as THREE from "three";
-import { CV } from "../opencv";
 import { processTvec, processRVec } from "./kalman";
 import { getInfo } from "./info";
-declare var cv: CV;
+import {
+  // BloomEffect,
+  EffectComposer,
+  EffectPass,
+  RenderPass,
+  Effect,
+  BlendFunction,
+} from "postprocessing";
+import { TextureFilter } from "three";
+const fragment = `
+uniform sampler2D colorTransformLookup;
+uniform float lutMapSize;
+
+vec4 sampleAs3DTexture(sampler2D tex, vec3 texCoord, float size) {
+  float sliceSize = 1.0 / size;                  // space of 1 slice
+  float slicePixelSize = sliceSize / size;       // space of 1 pixel
+  float width = size - 1.0;
+  float sliceInnerSize = slicePixelSize * width; // space of size pixels
+  float zSlice0 = floor( texCoord.z * width);
+  float zSlice1 = min( zSlice0 + 1.0, width);
+  float xOffset = slicePixelSize * 0.5 + texCoord.x * sliceInnerSize;
+  float yRange = (texCoord.y * width + 0.5) / size;
+  float s0 = xOffset + (zSlice0 * sliceSize);
+  float s1 = xOffset + (zSlice1 * sliceSize);
+  vec4 slice0Color = texture2D(tex, vec2(s0, yRange));
+  vec4 slice1Color = texture2D(tex, vec2(s1, yRange));
+  float zOffset = mod(texCoord.z * width, 1.0);
+  return mix(slice0Color, slice1Color, zOffset);
+}
+
+void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
+
+  outputColor = sampleAs3DTexture(colorTransformLookup, inputColor.xyz, lutMapSize);
+
+}`;
+class ColorTransformEffect extends Effect {
+  constructor({
+    lutTexture,
+  }: {
+    lutTexture: THREE.DataTexture;
+  }) {
+    super("ColorTransformEffect", fragment, {
+      blendFunction: BlendFunction.NORMAL,
+      uniforms: new Map([
+        [
+          "colorTransformLookup",
+          new THREE.Uniform(lutTexture),
+        ],
+        ["lutMapSize", new THREE.Uniform(2)],
+      ]),
+    });
+
+    lutTexture.magFilter = THREE.LinearFilter;
+    lutTexture.minFilter = THREE.LinearFilter;
+    lutTexture.format = THREE.RGBAFormat;
+    lutTexture.flipY = false;
+    lutTexture.generateMipmaps = false;
+    lutTexture.needsUpdate = true;
+  }
+}
+
+const clock = new THREE.Clock();
 
 let threeCompositeObject: THREE.Object3D;
 let _threeVideoTexture: THREE.DataTexture;
@@ -15,7 +75,8 @@ let _faceFilterCv: HTMLCanvasElement;
 let _gl: WebGLRenderingContext;
 let _videoElement: HTMLVideoElement;
 let _threeCamera: THREE.PerspectiveCamera;
-
+let _threeComposer: any;
+let _lutEf: any;
 export const gotTvec = (
   x: number,
   y: number,
@@ -41,7 +102,8 @@ export const gotRvec = (
 export const render = (foundFace: boolean) => {
   _threeRenderer?.state.reset();
   threeCompositeObject.visible = foundFace;
-  _threeRenderer?.render(_threeScene!, _threeCamera!);
+  // _threeRenderer?.render(_threeScene!, _threeCamera!);
+  _threeComposer.render(clock.getDelta());
 };
 
 export const start = ({
@@ -62,11 +124,61 @@ export const start = ({
 
   const info = getInfo();
 
-  // TODO: passar o lut pro effect composer
   init();
-  // TODO: passar a imagem do filtro
+
   init_threeScene(info.images.top);
+
   _threeCamera = create_camera();
+
+  // TODO: passar o lut pro effect composer
+
+  const rtParameters = {
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.LinearFilter,
+    format: THREE.RGBFormat,
+  };
+  _threeComposer = new EffectComposer(
+    _threeRenderer,
+    new THREE.WebGLRenderTarget(1, 1, rtParameters),
+  );
+
+  // const lutPass = new ShaderPass(
+  //   new THREE.ShaderMaterial(LutShader),
+  // );
+
+  // lutPass.setInput("main");
+
+  _lutEf = new ColorTransformEffect({
+    lutTexture: makeLUTTexture({
+      url: "https://localhost:3007/lut0.png",
+    }),
+  });
+  const effectPass = new EffectPass(
+    _threeCamera,
+    _lutEf,
+    // new BloomEffect({ luminanceThreshold: 0.5 }),
+  );
+  effectPass.renderToScreen = true;
+  _threeComposer.addPass(
+    new RenderPass(_threeScene, _threeCamera),
+  );
+  // _threeComposer.addPass(lutPass);
+
+  _threeComposer.addPass(effectPass);
+  _threeComposer.setSize(
+    _faceFilterCv!.width,
+    _faceFilterCv!.height,
+  );
+
+  // console.log(lutPass);
+
+  // lutPass.uniform.lutMap.value = makeLUTTexture(
+  //   {
+  //     url: "./lut0.png",
+  //   },
+  //   lutPass,
+  // );
+  // lutPass.uniform.lutMapSize.value = 2;
 };
 const init_threeScene = (imgUrl: string) => {
   threeCompositeObject = new THREE.Object3D();
@@ -184,16 +296,6 @@ const init = () => {
   });
 
   _threeScene = new THREE.Scene();
-
-  // const rtParameters = {
-  //   minFilter: THREE.LinearFilter,
-  //   magFilter: THREE.LinearFilter,
-  //   format: THREE.RGBFormat,
-  // };
-  // _threeComposer = new EffectComposer(
-  //   _threeRenderer,
-  //   new THREE.WebGLRenderTarget(1, 1, rtParameters),
-  // );
 
   create_videoScreen();
 };
@@ -340,200 +442,98 @@ const lines = () => {
   threeCompositeObject!.add(line);
 };
 
-// import {
-//   EffectComposer,
-//   // RenderPass,
-//   // ShaderPass,
-// } from "postprocessing";
-// import { TextureFilter } from "three";
+const makeLUTTexture = function(info: { url: string }) {
+  const imgLoader = new THREE.ImageLoader();
+  const ctx = document
+    .createElement("canvas")
+    .getContext("2d");
+  const texture = makeIdentityLutTexture(
+    THREE.LinearFilter,
+  );
+  console.log("maeking textureeeee");
+  if (info.url && ctx) {
+    const lutSize = 16;
+    console.log("has url and canvas lut");
 
-// const LutShader = {
-//   uniforms: {
-//     tDiffuse: { value: null },
-//     lutMap: {
-//       value: null,
-//     },
-//     lutMapSize: { value: 2 },
-//   },
-//   vertexShader: `
-//     varying highp vec2 vUv;
-//     void main() {
-//         vUv = uv;
-//         gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-//     }
-//     `,
-//   fragmentShader: `
-//     uniform sampler2D tDiffuse;
-//     varying highp vec2 vUv;
-//     uniform sampler2D lutMap;
-//     uniform float lutMapSize;
+    // set the size to 2 (the identity size). We'll restore it when the
+    // image has loaded. This way the code using the lut doesn't have to
+    // care if the image has loaded or not
 
-//     vec4 sampleAs3DTexture(sampler2D tex, vec3 texCoord, float size) {
-//         float sliceSize = 1.0 / size;                  // space of 1 slice
-//         float slicePixelSize = sliceSize / size;       // space of 1 pixel
-//         float width = size - 1.0;
-//         float sliceInnerSize = slicePixelSize * width; // space of size pixels
-//         float zSlice0 = floor( texCoord.z * width);
-//         float zSlice1 = min( zSlice0 + 1.0, width);
-//         float xOffset = slicePixelSize * 0.5 + texCoord.x * sliceInnerSize;
-//         float yRange = (texCoord.y * width + 0.5) / size;
-//         float s0 = xOffset + (zSlice0 * sliceSize);
-//         float s1 = xOffset + (zSlice1 * sliceSize);
-//         vec4 slice0Color = texture2D(tex, vec2(s0, yRange));
-//         vec4 slice1Color = texture2D(tex, vec2(s1, yRange));
-//         float zOffset = mod(texCoord.z * width, 1.0);
-//         return mix(slice0Color, slice1Color, zOffset);
-//       }
+    imgLoader.load(info.url, function(image) {
+      const width = lutSize * lutSize;
+      const height = lutSize;
+      ctx.canvas.width = width;
+      ctx.canvas.height = height;
+      ctx.drawImage(image, 0, 0);
+      const imageData = ctx.getImageData(
+        0,
+        0,
+        width,
+        height,
+      );
 
-//     void main(){
-//         vec4 originalColor = texture2D(tDiffuse, vUv);
-//         gl_FragColor = sampleAs3DTexture(lutMap, originalColor.xyz, lutMapSize);
-//     }
-//     `,
-// };
-// const makeIdentityLutTexture = (function() {
-//   const identityLUT = new Uint8Array([
-//     0,
-//     0,
-//     0,
-//     255, // black
-//     255,
-//     0,
-//     0,
-//     255, // red
-//     0,
-//     0,
-//     255,
-//     255, // blue
-//     255,
-//     0,
-//     255,
-//     255, // magenta
-//     0,
-//     255,
-//     0,
-//     255, // green
-//     255,
-//     255,
-//     0,
-//     255, // yellow
-//     0,
-//     255,
-//     255,
-//     255, // cyan
-//     255,
-//     255,
-//     255,
-//     255, // white
-//   ]);
+      (texture.image as any).data = new Uint8Array(
+        imageData.data.buffer,
+      );
+      (texture.image as any).width = width;
+      (texture.image as any).height = height;
+      texture.needsUpdate = true;
+      (_lutEf.uniforms as Map<string, THREE.Uniform>).get(
+        "lutMapSize",
+      )!.value = 16;
+    });
+  }
 
-//   return function(filter: TextureFilter) {
-//     const texture = new THREE.DataTexture(
-//       identityLUT,
-//       4,
-//       2,
-//       THREE.RGBAFormat,
-//     );
-//     texture.minFilter = filter;
-//     texture.magFilter = filter;
-//     texture.needsUpdate = true;
-//     texture.flipY = false;
-//     return texture;
-//   };
-// })();
-// const addBall = (x: number, y: number, z: number) => {
-//   const geometry = new THREE.SphereBufferGeometry();
-//   const material = new THREE.MeshBasicMaterial({
-//     color: "black",
-//   });
+  return texture;
+};
 
-//   const mesh = new THREE.Mesh(geometry, material);
-//   mesh.position.set(x, y, z);
-//   mesh.frustumCulled = false;
-//   mesh.renderOrder = 10000;
-//   // // threeStuffs.faceObject.add(CLOUDOBJ3D);
-//   _threeScene!.add(mesh);
-// };
+const makeIdentityLutTexture = function(
+  filter: TextureFilter,
+) {
+  const identityLUT = new Uint8Array([
+    0,
+    0,
+    0,
+    255, // black
+    255,
+    0,
+    0,
+    255, // red
+    0,
+    0,
+    255,
+    255, // blue
+    255,
+    0,
+    255,
+    255, // magenta
+    0,
+    255,
+    0,
+    255, // green
+    255,
+    255,
+    0,
+    255, // yellow
+    0,
+    255,
+    255,
+    255, // cyan
+    255,
+    255,
+    255,
+    255, // white
+  ]);
 
-// const registerCamera = function(
-//   threeCamera: THREE.Camera,
-//   // lut: { url: string; size: number },
-// ) {
-//   const renderAll = new RenderPass(
-//     _threeScene,
-//     threeCamera,
-//   );
-//   _threeComposer.addPass(renderAll);
-//   _threeComposer.setSize(
-//     _faceFilterCv!.width,
-//     _faceFilterCv!.height,
-//   );
-
-//   // const pixelPass = new ShaderPass(LutShader);
-//   // pixelPass.renderToScreen = true;
-//   // _threeComposer.addPass(pixelPass);
-
-//   // const makeLUTTexture = (function() {
-//   //   const imgLoader = new THREE.ImageLoader();
-//   //   const ctx = document
-//   //     .createElement("canvas")
-//   //     .getContext("2d");
-
-//   //   return function(info: {
-//   //     filter?: boolean;
-//   //     url: string;
-//   //     size: number;
-//   //   }) {
-//   //     const texture = makeIdentityLutTexture(
-//   //       info.filter
-//   //         ? THREE.LinearFilter
-//   //         : THREE.NearestFilter,
-//   //     );
-
-//   //     if (info.url && ctx) {
-//   //       const lutSize = info.size;
-
-//   //       // set the size to 2 (the identity size). We'll restore it when the
-//   //       // image has loaded. This way the code using the lut doesn't have to
-//   //       // care if the image has loaded or not
-//   //       info.size = 2;
-
-//   //       imgLoader.load(info.url, function(image) {
-//   //         const width = lutSize * lutSize;
-//   //         const height = lutSize;
-//   //         info.size = lutSize;
-//   //         ctx.canvas.width = width;
-//   //         ctx.canvas.height = height;
-//   //         ctx.drawImage(image, 0, 0);
-//   //         const imageData = ctx.getImageData(
-//   //           0,
-//   //           0,
-//   //           width,
-//   //           height,
-//   //         );
-
-//   //         (texture.image as any).data = new Uint8Array(
-//   //           imageData.data.buffer,
-//   //         );
-//   //         (texture.image as any).width = width;
-//   //         (texture.image as any).height = height;
-//   //         texture.needsUpdate = true;
-
-//   //         pixelPass.uniforms.lutMap.value = texture;
-//   //         pixelPass.uniforms.lutMapSize.value = lutSize;
-//   //       });
-//   //     }
-
-//   //     return texture;
-//   //   };
-//   // })();
-//   // const info = {
-//   //   name: "custom",
-//   //   url: lut.url,
-//   //   size: lut.size,
-//   //   filter: true,
-//   // };
-
-//   // pixelPass.uniforms.lutMap.value = makeLUTTexture(info);
-//   // pixelPass.uniforms.lutMapSize.value = info.size;
-// };
+  const texture = new THREE.DataTexture(
+    identityLUT,
+    4,
+    2,
+    THREE.RGBAFormat,
+  );
+  texture.minFilter = filter;
+  texture.magFilter = filter;
+  texture.needsUpdate = true;
+  texture.flipY = false;
+  return texture;
+};

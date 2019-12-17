@@ -17,7 +17,8 @@ app.use(express.urlencoded({ extended: true }));
 // );
 app.use(express.static(path.join(__dirname, "./opencv")));
 app.use(express.static(path.join(__dirname, "./weights")));
-app.use(express.static(path.join(__dirname, "./dist")));
+app.use(express.static(path.join(__dirname, "./luts")));
+// app.use(express.static(path.join(__dirname, "./dist")));
 // app.use(express.static(path.join(__dirname, "./build")));
 
 https
