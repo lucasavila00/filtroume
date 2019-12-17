@@ -1,6 +1,5 @@
 import * as faceapi from "face-api.js";
 import { CV } from "../opencv";
-import { drawCube } from "../debugPaint";
 import { generateImageAndObjectPoints } from "./prepare";
 import { generateCameraMatrix } from "./camera";
 declare var cv: CV;
@@ -12,7 +11,6 @@ export function extractHeadPoseInfo(
     faceapi.FaceLandmarks68
   >,
   dims: { width: number; height: number },
-  canvas: HTMLCanvasElement,
 ) {
   const positions = resizedResult.landmarks.positions;
   const {
@@ -47,14 +45,16 @@ export function extractHeadPoseInfo(
       rvec,
       tvec,
     );
-    drawCube(
-      rvec,
-      tvec,
-      cameraMatrix,
-      distCoeffs,
-      positions,
-      canvas,
-    );
+
+    // console.log(tvec);
+    // drawCube(
+    //   rvec,
+    //   tvec,
+    //   cameraMatrix,
+    //   distCoeffs,
+    //   positions,
+    //   canvas,
+    // );
   } catch (err) {
     console.error(err);
   }

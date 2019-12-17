@@ -1,12 +1,13 @@
 import * as faceapi from "face-api.js";
 import {
-  // getFaceDetectorOptions,
+  getFaceDetectorOptions,
   isFaceDetectionModelLoaded,
 } from "./controls";
 import { updateTimeStats } from "./stats";
 import * as threeManager from "./three/main";
 import { cameraConfig } from "./constants";
 import { drawOnVideoTexture } from "./three/drawVideoOnTexture";
+import { extractHeadPoseInfo } from "./pose/process";
 
 // let withFaceApiJsDebug = true;
 let _videoEl: HTMLVideoElement | null = null;
@@ -29,7 +30,7 @@ async function onPlay(): Promise<void> {
 
   // const ts = Date.now();
   // let result = await faceapi
-  //   .detectSingleFace(videoEl, options)
+  //   .detectSingleFace(_videoEl, options)
   //   .withFaceLandmarks(true);
 
   // updateTimeStats(Date.now() - ts);
@@ -38,37 +39,37 @@ async function onPlay(): Promise<void> {
   //   const canvas: HTMLCanvasElement | null = document.getElementById(
   //     "overlay",
   //   ) as HTMLCanvasElement;
-  //   // if (canvas == null) {
-  //   //   setTimeout(() => onPlay());
-  //   //   return;
-  //   // }
-  //   // const ctx = canvas.getContext("2d");
+  //   //   // if (canvas == null) {
+  //   //   //   setTimeout(() => onPlay());
+  //   //   //   return;
+  //   //   // }
+  //   //   // const ctx = canvas.getContext("2d");
 
   //   const dims = faceapi.matchDimensions(
   //     canvas,
-  //     videoEl,
+  //     _videoEl,
   //     true,
   //   );
-  //   // console.log({ ctx });
-  //   // ctx?.drawImage(
-  //   //   videoEl,
-  //   //   0,
-  //   //   0,
-  //   //   // canvas.width,
-  //   //   // canvas.height,
-  //   // );
+  //   //   // console.log({ ctx });
+  //   //   // ctx?.drawImage(
+  //   //   //   videoEl,
+  //   //   //   0,
+  //   //   //   0,
+  //   //   //   // canvas.width,
+  //   //   //   // canvas.height,
+  //   //   // );
   //   const resizedResult = faceapi.resizeResults(
   //     result,
   //     dims,
   //   );
-  //   console.log({ resizedResult });
-  //   // console.log({ dims, resizedResult });
-  //   // extractHeadPoseInfo(resizedResult, dims, canvas);
+  //   //   console.log({ resizedResult });
+  //   //   // console.log({ dims, resizedResult });
+  //   extractHeadPoseInfo(resizedResult, dims);
 
-  //   if (withFaceApiJsDebug) {
-  //     // faceapi.draw.drawDetections(canvas, resizedResult);
-  //     // faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
-  //   }
+  //   //   if (withFaceApiJsDebug) {
+  //   //     // faceapi.draw.drawDetections(canvas, resizedResult);
+  //   //     // faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
+  //   //   }
   // }
   threeManager.render();
 

@@ -114,6 +114,8 @@ import * as THREE from "three";
 //   _threeScene!.add(mesh);
 // };
 function init_threeScene() {
+  const threeCompositeObject = new THREE.Object3D();
+
   const pivotCubeMesh = new THREE.Mesh(
     new THREE.BoxGeometry(0.1, 0.1, 0.1),
     new THREE.MeshNormalMaterial({
@@ -122,12 +124,19 @@ function init_threeScene() {
     }),
   );
   pivotCubeMesh.frustumCulled = false;
-  const threeCompositeObject = new THREE.Object3D();
-
+  pivotCubeMesh.position.z = -2;
   threeCompositeObject.add(pivotCubeMesh);
 
-  threeCompositeObject.position.z = -2;
-  threeCompositeObject.position.y = 0.3;
+  // const pivotCubeMesh2 = new THREE.Mesh(
+  //   new THREE.BoxGeometry(1, 1, 1),
+  //   new THREE.MeshNormalMaterial({
+  //     side: THREE.DoubleSide,
+  //     depthTest: false,
+  //   }),
+  // );
+  // pivotCubeMesh2.frustumCulled = false;
+
+  // threeCompositeObject.add(pivotCubeMesh2);
 
   _threeScene!.add(threeCompositeObject);
 } // end init_threeScene()
@@ -154,14 +163,14 @@ const create_videoScreen = () => {
   varying vec2 vUV;\n\
   void main(void){\n\
     gl_Position = vec4(position, 0., 1.);\n\
-    vUV = 0.5*position;\n\
+    vUV = 0.5+0.5*position;\n\
   }";
   const videoScreenFragmentShaderSource =
     "precision lowp float;\n\
   uniform sampler2D samplerVideo;\n\
   varying vec2 vUV;\n\
   void main(void){\n\
-    gl_FragColor = texture2D(samplerVideo, vUV);\n\
+    gl_FragColor = texture2D(samplerVideo, vec2(vUV.x, 1.0-vUV.y));\n\
   }";
 
   //init video texture with red
