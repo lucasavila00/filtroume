@@ -1,4 +1,57 @@
 import * as THREE from "three";
+import KalmanFilter from "kalmanjs";
+import { CV } from "../opencv";
+declare var cv: CV;
+
+const kalmanconfig = { R: 1, Q: 50 };
+const txKalman = new KalmanFilter(kalmanconfig);
+const tyKalman = new KalmanFilter(kalmanconfig);
+const tzKalman = new KalmanFilter(kalmanconfig);
+export const gotTvec = (
+  x: number,
+  y: number,
+  z: number,
+) => {
+  // console.log({ x, y, z });
+  // threeCompositeObject.position.set(x / 1, y / 1, z / 1);
+  _threeCamera!.position.set(
+    txKalman.filter(x),
+    tyKalman.filter(y),
+    tzKalman.filter(z),
+  );
+};
+
+const raKalman = new KalmanFilter(kalmanconfig);
+const rbKalman = new KalmanFilter(kalmanconfig);
+const rcKalman = new KalmanFilter(kalmanconfig);
+export const gotRvec = (
+  rvec: import("../opencv/Mat").Mat,
+) => {
+  const rout = new cv.Mat();
+  const temp = cv.matFromArray(3, 1, cv.CV_64F, [
+    raKalman.filter(rvec.data64F[0]),
+    rbKalman.filter(rvec.data64F[1]),
+    rcKalman.filter(rvec.data64F[2]),
+  ]);
+
+  (cv as any).Rodrigues(temp, rout);
+  var quaternion = new THREE.Quaternion();
+  var mat = new THREE.Matrix4();
+  // console.log({ rout });
+  const r = rout.data64F;
+  // prettier-ignore
+  mat.set(
+      r[0], r[1], r[2],   0,
+      r[3], r[4], r[5],   0,
+      r[6], r[7], r[8],   0,
+      0,    0,    0,      1
+    );
+  quaternion.setFromRotationMatrix(mat);
+  // const euler = new THREE.Euler();
+  // euler.setFromQuaternion(quaternion);
+
+  _threeCamera!.rotation.setFromQuaternion(quaternion);
+};
 // import {
 //   EffectComposer,
 //   // RenderPass,
@@ -113,22 +166,25 @@ import * as THREE from "three";
 //   // // threeStuffs.faceObject.add(CLOUDOBJ3D);
 //   _threeScene!.add(mesh);
 // };
+let threeCompositeObject: THREE.Object3D;
 function init_threeScene() {
-  const threeCompositeObject = new THREE.Object3D();
+  threeCompositeObject = new THREE.Object3D();
 
   const pivotCubeMesh = new THREE.Mesh(
-    new THREE.BoxGeometry(0.1, 0.1, 0.1),
+    new THREE.BoxGeometry(500, 500, 500),
     new THREE.MeshNormalMaterial({
       side: THREE.DoubleSide,
       depthTest: false,
     }),
   );
   pivotCubeMesh.frustumCulled = false;
-  pivotCubeMesh.position.z = -2;
-  threeCompositeObject.add(pivotCubeMesh);
+  // pivotCubeMesh.position.x = -100;
+  // pivotCubeMesh.position.y = -400;
+  // pivotCubeMesh.position.z = 1000;
+  // threeCompositeObject.add(pivotCubeMesh);
 
   // const pivotCubeMesh2 = new THREE.Mesh(
-  //   new THREE.BoxGeometry(1, 1, 1),
+  //   new THREE.BoxGeometry(200, 200, 200),
   //   new THREE.MeshNormalMaterial({
   //     side: THREE.DoubleSide,
   //     depthTest: false,
@@ -139,8 +195,80 @@ function init_threeScene() {
   // threeCompositeObject.add(pivotCubeMesh2);
 
   _threeScene!.add(threeCompositeObject);
+  lines();
 } // end init_threeScene()
+let line: THREE.Line;
+const lines = () => {
+  var material = new THREE.LineBasicMaterial({
+    color: "black",
+    linewidth: 25,
+  });
+  var geometry = new THREE.Geometry();
 
+  //nose tips
+  geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+  // bottom nose
+  geometry.vertices.push(
+    new THREE.Vector3(0.0, -60.0, -78.0),
+  );
+  // left nostril
+  geometry.vertices.push(
+    new THREE.Vector3(-67.0, -58.0, -100.0),
+  );
+  //nose tips
+  geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+  // bottom nose
+  geometry.vertices.push(
+    new THREE.Vector3(0.0, -60.0, -78.0),
+  );
+  // right nostril
+  geometry.vertices.push(
+    new THREE.Vector3(67.0, -58.0, -100.0),
+  );
+  //nose tips
+  geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+  //righteyerightcorner
+  geometry.vertices.push(
+    new THREE.Vector3(262.0, 168.0, -240.0),
+  );
+  //righteyeleftcorner
+  geometry.vertices.push(
+    new THREE.Vector3(115.0, 170.0, -210.0),
+  );
+  //nose tips
+  geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+  //lefteyeleftcorner
+  geometry.vertices.push(
+    new THREE.Vector3(-262.0, 168.0, -240.0),
+  );
+  //lefteyerightcorner
+  geometry.vertices.push(
+    new THREE.Vector3(-115.0, 170.0, -210.0),
+  );
+  //nose tips
+  geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+  // bottom nose
+  geometry.vertices.push(
+    new THREE.Vector3(0.0, -60.0, -78.0),
+  );
+  // left mouth corner
+  geometry.vertices.push(
+    new THREE.Vector3(-148.0, -192.0, -181.0),
+  );
+  //rightmouthcorner
+  geometry.vertices.push(
+    new THREE.Vector3(148.0, -192.0, -181.0),
+  );
+  // bottom nose
+  geometry.vertices.push(
+    new THREE.Vector3(0.0, -60.0, -78.0),
+  );
+  line = new THREE.Line(geometry, material);
+
+  // line.position.z = -1000;
+  // line.rotateY(Math.PI / 3);
+  threeCompositeObject!.add(line);
+};
 let _threeVideoTexture: THREE.DataTexture | null = null;
 let _threeVideoMesh: THREE.Mesh | null = null;
 let _threeScene: THREE.Scene | null = null;
@@ -170,7 +298,7 @@ const create_videoScreen = () => {
   uniform sampler2D samplerVideo;\n\
   varying vec2 vUV;\n\
   void main(void){\n\
-    gl_FragColor = texture2D(samplerVideo, vec2(vUV.x, 1.0-vUV.y));\n\
+    gl_FragColor = texture2D(samplerVideo, vec2(1.0-vUV.x, 1.0-vUV.y));\n\
   }";
 
   //init video texture with red
@@ -311,7 +439,7 @@ const create_camera = function(
     1,
     1,
     zNear ? zNear : 0.1,
-    zFar ? zFar : 100,
+    zFar ? zFar : 10000,
   );
 
   update_camera(threeCamera);
@@ -322,7 +450,7 @@ const create_camera = function(
   return threeCamera;
 };
 const _settings = {
-  cameraMinVideoDimFov: 46, //Field of View for the smallest dimension of the video in degrees
+  cameraMinVideoDimFov: 28, //Field of View for the smallest dimension of the video in degrees
 };
 const update_camera = function(
   threeCamera: THREE.PerspectiveCamera,
@@ -331,7 +459,6 @@ const update_camera = function(
   const canvasElement = _threeRenderer!.domElement;
   const cvw = canvasElement.width;
   const cvh = canvasElement.height;
-
   // console.log({ cvw, cvh });
   const canvasAspectRatio = cvw / cvh;
 
@@ -340,7 +467,12 @@ const update_camera = function(
   const vh = _videoElement!.videoHeight;
   const videoAspectRatio = vw / vh;
   const fovFactor = vh > vw ? 1.0 / videoAspectRatio : 1.0;
+  // const fovh = 2 * Math.atan(cvh / (2 * cvw));
+  // const fovw = 2 * Math.atan(cvw / (2 * cvw));
+  // const fov = vh > vw ? fovh : fovw;
   const fov = _settings.cameraMinVideoDimFov * fovFactor;
+
+  // console.log({ fovFactor, fovh, fovw });
 
   // compute X and Y offsets in pixels:
   let scale = 1.0;
@@ -362,6 +494,8 @@ const update_camera = function(
   threeCamera.aspect = canvasAspectRatio;
 
   threeCamera.fov = fov;
+
+  // console.log({ offsetX, offsetY });
 
   threeCamera.setViewOffset(
     cvws,

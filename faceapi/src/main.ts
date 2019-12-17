@@ -26,51 +26,48 @@ async function onPlay(): Promise<void> {
   }
   drawOnVideoTexture(_gl!, _videoTexture!, _videoEl);
 
-  // const options = getFaceDetectorOptions();
+  const options = getFaceDetectorOptions();
 
-  // const ts = Date.now();
-  // let result = await faceapi
-  //   .detectSingleFace(_videoEl, options)
-  //   .withFaceLandmarks(true);
+  const ts = Date.now();
+  let result = await faceapi
+    .detectSingleFace(_videoEl, options)
+    .withFaceLandmarks(true);
 
-  // updateTimeStats(Date.now() - ts);
+  updateTimeStats(Date.now() - ts);
 
-  // if (result) {
-  //   const canvas: HTMLCanvasElement | null = document.getElementById(
-  //     "overlay",
-  //   ) as HTMLCanvasElement;
-  //   //   // if (canvas == null) {
-  //   //   //   setTimeout(() => onPlay());
-  //   //   //   return;
-  //   //   // }
-  //   //   // const ctx = canvas.getContext("2d");
-
-  //   const dims = faceapi.matchDimensions(
-  //     canvas,
-  //     _videoEl,
-  //     true,
-  //   );
-  //   //   // console.log({ ctx });
-  //   //   // ctx?.drawImage(
-  //   //   //   videoEl,
-  //   //   //   0,
-  //   //   //   0,
-  //   //   //   // canvas.width,
-  //   //   //   // canvas.height,
-  //   //   // );
-  //   const resizedResult = faceapi.resizeResults(
-  //     result,
-  //     dims,
-  //   );
-  //   //   console.log({ resizedResult });
-  //   //   // console.log({ dims, resizedResult });
-  //   extractHeadPoseInfo(resizedResult, dims);
-
-  //   //   if (withFaceApiJsDebug) {
-  //   //     // faceapi.draw.drawDetections(canvas, resizedResult);
-  //   //     // faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
-  //   //   }
-  // }
+  if (result) {
+    //   const canvas: HTMLCanvasElement | null = document.getElementById(
+    //     "overlay",
+    //   ) as HTMLCanvasElement;
+    //   //   // if (canvas == null) {
+    //   //   //   setTimeout(() => onPlay());
+    //   //   //   return;
+    //   //   // }
+    //   //   // const ctx = canvas.getContext("2d");
+    const dims = {
+      width: _videoEl.videoWidth,
+      height: _videoEl.videoHeight,
+    };
+    //   //   // console.log({ ctx });
+    //   //   // ctx?.drawImage(
+    //   //   //   videoEl,
+    //   //   //   0,
+    //   //   //   0,
+    //   //   //   // canvas.width,
+    //   //   //   // canvas.height,
+    //   //   // );
+    const resizedResult = faceapi.resizeResults(
+      result,
+      dims,
+    );
+    //   console.log({ resizedResult });
+    //   //   // console.log({ dims, resizedResult });
+    extractHeadPoseInfo(resizedResult, dims);
+    //   //   if (withFaceApiJsDebug) {
+    //   //     // faceapi.draw.drawDetections(canvas, resizedResult);
+    //   //     // faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
+    //   //   }
+  }
   threeManager.render();
 
   setTimeout(() => onPlay());
@@ -90,8 +87,8 @@ const initThree = () => {
     "overlay",
   ) as HTMLCanvasElement;
 
-  canvas.width = 360;
-  canvas.height = 640;
+  canvas.width = _videoEl.videoWidth;
+  canvas.height = _videoEl.videoHeight;
   _gl = canvas.getContext("webgl");
 
   if (_gl == null) {
