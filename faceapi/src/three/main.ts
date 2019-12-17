@@ -1,187 +1,11 @@
 import * as THREE from "three";
-import {
-  EffectComposer,
-  RenderPass,
-  // ShaderPass,
-} from "postprocessing";
+// import {
+//   EffectComposer,
+//   // RenderPass,
+//   // ShaderPass,
+// } from "postprocessing";
 // import { TextureFilter } from "three";
 
-let _threeVideoTexture: any;
-let _threeVideoMesh: any;
-let _threeScene: THREE.Scene | null = null;
-let _threeRenderer: THREE.WebGLRenderer | null = null;
-let _threeComposer: any;
-
-let _isVideoTextureReady = false;
-
-let _glVideoTexture: any;
-
-let _faceFilterCv: any;
-let _gl: any;
-let _videoElement: any;
-
-let _scaleW = -1;
-
-let _threeCamera: THREE.PerspectiveCamera | null = null;
-
-const create_videoScreen = () => {
-  const videoScreenVertexShaderSource =
-    "attribute vec2 position;\n\
-  varying vec2 vUV;\n\
-  void main(void){\n\
-    gl_Position = vec4(position, 0., 1.);\n\
-    vUV = 0.5+0.5*position;\n\
-  }";
-  const videoScreenFragmentShaderSource =
-    "precision lowp float;\n\
-  uniform sampler2D samplerVideo;\n\
-  varying vec2 vUV;\n\
-  void main(void){\n\
-    gl_FragColor = texture2D(samplerVideo, vUV);\n\
-  }";
-
-  //init video texture with red
-  _threeVideoTexture = new THREE.DataTexture(
-    new Uint8Array([255, 0, 0]),
-    1,
-    1,
-    THREE.RGBFormat,
-  );
-  _threeVideoTexture.needsUpdate = true;
-
-  //CREATE THE VIDEO BACKGROUND
-  const videoMaterial = new THREE.RawShaderMaterial({
-    depthWrite: false,
-    depthTest: false,
-    vertexShader: videoScreenVertexShaderSource,
-    fragmentShader: videoScreenFragmentShaderSource,
-    uniforms: {
-      samplerVideo: { value: _threeVideoTexture },
-    },
-  });
-  const videoGeometry = new THREE.BufferGeometry();
-  const videoScreenCorners = new Float32Array([
-    -1,
-    -1,
-    1,
-    -1,
-    1,
-    1,
-    -1,
-    1,
-  ]);
-  videoGeometry.addAttribute(
-    "position",
-    new THREE.BufferAttribute(videoScreenCorners, 2),
-  );
-  videoGeometry.setIndex(
-    new THREE.BufferAttribute(
-      new Uint16Array([0, 1, 2, 0, 2, 3]),
-      1,
-    ),
-  );
-  _threeVideoMesh = new THREE.Mesh(
-    videoGeometry,
-    videoMaterial,
-  );
-  apply_videoTexture(_threeVideoMesh);
-  _threeVideoMesh.renderOrder = -1000; //render first
-  _threeVideoMesh.frustumCulled = false;
-  _threeScene!.add(_threeVideoMesh);
-};
-const apply_videoTexture = (threeMesh: THREE.Mesh) => {
-  if (_isVideoTextureReady) {
-    return;
-  }
-  threeMesh.onAfterRender = function() {
-    // Replace _threeVideoTexture.__webglTexture by the real video texture:
-    try {
-      _threeRenderer?.properties.update(
-        _threeVideoTexture,
-        "__webglTexture",
-        _glVideoTexture,
-      );
-      _threeVideoTexture.magFilter = THREE.LinearFilter;
-      _threeVideoTexture.minFilter = THREE.LinearFilter;
-      _isVideoTextureReady = true;
-      console.log("updated...");
-    } catch (e) {
-      console.log(
-        "WARNING in THREE.JeelizHelper : the glVideoTexture is not fully initialized",
-      );
-    }
-    delete threeMesh.onAfterRender;
-  };
-};
-interface ISpec {
-  alpha: boolean;
-  videoElement: HTMLVideoElement;
-  canvasElement: HTMLCanvasElement;
-  GL: WebGLRenderingContext;
-  videoTexture: WebGLTexture;
-}
-
-const init = (spec: ISpec) => {
-  // _maxFaces = spec.maxFacesDetected;
-  _glVideoTexture = spec.videoTexture;
-  _gl = spec.GL;
-  _faceFilterCv = spec.canvasElement;
-  // _isMultiFaces = _maxFaces > 1;
-  _videoElement = spec.videoElement;
-
-  // enable 2 canvas mode if necessary:
-  let threejsCanvas = _faceFilterCv;
-
-  // if (typeof detectCallback !== "undefined") {
-  //     _detect_callback = detectCallback;
-  // }
-
-  // init THREE.JS context:
-  _threeRenderer = new THREE.WebGLRenderer({
-    // context: (_isSeparateThreejsCanvas) ? null : WebGLDebugUtils.makeDebugContext(_gl),
-    context: _gl,
-    canvas: threejsCanvas,
-    alpha: spec.alpha ? true : false,
-  });
-
-  _threeScene = new THREE.Scene();
-
-  const rtParameters = {
-    minFilter: THREE.LinearFilter,
-    magFilter: THREE.LinearFilter,
-    format: THREE.RGBFormat,
-  };
-  _threeComposer = new EffectComposer(
-    _threeRenderer,
-    new THREE.WebGLRenderTarget(1, 1, rtParameters),
-  );
-
-  // create_threeCompositeObjects();
-  create_videoScreen();
-
-  // handle device orientation change:
-  // window.addEventListener(
-  //   "orientationchange",
-  //   function() {
-  //     setTimeout(JEEFACEFILTERAPI.resize, 1000);
-  //   },
-  //   false,
-  // );
-
-  const returnedDict = {
-    videoMesh: _threeVideoMesh,
-    renderer: _threeRenderer,
-    scene: _threeScene,
-  };
-  // if (_isMultiFaces) {
-  //   returnedDict.faceObjects = _threePivotedObjects;
-  // } else {
-
-  // returnedDict.faceObject = _threePivotedObjects[0];
-  // }
-
-  return returnedDict;
-};
 // const LutShader = {
 //   uniforms: {
 //     tDiffuse: { value: null },
@@ -276,88 +100,175 @@ const init = (spec: ISpec) => {
 //     return texture;
 //   };
 // })();
+// const addBall = (x: number, y: number, z: number) => {
+//   const geometry = new THREE.SphereBufferGeometry();
+//   const material = new THREE.MeshBasicMaterial({
+//     color: "black",
+//   });
 
-const registerCamera = function(
-  threeCamera: THREE.Camera,
-  // lut: { url: string; size: number },
-) {
-  const renderAll = new RenderPass(
-    _threeScene,
-    threeCamera,
+//   const mesh = new THREE.Mesh(geometry, material);
+//   mesh.position.set(x, y, z);
+//   mesh.frustumCulled = false;
+//   mesh.renderOrder = 10000;
+//   // // threeStuffs.faceObject.add(CLOUDOBJ3D);
+//   _threeScene!.add(mesh);
+// };
+function init_threeScene() {
+  const pivotCubeMesh = new THREE.Mesh(
+    new THREE.BoxGeometry(0.1, 0.1, 0.1),
+    new THREE.MeshNormalMaterial({
+      side: THREE.DoubleSide,
+      depthTest: false,
+    }),
   );
-  _threeComposer.addPass(renderAll);
-  _threeComposer.setSize(
-    _faceFilterCv.width,
-    _faceFilterCv.height,
+  const threeCompositeObject = new THREE.Object3D();
+  threeCompositeObject.position.set(-10, -10, -10);
+  threeCompositeObject.add(pivotCubeMesh);
+  _threeScene!.add(threeCompositeObject);
+} // end init_threeScene()
+
+let _threeVideoTexture: THREE.DataTexture | null = null;
+let _threeVideoMesh: THREE.Mesh | null = null;
+let _threeScene: THREE.Scene | null = null;
+let _threeRenderer: THREE.WebGLRenderer | null = null;
+// let _threeComposer: any;
+
+let _isVideoTextureReady = false;
+
+let _glVideoTexture: WebGLTexture | null = null;
+
+let _faceFilterCv: HTMLCanvasElement | null = null;
+let _gl: WebGLRenderingContext | null = null;
+let _videoElement: HTMLVideoElement | null = null;
+
+let _threeCamera: THREE.PerspectiveCamera | null = null;
+
+const create_videoScreen = () => {
+  const videoScreenVertexShaderSource =
+    "attribute vec2 position;\n\
+  varying vec2 vUV;\n\
+  void main(void){\n\
+    gl_Position = vec4(position, 0., 1.);\n\
+    vUV = 0.5+0.5*position;\n\
+  }";
+  const videoScreenFragmentShaderSource =
+    "precision lowp float;\n\
+  uniform sampler2D samplerVideo;\n\
+  varying vec2 vUV;\n\
+  void main(void){\n\
+    gl_FragColor = texture2D(samplerVideo, vUV);\n\
+  }";
+
+  //init video texture with red
+  _threeVideoTexture = new THREE.DataTexture(
+    new Uint8Array([255, 0, 0]),
+    1,
+    1,
+    THREE.RGBFormat,
   );
+  _threeVideoTexture.needsUpdate = true;
 
-  // const pixelPass = new ShaderPass(LutShader);
-  // pixelPass.renderToScreen = true;
-  // _threeComposer.addPass(pixelPass);
+  //CREATE THE VIDEO BACKGROUND
+  const videoMaterial = new THREE.RawShaderMaterial({
+    depthWrite: false,
+    depthTest: false,
+    vertexShader: videoScreenVertexShaderSource,
+    fragmentShader: videoScreenFragmentShaderSource,
+    uniforms: {
+      samplerVideo: { value: _threeVideoTexture },
+    },
+  });
+  const videoGeometry = new THREE.BufferGeometry();
+  const videoScreenCorners = new Float32Array([
+    -1,
+    -1,
+    1,
+    -1,
+    1,
+    1,
+    -1,
+    1,
+  ]);
+  videoGeometry.setAttribute(
+    "position",
+    new THREE.BufferAttribute(videoScreenCorners, 2),
+  );
+  videoGeometry.setIndex(
+    new THREE.BufferAttribute(
+      new Uint16Array([0, 1, 2, 0, 2, 3]),
+      1,
+    ),
+  );
+  _threeVideoMesh = new THREE.Mesh(
+    videoGeometry,
+    videoMaterial,
+  );
+  apply_videoTexture(_threeVideoMesh);
+  _threeVideoMesh.renderOrder = -1000; //render first
+  _threeVideoMesh.frustumCulled = false;
+  _threeScene!.add(_threeVideoMesh);
+};
+const apply_videoTexture = (threeMesh: THREE.Mesh) => {
+  if (_isVideoTextureReady) {
+    return;
+  }
+  threeMesh.onAfterRender = function() {
+    // Replace _threeVideoTexture.__webglTexture by the real video texture:
+    try {
+      _threeRenderer!.properties.update(
+        _threeVideoTexture,
+        "__webglTexture",
+        _glVideoTexture,
+      );
+      _threeVideoTexture!.magFilter = THREE.LinearFilter;
+      _threeVideoTexture!.minFilter = THREE.LinearFilter;
+      _isVideoTextureReady = true;
+      console.log("updated...");
+    } catch (e) {
+      console.log(
+        "WARNING in THREE.JeelizHelper : the glVideoTexture is not fully initialized",
+      );
+    }
+    delete threeMesh.onAfterRender;
+  };
+};
 
-  // const makeLUTTexture = (function() {
-  //   const imgLoader = new THREE.ImageLoader();
-  //   const ctx = document
-  //     .createElement("canvas")
-  //     .getContext("2d");
+const init = () => {
+  // init THREE.JS context:
+  _threeRenderer = new THREE.WebGLRenderer({
+    context: _gl!,
+    canvas: _faceFilterCv!,
+    alpha: false,
+  });
 
-  //   return function(info: {
-  //     filter?: boolean;
-  //     url: string;
-  //     size: number;
-  //   }) {
-  //     const texture = makeIdentityLutTexture(
-  //       info.filter
-  //         ? THREE.LinearFilter
-  //         : THREE.NearestFilter,
-  //     );
+  _threeScene = new THREE.Scene();
 
-  //     if (info.url && ctx) {
-  //       const lutSize = info.size;
-
-  //       // set the size to 2 (the identity size). We'll restore it when the
-  //       // image has loaded. This way the code using the lut doesn't have to
-  //       // care if the image has loaded or not
-  //       info.size = 2;
-
-  //       imgLoader.load(info.url, function(image) {
-  //         const width = lutSize * lutSize;
-  //         const height = lutSize;
-  //         info.size = lutSize;
-  //         ctx.canvas.width = width;
-  //         ctx.canvas.height = height;
-  //         ctx.drawImage(image, 0, 0);
-  //         const imageData = ctx.getImageData(
-  //           0,
-  //           0,
-  //           width,
-  //           height,
-  //         );
-
-  //         (texture.image as any).data = new Uint8Array(
-  //           imageData.data.buffer,
-  //         );
-  //         (texture.image as any).width = width;
-  //         (texture.image as any).height = height;
-  //         texture.needsUpdate = true;
-
-  //         pixelPass.uniforms.lutMap.value = texture;
-  //         pixelPass.uniforms.lutMapSize.value = lutSize;
-  //       });
-  //     }
-
-  //     return texture;
-  //   };
-  // })();
-  // const info = {
-  //   name: "custom",
-  //   url: lut.url,
-  //   size: lut.size,
-  //   filter: true,
+  // const rtParameters = {
+  //   minFilter: THREE.LinearFilter,
+  //   magFilter: THREE.LinearFilter,
+  //   format: THREE.RGBFormat,
   // };
+  // _threeComposer = new EffectComposer(
+  //   _threeRenderer,
+  //   new THREE.WebGLRenderTarget(1, 1, rtParameters),
+  // );
 
-  // pixelPass.uniforms.lutMap.value = makeLUTTexture(info);
-  // pixelPass.uniforms.lutMapSize.value = info.size;
+  // create_threeCompositeObjects();
+  create_videoScreen();
+
+  const returnedDict = {
+    videoMesh: _threeVideoMesh,
+    renderer: _threeRenderer,
+    scene: _threeScene,
+  };
+  // if (_isMultiFaces) {
+  //   returnedDict.faceObjects = _threePivotedObjects;
+  // } else {
+
+  // returnedDict.faceObject = _threePivotedObjects[0];
+  // }
+
+  return returnedDict;
 };
 
 export const render =
@@ -368,11 +279,13 @@ export const render =
     //update detection states
     // detect(ds);
     // update_positions3D(ds, threeCamera);
-    console.log("rendering...");
+    // console.log("rendering...");
     _threeRenderer?.state.reset();
-    console.log({ _threeCamera, _threeScene });
+    // console.log({ _threeCamera, _threeScene });
     //trigger the render of the THREE.JS SCENE
     _threeRenderer?.render(_threeScene!, _threeCamera!);
+
+    console.log({ _threeScene, _threeCamera });
     // _threeComposer.render();
   };
 
@@ -402,12 +315,12 @@ const update_camera = function(
   const cvw = canvasElement.width;
   const cvh = canvasElement.height;
 
-  console.log({ cvw, cvh });
+  // console.log({ cvw, cvh });
   const canvasAspectRatio = cvw / cvh;
 
   // compute vertical field of view:
-  const vw = _videoElement.videoWidth;
-  const vh = _videoElement.videoHeight;
+  const vw = _videoElement!.videoWidth;
+  const vh = _videoElement!.videoHeight;
   const videoAspectRatio = vw / vh;
   const fovFactor = vh > vw ? 1.0 / videoAspectRatio : 1.0;
   const fov = _settings.cameraMinVideoDimFov * fovFactor;
@@ -425,16 +338,14 @@ const update_camera = function(
     cvhs = vh * scale;
   const offsetX = (cvws - cvw) / 2.0;
   const offsetY = (cvhs - cvh) / 2.0;
-  _scaleW = cvw / cvws;
-  console.log({ _scaleW });
+  // _scaleW = cvw / cvws;
+  // console.log({ _scaleW, offsetX, offsetY });
 
   // apply parameters:
   threeCamera.aspect = canvasAspectRatio;
+
   threeCamera.fov = fov;
-  console.log(
-    "INFO in JeelizThreejsHelper.update_camera() : camera vertical estimated FoV is",
-    fov,
-  );
+
   threeCamera.setViewOffset(
     cvws,
     cvhs,
@@ -450,37 +361,6 @@ const update_camera = function(
   _threeRenderer!.setViewport(0, 0, cvw, cvh);
 };
 
-function init_threeScene(
-  spec: ISpec,
-  // images: { top: string },
-) {
-  init(spec);
-  // const mat = new THREE.MeshBasicMaterial({
-  //   // map: new THREE.TextureLoader().load(images.top),
-  //   // transparent: true,
-  //   color: "#000",
-  //   transparent: false,
-  // });
-  // const CLOUDMESH = new THREE.Mesh(
-  //   new THREE.PlaneGeometry(3.75, 3.75),
-  //   mat,
-  // );
-  // CLOUDMESH.position.setY(1);
-  // CLOUDMESH.frustumCulled = false;
-  // CLOUDMESH.renderOrder = 10000;
-
-  // const CLOUDOBJ3D = new THREE.Object3D();
-  // CLOUDOBJ3D.add(CLOUDMESH);
-
-  // // threeStuffs.faceObject.add(CLOUDOBJ3D);
-  // _threeScene!.add(CLOUDOBJ3D);
-  _threeCamera = create_camera();
-  console.log("initedddd");
-} // end init_threeScene()
-// const makeSpec = ( ):ISpec => {
-
-// }
-
 export const start = ({
   videoElement,
   canvasElement,
@@ -492,13 +372,6 @@ export const start = ({
   videoTexture: WebGLTexture;
   GL: WebGLRenderingContext;
 }) => {
-  const spec: ISpec = {
-    alpha: false,
-    videoElement,
-    canvasElement,
-    videoTexture,
-    GL,
-  };
   // const info = {
   //   lut: {
   //     url: "window.parent._lut",
@@ -508,16 +381,98 @@ export const start = ({
   //     top: "window.parent._img",
   //   },
   // };
-  init_threeScene(
-    spec,
-    // , info.images
-  );
-  if (!_threeCamera) {
-    console.error("there is no three camera");
-    return;
-  }
-  registerCamera(
-    _threeCamera,
-    // , info.lut
-  );
+  _glVideoTexture = videoTexture;
+  _gl = GL;
+  _faceFilterCv = canvasElement;
+  _videoElement = videoElement;
+
+  init();
+  init_threeScene();
+  _threeCamera = create_camera();
+  // registerCamera(
+  //   _threeCamera,
+  //   // , info.lut
+  // );
 };
+// const registerCamera = function(
+//   threeCamera: THREE.Camera,
+//   // lut: { url: string; size: number },
+// ) {
+//   const renderAll = new RenderPass(
+//     _threeScene,
+//     threeCamera,
+//   );
+//   _threeComposer.addPass(renderAll);
+//   _threeComposer.setSize(
+//     _faceFilterCv!.width,
+//     _faceFilterCv!.height,
+//   );
+
+//   // const pixelPass = new ShaderPass(LutShader);
+//   // pixelPass.renderToScreen = true;
+//   // _threeComposer.addPass(pixelPass);
+
+//   // const makeLUTTexture = (function() {
+//   //   const imgLoader = new THREE.ImageLoader();
+//   //   const ctx = document
+//   //     .createElement("canvas")
+//   //     .getContext("2d");
+
+//   //   return function(info: {
+//   //     filter?: boolean;
+//   //     url: string;
+//   //     size: number;
+//   //   }) {
+//   //     const texture = makeIdentityLutTexture(
+//   //       info.filter
+//   //         ? THREE.LinearFilter
+//   //         : THREE.NearestFilter,
+//   //     );
+
+//   //     if (info.url && ctx) {
+//   //       const lutSize = info.size;
+
+//   //       // set the size to 2 (the identity size). We'll restore it when the
+//   //       // image has loaded. This way the code using the lut doesn't have to
+//   //       // care if the image has loaded or not
+//   //       info.size = 2;
+
+//   //       imgLoader.load(info.url, function(image) {
+//   //         const width = lutSize * lutSize;
+//   //         const height = lutSize;
+//   //         info.size = lutSize;
+//   //         ctx.canvas.width = width;
+//   //         ctx.canvas.height = height;
+//   //         ctx.drawImage(image, 0, 0);
+//   //         const imageData = ctx.getImageData(
+//   //           0,
+//   //           0,
+//   //           width,
+//   //           height,
+//   //         );
+
+//   //         (texture.image as any).data = new Uint8Array(
+//   //           imageData.data.buffer,
+//   //         );
+//   //         (texture.image as any).width = width;
+//   //         (texture.image as any).height = height;
+//   //         texture.needsUpdate = true;
+
+//   //         pixelPass.uniforms.lutMap.value = texture;
+//   //         pixelPass.uniforms.lutMapSize.value = lutSize;
+//   //       });
+//   //     }
+
+//   //     return texture;
+//   //   };
+//   // })();
+//   // const info = {
+//   //   name: "custom",
+//   //   url: lut.url,
+//   //   size: lut.size,
+//   //   filter: true,
+//   // };
+
+//   // pixelPass.uniforms.lutMap.value = makeLUTTexture(info);
+//   // pixelPass.uniforms.lutMapSize.value = info.size;
+// };
