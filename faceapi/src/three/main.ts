@@ -125,6 +125,10 @@ function init_threeScene() {
   const threeCompositeObject = new THREE.Object3D();
 
   threeCompositeObject.add(pivotCubeMesh);
+
+  threeCompositeObject.position.z = -2;
+  threeCompositeObject.position.y = 0.3;
+
   _threeScene!.add(threeCompositeObject);
 } // end init_threeScene()
 
@@ -150,7 +154,7 @@ const create_videoScreen = () => {
   varying vec2 vUV;\n\
   void main(void){\n\
     gl_Position = vec4(position, 0., 1.);\n\
-    vUV = 0.5+0.5*position;\n\
+    vUV = 0.5*position;\n\
   }";
   const videoScreenFragmentShaderSource =
     "precision lowp float;\n\
@@ -207,7 +211,7 @@ const create_videoScreen = () => {
   apply_videoTexture(_threeVideoMesh);
   _threeVideoMesh.renderOrder = -1000; //render first
   _threeVideoMesh.frustumCulled = false;
-  // _threeScene!.add(_threeVideoMesh);
+  _threeScene!.add(_threeVideoMesh);
 };
 const apply_videoTexture = (threeMesh: THREE.Mesh) => {
   if (_isVideoTextureReady) {
@@ -224,7 +228,7 @@ const apply_videoTexture = (threeMesh: THREE.Mesh) => {
       _threeVideoTexture!.magFilter = THREE.LinearFilter;
       _threeVideoTexture!.minFilter = THREE.LinearFilter;
       _isVideoTextureReady = true;
-      console.log("updated...");
+      // console.log("updated...");
     } catch (e) {
       console.log(
         "WARNING in THREE.JeelizHelper : the glVideoTexture is not fully initialized",
@@ -243,22 +247,7 @@ const init = () => {
   });
 
   _threeScene = new THREE.Scene();
-  // var scene = new THREE.Scene();
-  _threeCamera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-  );
-  var geometry = new THREE.BoxGeometry(1, 1, 1);
 
-  var material = new THREE.MeshBasicMaterial({
-    color: 0xff0000,
-  });
-  var cube = new THREE.Mesh(geometry, material);
-  _threeScene.add(cube);
-  cube.position.z = -5;
-  cube.rotation.x = 10;
-  cube.rotation.y = 5;
-  // _threeRenderer.render(_threeScene, _threeCamera);
   // const rtParameters = {
   //   minFilter: THREE.LinearFilter,
   //   magFilter: THREE.LinearFilter,
@@ -270,7 +259,7 @@ const init = () => {
   // );
 
   // create_threeCompositeObjects();
-  // create_videoScreen();
+  create_videoScreen();
 
   const returnedDict = {
     videoMesh: _threeVideoMesh,
@@ -301,7 +290,7 @@ export const render =
     //trigger the render of the THREE.JS SCENE
     _threeRenderer?.render(_threeScene!, _threeCamera!);
 
-    console.log({ _threeScene, _threeCamera });
+    // console.log({ _threeScene, _threeCamera });
     // _threeComposer.render();
   };
 
@@ -406,7 +395,7 @@ export const start = ({
   _videoElement = videoElement;
 
   init();
-  // init_threeScene();
+  init_threeScene();
   _threeCamera = create_camera();
   // registerCamera(
   //   _threeCamera,

@@ -72,7 +72,7 @@ async function onPlay(): Promise<void> {
   // }
   threeManager.render();
 
-  // setTimeout(() => onPlay());
+  setTimeout(() => onPlay());
 }
 
 const initThree = () => {
