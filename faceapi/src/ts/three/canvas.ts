@@ -8,14 +8,15 @@ let _timerFullScreen: any = false;
 
 const _cameraResolutions: [number, number][] = [
   //all resolutions should be in landscape mode
-  [640, 480],
-  [768, 480],
-  [800, 600],
-  [960, 640],
-  [960, 720],
-  [1024, 768],
+  // [960, 640],
+  // [1024, 768],
+  [640, 360],
   [1280, 720],
-  [1920, 1080],
+  // [640, 480],
+  // [768, 480],
+  // [800, 600],
+  // [960, 720],
+  // [1920, 1080],
 ];
 function add_CSStransform(
   domElement: HTMLElement,
@@ -178,12 +179,12 @@ const resize_canvasToFullScreen = () => {
   _domCanvas.setAttribute("width", String(_whCanvasPx[0]));
   _domCanvas.setAttribute("height", String(_whCanvasPx[1]));
 
-  const canvas2: HTMLCanvasElement | null = document.getElementById(
-    "overlay2",
-  ) as HTMLCanvasElement;
+  // const canvas2: HTMLCanvasElement | null = document.getElementById(
+  //   "overlay2",
+  // ) as HTMLCanvasElement;
 
-  canvas2.setAttribute("width", String(_whCanvasPx[0]));
-  canvas2.setAttribute("height", String(_whCanvasPx[1]));
+  // canvas2.setAttribute("width", String(_whCanvasPx[0]));
+  // canvas2.setAttribute("height", String(_whCanvasPx[1]));
 };
 interface ISizeOptions {
   canvas?: HTMLCanvasElement;
@@ -277,6 +278,7 @@ export const size_canvas = function(options: ISizeOptions) {
     typeof options.CSSFlipX !== "undefined" &&
     options.CSSFlipX
   ) {
+    console.log("add transform");
     add_CSStransform(_domCanvas, "rotateY(180deg)");
   }
 

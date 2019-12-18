@@ -10,7 +10,7 @@ import {
 } from "./pose/process";
 import { openCvReady } from "./pose/ready";
 import { size_canvas } from "./three/canvas";
-declare var WebGLDebugUtils: any;
+// declare var WebGLDebugUtils: any;
 
 let _videoEl: HTMLVideoElement | null = null;
 let _videoTexture: WebGLTexture | null = null;
@@ -40,8 +40,8 @@ const renderLoop = async () => {
   if (result) {
     // console.log("got results");
     const dims = {
-      width: _videoEl.videoWidth,
-      height: _videoEl.videoHeight,
+      width: window.innerWidth,
+      height: window.innerHeight,
     };
 
     const resizedResult = faceapi.resizeResults(
@@ -99,11 +99,11 @@ const prepareSceneAndRun = async () => {
   // canvas2.width = window.innerWidth;
   // canvas2.height = window.innerHeight;
 
-  _gl = WebGLDebugUtils.makeDebugContext(
-    canvas.getContext("webgl"),
-  );
+  // _gl = WebGLDebugUtils.makeDebugContext(
+  //   canvas.getContext("webgl"),
+  // );
 
-  // _gl = canvas.getContext("webgl");
+  _gl = canvas.getContext("webgl");
 
   // ctx = WebGLDebugUtils.makeDebugContext(canvas.getContext("webgl"));
 

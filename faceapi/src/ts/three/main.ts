@@ -201,14 +201,14 @@ const init_threeScene = (imgUrl: string) => {
     transparent: true,
   });
   const planeMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(10, 10),
+    new THREE.PlaneGeometry(1000, 1000),
     planeMaterial,
   );
   // _threeCompositeObject.position.setZ(-200);
 
   _threeCompositeObject.add(planeMesh);
   _threeScene!.add(_threeCompositeObject);
-  lines(_threeCompositeObject);
+  // lines(_threeCompositeObject);
 };
 
 const create_videoScreen = () => {

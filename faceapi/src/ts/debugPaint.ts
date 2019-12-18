@@ -16,6 +16,7 @@ const cache: { [key: string]: any } = {
   sidey: new KalmanFilter(kalmanconfig),
 };
 const smooth = (name: string, value: number) => {
+  return value;
   return cache[name].filter(value);
 };
 

@@ -2,9 +2,9 @@ export const calcCameraParams = (
   _threeRenderer: THREE.WebGLRenderer,
   _videoElement: HTMLVideoElement,
 ) => {
-  const _settings = {
-    cameraMinVideoDimFov: 47, //Field of View for the smallest dimension of the video in degrees
-  };
+  // const _settings = {
+  //   cameraMinVideoDimFov: 47, //Field of View for the smallest dimension of the video in degrees
+  // };
   // compute aspectRatio:
   const canvasElement = _threeRenderer.domElement;
   const cvw = canvasElement.width;
@@ -16,12 +16,22 @@ export const calcCameraParams = (
   const vw = _videoElement.videoWidth;
   const vh = _videoElement.videoHeight;
   const videoAspectRatio = vw / vh;
-  const fovFactor = vh > vw ? 1.0 / videoAspectRatio : 1.0;
-  // const fovh = 2 * Math.atan(cvh / (2 * cvw)) * 180;
-  // const fovw = 2 * Math.atan(cvw / (2 * cvw)) * 180;
-  // console.log({ fovh, fovw, vh, vw });
-  // const fov = vh > vw ? fovh : fovw;
-  const fov = _settings.cameraMinVideoDimFov * fovFactor;
+  // estimated based on the camera matrix of opencv
+  const fovh = 2 * Math.atan(cvh / (2 * cvw)) * 90;
+  const fovw = 2 * Math.atan(cvw / (2 * cvw)) * 90;
+
+  //se o video for deitado ele corta
+  const fovFactor = vh > vw ? 1.0 : 1.0 / videoAspectRatio;
+
+  // empírico da diferença de tamanhos
+  const diff = canvasAspectRatio - videoAspectRatio;
+  const cameraMinVideoDimFov = vh > vw ? fovw : fovh;
+  const f3 =
+    vh > vw
+      ? 1 - diff / videoAspectRatio
+      : 1 + diff / videoAspectRatio;
+
+  const fov = cameraMinVideoDimFov * fovFactor * f3;
 
   // console.log({ fovFactor, fovh, fovw });
 

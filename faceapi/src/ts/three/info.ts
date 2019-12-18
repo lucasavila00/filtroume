@@ -57,25 +57,30 @@ export const getInfo = async (): Promise<IInfo | null> => {
   const url =
     "https://us-central1-filterme.cloudfunctions.net/filterUrls?id=" +
     pathname;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
 
-  const res = await fetch(url);
-  const data = await res.json();
-
-  if (!data) {
+    if (!data) {
+      return null;
+    } else if (data.error) {
+      console.error({ data });
+      return null;
+    } else {
+      return {
+        lut: {
+          url: data.url,
+          size: 16,
+        },
+        images: {
+          center: data.image,
+        },
+        pathname,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+  } finally {
     return null;
-  } else if (data.error) {
-    console.error({ data });
-    return null;
-  } else {
-    return {
-      lut: {
-        url: data.url,
-        size: 16,
-      },
-      images: {
-        center: data.image,
-      },
-      pathname,
-    };
   }
 };

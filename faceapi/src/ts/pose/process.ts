@@ -5,6 +5,7 @@ import { CV } from "../opencv";
 import { generateImageAndObjectPoints } from "./prepare";
 import { generateCameraMatrix } from "./camera";
 import { gotTvec, gotRvec } from "../three/main";
+import { drawCube } from "../debugPaint";
 declare var cv: CV;
 
 let selectedOpenCvMethoed = 4; //cv.SOLVEPNP_UPNP;
@@ -73,9 +74,9 @@ const getKalman = (
   let nrz = rzKalman.filter(rz);
   const diffrz = Math.abs(nrz - rz);
 
-  const maxDiffTranslate = 50;
+  const maxDiffTranslate = 100;
 
-  const maxDiffRotate = 0.05;
+  const maxDiffRotate = 0.1;
 
   if (
     diffx > maxDiffTranslate ||
@@ -165,6 +166,23 @@ export function extractHeadPoseInfo(
       rvec,
       tvec,
     );
+
+    // const canvas: HTMLCanvasElement | null = document.getElementById(
+    //   "overlay2",
+    // ) as HTMLCanvasElement;
+    // canvas
+    //   .getContext("2d")!
+    //   .clearRect(0, 0, canvas.width, canvas.height);
+    // drawCube(
+    //   rvec,
+    //   tvec,
+    //   cameraMatrix,
+    //   distCoeffs,
+    //   positions,
+    //   canvas,
+    // );
+    // // faceapi.draw.drawDetections(canvas, resizedResult);
+    // faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
     // console.log({ rvec, tvec });
 
     let rout = new cv.Mat();
@@ -233,23 +251,6 @@ export function extractHeadPoseInfo(
     minusR.delete();
     rout.delete();
     transposed.delete();
-
-    const canvas: HTMLCanvasElement | null = document.getElementById(
-      "overlay2",
-    ) as HTMLCanvasElement;
-    canvas
-      .getContext("2d")!
-      .clearRect(0, 0, canvas.width, canvas.height);
-    drawCube(
-      rvec,
-      tvec,
-      cameraMatrix,
-      distCoeffs,
-      positions,
-      canvas,
-    );
-    faceapi.draw.drawDetections(canvas, resizedResult);
-    faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
   } catch (err) {
     console.error("error resolving pose!!!!");
     console.error(err);
