@@ -1,0 +1,1 @@
+    "build": "yarn parcel build src/index.html  --out-dir ../gatsby-site/static/view --public-url replacethislinewithadot && sed -i '' 's/replacethislinewithadot/./g' ../gatsby-site/static/view/index.html"

@@ -20,10 +20,13 @@ export const processTvec = ({
   z,
 }: VecTransport): VecTransport => {
   return {
-    x: txKalman.filter(x),
-    y: tyKalman.filter(y),
-    z: tzKalman.filter(z),
-  };
+    x,y,z
+  }
+  // return {
+  //   x: txKalman.filter(x),
+  //   y: tyKalman.filter(y),
+  //   z: tzKalman.filter(z),
+  // };
 };
 
 const raKalman = new KalmanFilter(kalmanconfig);
@@ -35,10 +38,16 @@ export const processRVec = (
   // Apply Kalman filter while in Rodrigues coordinates
   // as it wont flip axes and is meaningful for interpolations
   const rout = new cv.Mat();
+  // const temp = cv.matFromArray(3, 1, cv.CV_64F, [
+  //   raKalman.filter(rvec.data64F[0]),
+  //   rbKalman.filter(rvec.data64F[1]),
+  //   rcKalman.filter(rvec.data64F[2]),
+  // ]);
+
   const temp = cv.matFromArray(3, 1, cv.CV_64F, [
-    raKalman.filter(rvec.data64F[0]),
-    rbKalman.filter(rvec.data64F[1]),
-    rcKalman.filter(rvec.data64F[2]),
+    (rvec.data64F[0]),
+    (rvec.data64F[1]),
+    (rvec.data64F[2]),
   ]);
 
   // convert from rodrigues to a rotation matrix

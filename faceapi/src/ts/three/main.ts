@@ -52,10 +52,23 @@ export const gotRvec = (
   _threeCamera!.rotation.y = y;
   _threeCamera!.rotation.z = z;
 };
+const MAXLOCK = 9;
+const MINLOCK = -2;
+let _lock = 0;
+const getFaceThingVisible = (foundFace: boolean) => {
+  if (foundFace) {
+    _lock = Math.min(MAXLOCK, _lock + 1);
+  } else {
+    _lock = Math.max(MINLOCK, _lock - 1);
+  }
+  return _lock > 0;
+};
 
 export const render = (foundFace: boolean) => {
   _threeRenderer?.state.reset();
-  _threeCompositeObject.visible = foundFace;
+  _threeCompositeObject.visible = getFaceThingVisible(
+    foundFace,
+  );
   // _threeRenderer?.render(_threeScene!, _threeCamera!);
   _threeComposer.render(clock.getDelta());
 };
@@ -181,9 +194,10 @@ const init_threeScene = (imgUrl: string) => {
     transparent: true,
   });
   const planeMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(1500, 1500),
+    new THREE.PlaneGeometry(1000, 1000),
     planeMaterial,
   );
+  planeMesh.position.setZ(-300);
 
   _threeCompositeObject.add(planeMesh);
   _threeScene!.add(_threeCompositeObject);

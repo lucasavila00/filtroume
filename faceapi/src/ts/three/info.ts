@@ -36,17 +36,17 @@ function parseURL(url: string) {
 }
 
 export const getInfo = async (): Promise<IInfo | null> => {
-  // const info = {
-  //   lut: {
-  //     url: "https://localhost:3007/luts/lut0.png",
-  //     size: 16,
-  //   },
-  //   images: {
-  //     center: "https://localhost:3007/luts/lut0.png",
-  //   },
-  //   pathname: "abc",
-  // };
-  // return info;
+  const info = {
+    lut: {
+      url: "https://localhost:3007/luts/lut0.png",
+      size: 16,
+    },
+    images: {
+      center: "https://localhost:3007/luts/lut0.png",
+    },
+    pathname: "abc",
+  };
+  return info;
   if (
     window.parent &&
     (window.parent as any)._lut &&

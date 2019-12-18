@@ -11,9 +11,10 @@ let _videoTexture: WebGLTexture | null = null;
 let _gl: WebGLRenderingContext | null = null;
 
 const renderLoop = async () => {
+  console.log("renderLoop started");
   if (
     _videoEl == null ||
-    _videoEl.paused ||
+    // _videoEl.paused ||
     _videoEl.ended
   ) {
     setTimeout(() => renderLoop());
@@ -46,14 +47,27 @@ const renderLoop = async () => {
   threeManager.render(!!result);
 
   setTimeout(() => renderLoop());
+  console.log("renderLoop ended");
 };
 
 const prepareSceneAndRun = async () => {
+  console.log("prepareSceneAndRun started");
+  console.log({
+    _videoEl,
+    paused: _videoEl?.paused,
+    ended: _videoEl?.ended,
+  });
   if (
     _videoEl == null ||
     _videoEl.paused ||
     _videoEl.ended
   ) {
+    console.log({
+      _videoEl,
+      paused: _videoEl?.paused,
+      ended: _videoEl?.ended,
+    });
+    console.log("does not have _videoEl");
     setTimeout(prepareSceneAndRun, 16);
     return;
   }
@@ -61,12 +75,13 @@ const prepareSceneAndRun = async () => {
     "overlay",
   ) as HTMLCanvasElement;
 
-  canvas.width = _videoEl.videoWidth;
-  canvas.height = _videoEl.videoHeight;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
   _gl = canvas.getContext("webgl");
 
   if (_gl == null) {
+    console.log("does not have gl");
     setTimeout(prepareSceneAndRun, 16);
     return;
   }
@@ -83,9 +98,12 @@ const prepareSceneAndRun = async () => {
   });
 
   renderLoop();
+  console.log("prepareSceneAndRun ended");
 };
 
 const prepareModels = async () => {
+  console.log("prepareModels started");
+
   await faceapi.nets.tinyFaceDetector.loadFromUri(
     "https://filterme.firebaseapp.com/weights/",
   );
@@ -93,8 +111,10 @@ const prepareModels = async () => {
   await faceapi.nets.faceLandmark68TinyNet.loadFromUri(
     "https://filterme.firebaseapp.com/weights/",
   );
+  console.log("prepareModels ended");
 };
 const prepareVideo = async () => {
+  console.log("prepareVideo started");
   // try to access users webcam and stream the images
   // to the video element
   const stream = await navigator.mediaDevices.getUserMedia(
@@ -104,12 +124,18 @@ const prepareVideo = async () => {
   const video = document.createElement("video");
   video.setAttribute("autoplay", "true");
   video.srcObject = stream;
+  console.log(stream.active);
+  // stream.onaddtrack()
+  // video.play();
   _videoEl = video;
+  console.log("prepareVideo ended");
 };
 
 const main = async () => {
+  console.log("main started");
   await prepareModels();
   await prepareVideo();
   await prepareSceneAndRun();
+  console.log("main ended... we depend on the render loop");
 };
 main();

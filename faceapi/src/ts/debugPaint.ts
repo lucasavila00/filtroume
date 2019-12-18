@@ -80,10 +80,10 @@ const drawDebugCube = (
 };
 
 export function drawCube(
-  rvec: import("/Users/lucasdeavilamartins/ff/faceapi/src/opencv/Mat").Mat,
-  tvec: import("/Users/lucasdeavilamartins/ff/faceapi/src/opencv/Mat").Mat,
-  cameraMatrix: import("/Users/lucasdeavilamartins/ff/faceapi/src/opencv/Mat").Mat,
-  distCoeffs: import("/Users/lucasdeavilamartins/ff/faceapi/src/opencv/MatExpr").MatExpr,
+  rvec: import("./opencv/Mat").Mat,
+  tvec: import("./opencv/Mat").Mat,
+  cameraMatrix: import("./opencv/Mat").Mat,
+  distCoeffs: import("./opencv/MatExpr").MatExpr,
   positions: faceapi.Point[],
   canvas: HTMLCanvasElement,
 ) {
