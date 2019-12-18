@@ -5,6 +5,7 @@ import * as threeManager from "./three/main";
 import { cameraConfig } from "./constants";
 import { drawOnVideoTexture } from "./three/video";
 import { extractHeadPoseInfo } from "./pose/process";
+import { openCvReady } from "./pose/ready";
 
 let _videoEl: HTMLVideoElement | null = null;
 let _videoTexture: WebGLTexture | null = null;
@@ -30,7 +31,7 @@ const renderLoop = async () => {
     .withFaceLandmarks(true);
 
   updateTimeStats(Date.now() - ts);
-
+  console.log({ result });
   if (result) {
     const dims = {
       width: _videoEl.videoWidth,
@@ -113,6 +114,7 @@ const prepareModels = async () => {
   );
   console.log("prepareModels ended");
 };
+
 const prepareVideo = async () => {
   console.log("prepareVideo started");
   // try to access users webcam and stream the images
@@ -123,8 +125,13 @@ const prepareVideo = async () => {
 
   const video = document.createElement("video");
   video.setAttribute("autoplay", "true");
+  video.setAttribute("playsinline", "true");
+  video.setAttribute("muted", "true");
+  video.setAttribute("loop", "true");
+  video.setAttribute("controls", "true");
   video.srcObject = stream;
-  console.log(stream.active);
+  await video.play();
+  await openCvReady();
   // stream.onaddtrack()
   // video.play();
   _videoEl = video;

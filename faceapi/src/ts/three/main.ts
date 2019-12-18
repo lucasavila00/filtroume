@@ -36,6 +36,7 @@ export const gotTvec = (
   y: number,
   z: number,
 ) => {
+  console.log("got tvec");
   const filtered = processTvec({ x, y, z });
   _threeCamera!.position.set(
     filtered.x,
