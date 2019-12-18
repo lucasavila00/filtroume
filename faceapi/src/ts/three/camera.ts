@@ -3,7 +3,7 @@ export const calcCameraParams = (
   _videoElement: HTMLVideoElement,
 ) => {
   const _settings = {
-    cameraMinVideoDimFov: 28, //Field of View for the smallest dimension of the video in degrees
+    cameraMinVideoDimFov: 47, //Field of View for the smallest dimension of the video in degrees
   };
   // compute aspectRatio:
   const canvasElement = _threeRenderer.domElement;
@@ -17,8 +17,9 @@ export const calcCameraParams = (
   const vh = _videoElement.videoHeight;
   const videoAspectRatio = vw / vh;
   const fovFactor = vh > vw ? 1.0 / videoAspectRatio : 1.0;
-  // const fovh = 2 * Math.atan(cvh / (2 * cvw));
-  // const fovw = 2 * Math.atan(cvw / (2 * cvw));
+  // const fovh = 2 * Math.atan(cvh / (2 * cvw)) * 180;
+  // const fovw = 2 * Math.atan(cvw / (2 * cvw)) * 180;
+  // console.log({ fovh, fovw, vh, vw });
   // const fov = vh > vw ? fovh : fovw;
   const fov = _settings.cameraMinVideoDimFov * fovFactor;
 

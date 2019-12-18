@@ -4,15 +4,20 @@ import { updateTimeStats } from "./stats";
 import * as threeManager from "./three/main";
 import { cameraConfig } from "./constants";
 import { drawOnVideoTexture } from "./three/video";
-import { extractHeadPoseInfo } from "./pose/process";
+import {
+  extractHeadPoseInfo,
+  resetPred,
+} from "./pose/process";
 import { openCvReady } from "./pose/ready";
+import { size_canvas } from "./three/canvas";
+declare var WebGLDebugUtils: any;
 
 let _videoEl: HTMLVideoElement | null = null;
 let _videoTexture: WebGLTexture | null = null;
 let _gl: WebGLRenderingContext | null = null;
 
 const renderLoop = async () => {
-  console.log("renderLoop started");
+  // console.log("renderLoop started");
   if (
     _videoEl == null ||
     // _videoEl.paused ||
@@ -31,8 +36,9 @@ const renderLoop = async () => {
     .withFaceLandmarks(true);
 
   updateTimeStats(Date.now() - ts);
-  console.log({ result });
+
   if (result) {
+    // console.log("got results");
     const dims = {
       width: _videoEl.videoWidth,
       height: _videoEl.videoHeight,
@@ -44,11 +50,13 @@ const renderLoop = async () => {
     );
 
     extractHeadPoseInfo(resizedResult, dims);
+  } else {
+    resetPred();
   }
   threeManager.render(!!result);
 
   setTimeout(() => renderLoop());
-  console.log("renderLoop ended");
+  // console.log("renderLoop ended");
 };
 
 const prepareSceneAndRun = async () => {
@@ -76,13 +84,31 @@ const prepareSceneAndRun = async () => {
     "overlay",
   ) as HTMLCanvasElement;
 
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  // canvas.width = window.innerWidth;
+  // canvas.height = window.innerHeight;
+  // canvas.width = _videoEl.videoWidth;
+  // canvas.height = _videoEl.videoHeight;
 
-  _gl = canvas.getContext("webgl");
+  // const canvas2: HTMLCanvasElement | null = document.getElementById(
+  //   "overlay2",
+  // ) as HTMLCanvasElement;
+
+  // canvas2.width = _videoEl.videoWidth;
+  // canvas2.height = _videoEl.videoHeight;
+
+  // canvas2.width = window.innerWidth;
+  // canvas2.height = window.innerHeight;
+
+  _gl = WebGLDebugUtils.makeDebugContext(
+    canvas.getContext("webgl"),
+  );
+
+  // _gl = canvas.getContext("webgl");
+
+  // ctx = WebGLDebugUtils.makeDebugContext(canvas.getContext("webgl"));
 
   if (_gl == null) {
-    console.log("does not have gl");
+    console.error("does not have gl");
     setTimeout(prepareSceneAndRun, 16);
     return;
   }
@@ -115,13 +141,27 @@ const prepareModels = async () => {
   console.log("prepareModels ended");
 };
 
-const prepareVideo = async () => {
+const prepareVideo = async ({
+  idealWidth,
+  idealHeight,
+}: {
+  idealWidth: number;
+  idealHeight: number;
+}) => {
   console.log("prepareVideo started");
   // try to access users webcam and stream the images
   // to the video element
-  const stream = await navigator.mediaDevices.getUserMedia(
-    cameraConfig,
-  );
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: {
+      width: {
+        ideal: idealWidth,
+      },
+      height: {
+        ideal: idealHeight,
+      },
+      facingMode: "user",
+    },
+  });
 
   const video = document.createElement("video");
   video.setAttribute("autoplay", "true");
@@ -140,9 +180,34 @@ const prepareVideo = async () => {
 
 const main = async () => {
   console.log("main started");
-  await prepareModels();
-  await prepareVideo();
-  await prepareSceneAndRun();
-  console.log("main ended... we depend on the render loop");
+
+  size_canvas({
+    isFullScreen: true,
+    canvasId: "overlay",
+
+    callback: async function(isError, bestVideoSettings) {
+      if (isError) {
+        // showError("jeeliz");
+      } else {
+        // init_faceFilter(bestVideoSettings, info);
+        // showTutorial();
+        // if (info.pathname) {
+        // showInfoPathname(info.pathname);
+        // }
+        await Promise.all([
+          prepareModels(),
+          prepareVideo(bestVideoSettings),
+        ]);
+
+        prepareSceneAndRun();
+        console.log(
+          "main ended... we depend on the render loop",
+        );
+      }
+    },
+    onResize: function() {
+      // THREE.JeelizHelper.update_camera(THREECAMERA);
+    },
+  });
 };
 main();

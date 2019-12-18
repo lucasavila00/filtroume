@@ -4,6 +4,11 @@
     <link rel="stylesheet" href="./css/styles.css" />
     <script src="https://filterme.firebaseapp.com/webgl/webgl-debug.js"></script>
     <script src="https://filterme.firebaseapp.com/opencv/opencv.js"></script>
+    <script>
+      cv["onRuntimeInitialized"] = () => {
+        window._ready = true;
+      };
+    </script>
     <script src="./ts/main.ts"></script>
   </head>
   <body style="color: black">
@@ -16,7 +21,7 @@
       playsinline
     ></video> -->
     <canvas width="600" height="600" id="overlay"></canvas>
-    <!-- <canvas width="600" height="600" id="overlay2"></canvas> -->
+    <canvas width="600" height="600" id="overlay2"></canvas>
 
     <!-- </div> -->
     <!-- </div> -->

@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { processTvec, processRVec } from "./kalman";
+import { decodeRvec } from "./convert";
 import { getInfo, IInfo } from "./info";
 import {
   // BloomEffect,
@@ -12,6 +12,7 @@ import {
   makeIdentityLutTexture,
 } from "./lut";
 import { calcCameraParams } from "./camera";
+import { lines } from "../debugPaint";
 
 const clock = new THREE.Clock();
 
@@ -36,19 +37,13 @@ export const gotTvec = (
   y: number,
   z: number,
 ) => {
-  console.log("got tvec");
-  const filtered = processTvec({ x, y, z });
-  _threeCamera!.position.set(
-    filtered.x,
-    filtered.y,
-    filtered.z,
-  );
+  _threeCamera!.position.set(x, y, z);
 };
 
 export const gotRvec = (
   rvec: import("../opencv/Mat").Mat,
 ) => {
-  const { x, y, z } = processRVec(rvec);
+  const { x, y, z } = decodeRvec(rvec);
   _threeCamera!.rotation.x = x;
   _threeCamera!.rotation.y = y;
   _threeCamera!.rotation.z = z;
@@ -90,11 +85,22 @@ export const start = async ({
   _faceFilterCv = canvasElement;
   _videoElement = videoElement;
 
-  const info = await getInfo();
+  let info = await getInfo();
   if (!info) {
+    info = {
+      lut: {
+        url: "https://localhost:3007/luts/lut0.png",
+        size: 16,
+      },
+      images: {
+        center: "https://localhost:3007/luts/lut0.png",
+      },
+      pathname: "abc",
+    };
+    // return info;
     // display error info
     console.error("info not found!!!!");
-    return;
+    // return;
   }
 
   _threeRenderer = new THREE.WebGLRenderer({
@@ -195,14 +201,14 @@ const init_threeScene = (imgUrl: string) => {
     transparent: true,
   });
   const planeMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(1000, 1000),
+    new THREE.PlaneGeometry(10, 10),
     planeMaterial,
   );
-  planeMesh.position.setZ(-300);
+  // _threeCompositeObject.position.setZ(-200);
 
   _threeCompositeObject.add(planeMesh);
   _threeScene!.add(_threeCompositeObject);
-  // lines();
+  lines(_threeCompositeObject);
 };
 
 const create_videoScreen = () => {
