@@ -32,6 +32,7 @@ export const calcCameraParams = (
       : 1 + diff / videoAspectRatio;
 
   const fov = cameraMinVideoDimFov * fovFactor * f3;
+  // const fov = 46;
 
   // console.log({ fovFactor, fovh, fovw });
 

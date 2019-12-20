@@ -14,23 +14,10 @@ interface VecTransport {
 export const decodeRvec = (
   rvec: import("../opencv/Mat").Mat,
 ): VecTransport => {
-  // Apply Kalman filter while in Rodrigues coordinates
-  // as it wont flip axes and is meaningful for interpolations
   const rout = new cv.Mat();
-  const temp = cv.matFromArray(3, 1, cv.CV_64F, [
-    rvec.data64F[0],
-    rvec.data64F[1],
-    rvec.data64F[2],
-  ]);
-
-  // const temp = cv.matFromArray(3, 1, cv.CV_64F, [
-  //   rvec.data64F[0],
-  //   rvec.data64F[1],
-  //   rvec.data64F[2],
-  // ]);
 
   // convert from rodrigues to a rotation matrix
-  (cv as any).Rodrigues(temp, rout);
+  (cv as any).Rodrigues(rvec, rout);
 
   // apply padding to get a 4x4 three rotation matrix
   // from a 3x3 opencv rotation matrix
@@ -51,10 +38,9 @@ export const decodeRvec = (
   // free memory
   rout.delete();
 
-  // TODO: why this coordinate change is needed?
-  // TODO: move to another function
+  // open cv to open gl needs this conversion
   return {
-    x: euler.x - Math.PI,
+    x: euler.x,
     y: -euler.y,
     z: -euler.z,
   };

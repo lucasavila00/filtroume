@@ -141,7 +141,9 @@ export function extractHeadPoseInfo(
   const {
     imagePoints,
     objectPoints,
-  } = generateImageAndObjectPoints(positions);
+  } = generateImageAndObjectPoints(positions, dims);
+
+  console.log(imagePoints);
 
   // console.log(imagePoints);
   // example(imagePoints);
@@ -220,7 +222,7 @@ export function extractHeadPoseInfo(
       tk.ty,
       tk.tz,
     ]);
-    (cv as any).Rodrigues(_rvec, rout);
+    (cv as any).Rodrigues(rvec, rout);
 
     const transposed = rout.t();
     let minusR = new cv.Mat();
@@ -240,6 +242,7 @@ export function extractHeadPoseInfo(
       ]),
       minusR,
     );
+    console.log({ transposed, minusR, rout });
 
     let outvec = new cv.Mat();
     const src3 = cv.matFromArray(3, 3, cv.CV_64F, [
@@ -253,7 +256,7 @@ export function extractHeadPoseInfo(
       1,
       1,
     ]);
-    cv.gemm(minusR, _tvec, 1, src3, 0, outvec);
+    cv.gemm(minusR, tvec, 1, src3, 0, outvec);
 
     let outrvec = new cv.Mat();
     (cv as any).Rodrigues(transposed, outrvec);
@@ -274,9 +277,9 @@ export function extractHeadPoseInfo(
       outvec,
     });
 
-    minusR.delete();
-    rout.delete();
-    transposed.delete();
+    // minusR.delete();
+    // rout.delete();
+    // transposed.delete();
   } catch (err) {
     console.error("error resolving pose!!!!");
     console.error(err);

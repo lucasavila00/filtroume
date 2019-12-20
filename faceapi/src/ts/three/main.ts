@@ -37,7 +37,8 @@ export const gotTvec = (
   y: number,
   z: number,
 ) => {
-  _threeCamera!.position.set(x, y, z);
+  // from open cv to open gl
+  _threeCamera!.position.set(x, -y, -z);
 };
 
 export const gotRvec = (
@@ -208,7 +209,7 @@ const init_threeScene = (imgUrl: string) => {
 
   _threeCompositeObject.add(planeMesh);
   _threeScene!.add(_threeCompositeObject);
-  // lines(_threeCompositeObject);
+  lines(_threeCompositeObject);
 };
 
 const create_videoScreen = () => {

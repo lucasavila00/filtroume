@@ -6,6 +6,10 @@ declare var cv: CV;
 
 export const generateImageAndObjectPoints = (
   positions: faceapi.Point[],
+  dims: {
+    width: number;
+    height: number;
+  },
 ): {
   imagePoints: Mat;
   objectPoints: Mat;
@@ -24,6 +28,18 @@ export const generateImageAndObjectPoints = (
 
   const leftnostril = positions[31];
   const rightnostril = positions[35];
+
+  // const lefteyeleftcorner = positions[39];
+  // const lefteyerightcorner = positions[36];
+
+  // const righteyerightcorner = positions[42];
+  // const righteyeleftcorner = positions[45];
+
+  // const leftmouth = positions[54];
+  // const rightmouth = positions[48];
+
+  // const leftnostril = positions[35];
+  // const rightnostril = positions[31];
 
   const imagePoints = cv.matFromArray(10, 2, cv.CV_64F, [
     noseTip.x,
@@ -53,27 +69,29 @@ export const generateImageAndObjectPoints = (
     rightmouth.x,
     rightmouth.y,
   ]);
+
+  console.log({ leftmouth, rightmouth });
   //from sparkar
   const objectPoints = cv.matFromArray(10, 3, cv.CV_64F, [
     //nose tips
     0.0,
-    0.003874,
-    0.290468,
+    -1 * 0.003874,
+    -1 * 0.290468,
 
     // bottom nose
     0.0,
-    -1.26207,
-    -1.14108,
+    -1 * -1.26207,
+    -1 * -1.14108,
 
     // left nostril
     -0.85877,
-    -1.05017,
-    -1.53035,
+    -1 * -1.05017,
+    -1 * -1.53035,
 
     // right nostril
     0.85877,
-    -1.05017,
-    -1.53035,
+    -1 * -1.05017,
+    -1 * -1.53035,
 
     //chin
     // 0.0,g
@@ -82,32 +100,32 @@ export const generateImageAndObjectPoints = (
 
     //lefteyeleftcorner
     -4.49893,
-    3.21601,
-    -4.22082,
+    -1 * 3.21601,
+    -1 * -4.22082,
 
     //lefteyerightcorner
     -1.9326,
-    3.14086,
-    -3.78216,
+    -1 * 3.14086,
+    -1 * -3.78216,
 
     //righteyerightcorner
     4.49893,
-    3.21601,
-    -4.22082,
+    -1 * 3.21601,
+    -1 * -4.22082,
 
     //righteyeleftcorner
     1.9326,
-    3.14086,
-    -3.78216,
+    -1 * 3.14086,
+    -1 * -3.78216,
 
     // left mouth corner
     -2.17298,
-    -3.62696,
-    -3.15651,
+    -1 * -3.62696,
+    -1 * -3.15651,
     //rightmouthcorner
     2.17298,
-    -3.62696,
-    -3.15651,
+    -1 * -3.62696,
+    -1 * -3.15651,
   ]);
 
   // imagePoints = (cv).matFromArray(6, 2, (cv).CV_64F, [
