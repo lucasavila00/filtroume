@@ -1,0 +1,2 @@
+body{overflow:auto;overflow-y:auto;margin:0}#overlay{z-index:10}#overlay,#overlay2{position:absolute;width:100%;height:100%;top:0;left:0;transform:rotateY(180deg)}#overlay2{z-index:25}
+/*# sourceMappingURL=replacethislinewithadot/styles.8a3df4c3.css.map */

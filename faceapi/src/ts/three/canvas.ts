@@ -10,7 +10,9 @@ const _cameraResolutions: [number, number][] = [
   //all resolutions should be in landscape mode
   // [960, 640],
   // [1024, 768],
-  [640, 360],
+
+  // essa pode
+  // [640, 360],
   [1280, 720],
   // [640, 480],
   // [768, 480],

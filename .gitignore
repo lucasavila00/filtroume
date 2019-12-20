@@ -64,4 +64,6 @@ node_modules/
 # dotenv environment variables file
 .env
 out1.y4m
+out.y4m
 me1.mp4
+me.mp4

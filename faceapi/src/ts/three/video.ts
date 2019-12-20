@@ -7,8 +7,9 @@ export const drawOnVideoTexture = (
   const internalFormat = gl.RGB;
   const srcFormat = gl.RGB;
   const srcType = gl.UNSIGNED_BYTE;
-
   gl.bindTexture(gl.TEXTURE_2D, videoTexture);
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
   gl.texImage2D(
     gl.TEXTURE_2D,
     level,
@@ -37,5 +38,5 @@ export const drawOnVideoTexture = (
     gl.TEXTURE_MAG_FILTER,
     gl.LINEAR,
   );
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.bindTexture(gl.TEXTURE_2D, null);
 };

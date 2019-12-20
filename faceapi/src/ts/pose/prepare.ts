@@ -57,55 +57,57 @@ export const generateImageAndObjectPoints = (
   const objectPoints = cv.matFromArray(10, 3, cv.CV_64F, [
     //nose tips
     0.0,
-    0.0,
-    0.0,
+    0.003874,
+    0.290468,
 
     // bottom nose
     0.0,
-    -60.0,
-    -78.0,
+    -1.26207,
+    -1.14108,
 
     // left nostril
-    -67.0,
-    -58.0,
-    -100.0,
+    -0.85877,
+    -1.05017,
+    -1.53035,
 
     // right nostril
-    67.0,
-    -58.0,
-    -100.0,
+    0.85877,
+    -1.05017,
+    -1.53035,
 
     //chin
-    // -6.0,
-    // -400.0,
-    // -150.0,
+    // 0.0,g
+    // -8.01629,
+    // -3.32839,
 
     //lefteyeleftcorner
-    -262.0,
-    168.0,
-    -240.0,
+    -4.49893,
+    3.21601,
+    -4.22082,
+
     //lefteyerightcorner
-    -115.0,
-    170.0,
-    -210.0,
+    -1.9326,
+    3.14086,
+    -3.78216,
 
     //righteyerightcorner
-    262.0,
-    168.0,
-    -240.0,
-    //righteyeleftcorner
-    115.0,
-    170.0,
-    -210.0,
+    4.49893,
+    3.21601,
+    -4.22082,
 
-    // // left mouth corner
-    -148.0,
-    -192.0,
-    -181.0,
+    //righteyeleftcorner
+    1.9326,
+    3.14086,
+    -3.78216,
+
+    // left mouth corner
+    -2.17298,
+    -3.62696,
+    -3.15651,
     //rightmouthcorner
-    148.0,
-    -192.0,
-    -181.0,
+    2.17298,
+    -3.62696,
+    -3.15651,
   ]);
 
   // imagePoints = (cv).matFromArray(6, 2, (cv).CV_64F, [

@@ -10,12 +10,13 @@ import {
 } from "./pose/process";
 import { openCvReady } from "./pose/ready";
 import { size_canvas } from "./three/canvas";
+import * as tf from "@tensorflow/tfjs";
 // declare var WebGLDebugUtils: any;
-
+let i = 0;
 let _videoEl: HTMLVideoElement | null = null;
 let _videoTexture: WebGLTexture | null = null;
 let _gl: WebGLRenderingContext | null = null;
-
+let _fb: WebGLFramebuffer | null = null;
 const renderLoop = async () => {
   // console.log("renderLoop started");
   if (
@@ -26,7 +27,6 @@ const renderLoop = async () => {
     setTimeout(() => renderLoop());
     return;
   }
-  drawOnVideoTexture(_gl!, _videoTexture!, _videoEl);
 
   const options = getFaceDetectorOptions();
 
@@ -34,6 +34,7 @@ const renderLoop = async () => {
   let result = await faceapi
     .detectSingleFace(_videoEl, options)
     .withFaceLandmarks(true);
+  drawOnVideoTexture(_gl!, _videoTexture!, _videoEl);
 
   updateTimeStats(Date.now() - ts);
 
@@ -48,14 +49,50 @@ const renderLoop = async () => {
       result,
       dims,
     );
+    console.log(dims);
+    extractHeadPoseInfo(resizedResult, dims, example => {
+      const typedArray1 = new Float32Array(20);
+      for (let index = 0; index < 20; index++) {
+        const wdiv = dims.width;
+        const hdiv = dims.height;
+        const div = index % 2 == 0 ? wdiv : hdiv;
+        typedArray1[index] =
+          (example.data64F[index] / div) * 2 - 1;
+      }
+      console.log({ typedArray1 });
 
-    extractHeadPoseInfo(resizedResult, dims);
+      const prediction = model?.predict([
+        tf.tensor([typedArray1], [1, 10, 2]),
+      ]);
+      if (prediction instanceof Array) {
+        throw "awaited one";
+        // prediction.forEach(x => console.warn(x.dataSync()));
+      } else {
+        const data = prediction.dataSync();
+        return {
+          rvec: [
+            data[0] * 1.8,
+            data[1] * 3.5,
+            data[2] * 3.5,
+          ],
+          tvec: [
+            data[3] * 300,
+            data[4] * 100,
+            (data[5] + 0.5) * 150,
+          ],
+        };
+        // console.log();
+      }
+      // console.log({ example, prediction });
+    });
   } else {
     resetPred();
   }
   threeManager.render(!!result);
-
-  setTimeout(() => renderLoop());
+  if (i < 25) {
+    i++;
+    setTimeout(() => renderLoop());
+  }
   // console.log("renderLoop ended");
 };
 
@@ -115,8 +152,30 @@ const prepareSceneAndRun = async () => {
 
   _videoTexture = _gl.createTexture();
 
-  drawOnVideoTexture(_gl!, _videoTexture!, _videoEl);
+  _fb = _gl.createFramebuffer();
+  _gl.bindTexture(_gl.TEXTURE_2D, _videoTexture);
 
+  // make this the current frame buffer
+  _gl.bindFramebuffer(_gl.FRAMEBUFFER, _fb);
+
+  // attach the texture to the framebuffer.
+  _gl.framebufferTexture2D(
+    _gl.FRAMEBUFFER,
+    _gl.COLOR_ATTACHMENT0,
+    _gl.TEXTURE_2D,
+    _videoTexture,
+    0,
+  );
+  drawOnVideoTexture(_gl!, _videoTexture!, _videoEl);
+  // check if you can read from this type of texture.
+  // const canRead =
+  //   _gl.checkFramebufferStatus(_gl.FRAMEBUFFER) ==
+  //   _gl.FRAMEBUFFER_COMPLETE;
+  // console.log({ canRead });
+  _gl.bindTexture(_gl.TEXTURE_2D, null);
+
+  // Unbind the framebuffer
+  _gl.bindFramebuffer(_gl.FRAMEBUFFER, null);
   await threeManager.start({
     videoElement: _videoEl!,
     canvasElement: canvas,
@@ -128,6 +187,8 @@ const prepareSceneAndRun = async () => {
   console.log("prepareSceneAndRun ended");
 };
 
+let model: tf.LayersModel;
+
 const prepareModels = async () => {
   console.log("prepareModels started");
 
@@ -138,6 +199,14 @@ const prepareModels = async () => {
   await faceapi.nets.faceLandmark68TinyNet.loadFromUri(
     "https://filterme.firebaseapp.com/weights/",
   );
+  try {
+    model = await tf.loadLayersModel(
+      "https://localhost:3007/mdl/model.json",
+    );
+  } catch (err) {
+    console.error(err);
+  }
+
   console.log("prepareModels ended");
 };
 

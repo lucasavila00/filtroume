@@ -129,6 +129,12 @@ export function extractHeadPoseInfo(
     faceapi.FaceLandmarks68
   >,
   dims: { width: number; height: number },
+  example: (
+    x: any,
+  ) => {
+    tvec: number[];
+    rvec: number[];
+  },
 ) {
   // console.log("extracting pose started...");
   const positions = resizedResult.landmarks.positions;
@@ -136,6 +142,9 @@ export function extractHeadPoseInfo(
     imagePoints,
     objectPoints,
   } = generateImageAndObjectPoints(positions);
+
+  // console.log(imagePoints);
+  // example(imagePoints);
   const cameraMatrix = generateCameraMatrix(dims);
   const distCoeffs = cv.Mat.zeros(4, 1, cv.CV_64F);
   const outinliers = new cv.Mat();
@@ -184,9 +193,15 @@ export function extractHeadPoseInfo(
     // // faceapi.draw.drawDetections(canvas, resizedResult);
     // faceapi.draw.drawFaceLandmarks(canvas, resizedResult);
     // console.log({ rvec, tvec });
-
     let rout = new cv.Mat();
+
     const tk = getKalman(
+      // res.tvec[0],
+      // res.tvec[1],
+      // res.tvec[2],
+      // res.rvec[0],
+      // res.rvec[1],
+      // res.rvec[2],
       tvec.data64F[0],
       tvec.data64F[1],
       tvec.data64F[2],
@@ -248,6 +263,17 @@ export function extractHeadPoseInfo(
       outvec.data64F[1],
       outvec.data64F[2],
     );
+    const res = example(imagePoints);
+
+    console.log({
+      res,
+      tvec,
+      rvec,
+      imagePoints,
+      outrvec,
+      outvec,
+    });
+
     minusR.delete();
     rout.delete();
     transposed.delete();
@@ -258,8 +284,8 @@ export function extractHeadPoseInfo(
   } finally {
     // rvec.delete();
     // tvec.delete();
-    outinliers.delete();
-    imagePoints.delete();
-    objectPoints.delete();
+    // outinliers.delete();
+    // imagePoints.delete();
+    // objectPoints.delete();
   }
 }
