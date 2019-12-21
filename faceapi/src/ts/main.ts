@@ -235,7 +235,7 @@ const prepareVideo = async ({
   video.setAttribute("controls", "true");
   video.srcObject = stream;
   await video.play();
-  await openCvReady();
+  // await openCvReady();
   // stream.onaddtrack()
   // video.play();
   _videoEl = video;
