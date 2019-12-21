@@ -202,7 +202,7 @@ const init_threeScene = (imgUrl: string) => {
     transparent: true,
   });
   const planeMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(10, 10),
+    new THREE.PlaneGeometry(18, 18),
     planeMaterial,
   );
   // _threeCompositeObject.position.setZ(-200);

@@ -2,14 +2,42 @@ import * as faceapi from "face-api.js";
 
 import { CV } from "../opencv";
 import { Mat } from "../opencv/Mat";
+import KalmanFilter from "../kalman";
+
 declare var cv: CV;
+const kalmanconfig = { R: 0.8, Q: 1 };
+
+let ks = [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  0,
+].map(_ => {
+  return new KalmanFilter(kalmanconfig);
+});
+
+const applyKalman = (xs: number[]): number[] => {
+  return xs.map((x, index) => ks[index].filter(x));
+};
 
 export const generateImageAndObjectPoints = (
   positions: faceapi.Point[],
-  dims: {
-    width: number;
-    height: number;
-  },
 ): {
   imagePoints: Mat;
   objectPoints: Mat;
@@ -29,48 +57,40 @@ export const generateImageAndObjectPoints = (
   const leftnostril = positions[31];
   const rightnostril = positions[35];
 
-  // const lefteyeleftcorner = positions[39];
-  // const lefteyerightcorner = positions[36];
+  const imagePoints = cv.matFromArray(
+    10,
+    2,
+    cv.CV_64F,
+    applyKalman([
+      noseTip.x,
+      noseTip.y,
 
-  // const righteyerightcorner = positions[42];
-  // const righteyeleftcorner = positions[45];
+      bottomNose.x,
+      bottomNose.y,
 
-  // const leftmouth = positions[54];
-  // const rightmouth = positions[48];
+      leftnostril.x,
+      leftnostril.y,
 
-  // const leftnostril = positions[35];
-  // const rightnostril = positions[31];
+      rightnostril.x,
+      rightnostril.y,
 
-  const imagePoints = cv.matFromArray(10, 2, cv.CV_64F, [
-    noseTip.x,
-    noseTip.y,
+      lefteyeleftcorner.x,
+      lefteyeleftcorner.y,
+      lefteyerightcorner.x,
+      lefteyerightcorner.y,
 
-    bottomNose.x,
-    bottomNose.y,
+      righteyerightcorner.x,
+      righteyerightcorner.y,
+      righteyeleftcorner.x,
+      righteyeleftcorner.y,
 
-    leftnostril.x,
-    leftnostril.y,
+      leftmouth.x,
+      leftmouth.y,
+      rightmouth.x,
+      rightmouth.y,
+    ]),
+  );
 
-    rightnostril.x,
-    rightnostril.y,
-
-    lefteyeleftcorner.x,
-    lefteyeleftcorner.y,
-    lefteyerightcorner.x,
-    lefteyerightcorner.y,
-
-    righteyerightcorner.x,
-    righteyerightcorner.y,
-    righteyeleftcorner.x,
-    righteyeleftcorner.y,
-
-    leftmouth.x,
-    leftmouth.y,
-    rightmouth.x,
-    rightmouth.y,
-  ]);
-
-  console.log({ leftmouth, rightmouth });
   //from sparkar
   const objectPoints = cv.matFromArray(10, 3, cv.CV_64F, [
     //nose tips
@@ -129,17 +149,17 @@ export const generateImageAndObjectPoints = (
   ]);
 
   // imagePoints = (cv).matFromArray(6, 2, (cv).CV_64F, [
-  //     noseTip.x,
-  //     noseTip.y,
-  //     chin.x,
-  //     chin.y,
-  //     lefteyeleftcorner.x,
-  //     lefteyeleftcorner.y,
-  //     righteyerightcorner.x,
-  //     righteyerightcorner.y,
-  //     leftmouth.x,
-  //     leftmouth.y,
-  //     rightmouth.x,
+  //     noseTip.x ,
+  //     noseTip.y ,
+  //     chin.x ,
+  //     chin.y ,
+  //     lefteyeleftcorner.x ,
+  //     lefteyeleftcorner.y ,
+  //     righteyerightcorner.x ,
+  //     righteyerightcorner.y ,
+  //     leftmouth.x ,
+  //     leftmouth.y ,
+  //     rightmouth.x ,
   //     rightmouth.y
   // ]);
   // objectPoints = (cv).matFromArray(6, 3, (cv).CV_64F, [

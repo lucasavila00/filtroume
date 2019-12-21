@@ -2,11 +2,11 @@ import * as faceapi from "face-api.js";
 import { getFaceDetectorOptions } from "./controls";
 import { updateTimeStats } from "./stats";
 import * as threeManager from "./three/main";
-import { cameraConfig } from "./constants";
+// import { cameraConfig } from "./constants";
 import { drawOnVideoTexture } from "./three/video";
 import {
   extractHeadPoseInfo,
-  resetPred,
+  // resetPred,
 } from "./pose/process";
 import { openCvReady } from "./pose/ready";
 import { size_canvas } from "./three/canvas";
@@ -17,6 +17,18 @@ let _videoEl: HTMLVideoElement | null = null;
 let _videoTexture: WebGLTexture | null = null;
 let _gl: WebGLRenderingContext | null = null;
 let _fb: WebGLFramebuffer | null = null;
+
+const toPython = (x: any[]) => {
+  let temp: any = [];
+  for (let index = 0; index < x.length; index += 2) {
+    const element = x[index];
+    const element2 = x[index + 1];
+    temp = [...temp, [element, element2]];
+  }
+
+  // console.log(JSON.stringify(temp));
+};
+
 const renderLoop = async () => {
   // console.log("renderLoop started");
   if (
@@ -39,60 +51,43 @@ const renderLoop = async () => {
   updateTimeStats(Date.now() - ts);
 
   if (result) {
-    // console.log("got results");
     const dims = {
-      width: window.innerWidth,
-      height: window.innerHeight,
+      width: 1,
+      height: 1,
     };
 
     const resizedResult = faceapi.resizeResults(
       result,
       dims,
     );
-    console.log(dims);
-    extractHeadPoseInfo(resizedResult, dims, example => {
-      const typedArray1 = new Float32Array(20);
-      for (let index = 0; index < 20; index++) {
-        const wdiv = dims.width;
-        const hdiv = dims.height;
-        const div = index % 2 == 0 ? wdiv : hdiv;
-        typedArray1[index] =
-          (example.data64F[index] / div) * 2 - 1;
-      }
-      console.log({ typedArray1 });
-
-      const prediction = model?.predict([
-        tf.tensor([typedArray1], [1, 10, 2]),
-      ]);
+    extractHeadPoseInfo(resizedResult, async example => {
+      const prediction = model?.predict(
+        [tf.tensor([...example.data64F], [1, 10, 2])],
+        { batchSize: 1 },
+      );
+      toPython([...example.data64F]);
       if (prediction instanceof Array) {
         throw "awaited one";
         // prediction.forEach(x => console.warn(x.dataSync()));
       } else {
-        const data = prediction.dataSync();
+        const data = await prediction.data();
+
         return {
-          rvec: [
-            data[0] * 1.8,
-            data[1] * 3.5,
-            data[2] * 3.5,
-          ],
-          tvec: [
-            data[3] * 300,
-            data[4] * 100,
-            (data[5] + 0.5) * 150,
-          ],
+          rvec: [data[0], data[1], data[2]],
+          tvec: [data[3], data[4], data[5]],
         };
         // console.log();
       }
       // console.log({ example, prediction });
     });
   } else {
-    resetPred();
+    // resetPred();
   }
   threeManager.render(!!result);
-  if (i < 25) {
-    i++;
-    setTimeout(() => renderLoop());
-  }
+  // if (i < 25) {
+  // i++;
+  setTimeout(() => renderLoop());
+  // }
   // console.log("renderLoop ended");
 };
 
