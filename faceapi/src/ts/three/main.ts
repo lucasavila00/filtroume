@@ -7,12 +7,16 @@ import {
   EffectPass,
   RenderPass,
 } from "postprocessing";
+// import EffectComposer from "postprocessing/build/EffectComposer";
+// import EffectPass from "postprocessing/build/EffectPass";
+// import RenderPass from "postprocessing/build/RenderPass";
 import {
   ColorTransformEffect,
   makeIdentityLutTexture,
 } from "./lut";
 import { calcCameraParams } from "./camera";
 import { lines } from "../debugPaint";
+import { Vector3 } from "three";
 
 const clock = new THREE.Clock();
 
@@ -37,17 +41,20 @@ export const gotTvec = (
   y: number,
   z: number,
 ) => {
-  // from open cv to open gl
-  _threeCamera!.position.set(x, -y, -z);
+  const vw = _videoElement.videoWidth;
+  const vh = _videoElement.videoHeight;
+  const videoAspectRatio = vw / vh;
+
+  _threeCompositeObject!.position.set(
+    x,
+    y / videoAspectRatio,
+    z,
+  );
 };
 
-export const gotRvec = (
-  rvec: import("../opencv/Mat").Mat,
-) => {
-  const { x, y, z } = decodeRvec(rvec);
-  _threeCamera!.rotation.x = x;
-  _threeCamera!.rotation.y = y;
-  _threeCamera!.rotation.z = z;
+export const gotRvec = (rvec: THREE.Quaternion) => {
+  const q = decodeRvec(rvec);
+  _threeCompositeObject!.rotation.setFromQuaternion(q);
 };
 const MAXLOCK = 9;
 const MINLOCK = -2;
@@ -202,14 +209,15 @@ const init_threeScene = (imgUrl: string) => {
     transparent: true,
   });
   const planeMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(18, 18),
+    new THREE.PlaneGeometry(45, 45),
     planeMaterial,
   );
   // _threeCompositeObject.position.setZ(-200);
-
+  const _scale = 1;
+  _threeCompositeObject.scale.set(_scale, _scale, _scale);
   _threeCompositeObject.add(planeMesh);
   _threeScene!.add(_threeCompositeObject);
-  lines(_threeCompositeObject);
+  // lines(_threeCompositeObject);
 };
 
 const create_videoScreen = () => {
@@ -305,15 +313,13 @@ const create_videoScreen = () => {
 };
 
 const create_camera = function(zNear = 0.1, zFar = 10000) {
-  const threeCamera = new THREE.PerspectiveCamera(
-    1,
-    1,
-    zNear,
-    zFar,
-  );
+  const vw = _videoElement.videoWidth;
+  const vh = _videoElement.videoHeight;
+  const videoAspectRatio = vw / vh;
+
   const {
-    canvasAspectRatio,
-    fov,
+    // canvasAspectRatio,
+    // fov,
     cvws,
     cvhs,
     offsetX,
@@ -321,12 +327,15 @@ const create_camera = function(zNear = 0.1, zFar = 10000) {
     cvw,
     cvh,
   } = calcCameraParams(_threeRenderer, _videoElement);
+  const hFOV = cvh > cvw ? 46 / videoAspectRatio : 46; // desired horizontal fov, in degrees
 
-  // apply parameters:
-  threeCamera.aspect = canvasAspectRatio;
-
-  threeCamera.fov = fov;
-
+  // camera.updateProjectionMatrix();
+  const threeCamera = new THREE.PerspectiveCamera(
+    hFOV,
+    videoAspectRatio,
+    zNear,
+    zFar,
+  );
   threeCamera.setViewOffset(
     cvws,
     cvhs,
@@ -335,10 +344,7 @@ const create_camera = function(zNear = 0.1, zFar = 10000) {
     cvw,
     cvh,
   );
+  _threeRenderer.setSize(cvw, cvh);
   threeCamera.updateProjectionMatrix();
-
-  // update drawing area:
-  _threeRenderer!.setSize(cvw, cvh);
-  _threeRenderer!.setViewport(0, 0, cvw, cvh);
   return threeCamera;
 };

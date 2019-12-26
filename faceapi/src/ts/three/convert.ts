@@ -1,47 +1,21 @@
-// import KalmanFilter from "kalmanjs";
+import KalmanFilter from "../kalman";
 import * as THREE from "three";
-import { CV } from "../opencv";
-
-declare var cv: CV;
-// const kalmanconfig = { R: 50, Q: 50 };
-
-interface VecTransport {
-  x: number;
-  y: number;
-  z: number;
-}
+const kalmanConfig = { R: 1, Q: 3 };
+const rx = new KalmanFilter(kalmanConfig);
+const ry = new KalmanFilter(kalmanConfig);
+const rz = new KalmanFilter(kalmanConfig);
 
 export const decodeRvec = (
-  rvec: import("../opencv/Mat").Mat,
-): VecTransport => {
-  const rout = new cv.Mat();
-
-  // convert from rodrigues to a rotation matrix
-  (cv as any).Rodrigues(rvec, rout);
-
-  // apply padding to get a 4x4 three rotation matrix
-  // from a 3x3 opencv rotation matrix
-  var mat = new THREE.Matrix4();
-  const r = rout.data64F;
-  // prettier-ignore
-  mat.set(
-    r[0], r[1], r[2], 0,
-    r[3], r[4], r[5], 0,
-    r[6], r[7], r[8], 0,
-    0,    0,    0,    1,
-    );
-
-  // get euler coordinates so that we can change them easier
+  q: THREE.Quaternion,
+): THREE.Quaternion => {
   const euler = new THREE.Euler();
-  euler.setFromRotationMatrix(mat);
-
-  // free memory
-  rout.delete();
-
-  // open cv to open gl needs this conversion
-  return {
-    x: euler.x,
-    y: -euler.y,
-    z: -euler.z,
-  };
+  euler.setFromQuaternion(q);
+  const euler_opengl = new THREE.Euler(
+    rx.filter(euler.x),
+    ry.filter(euler.y),
+    rz.filter(euler.z),
+  );
+  const nq = new THREE.Quaternion();
+  nq.setFromEuler(euler_opengl);
+  return nq;
 };

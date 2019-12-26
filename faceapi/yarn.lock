@@ -755,11 +755,6 @@
     "@parcel/utils" "^1.11.0"
     physical-cpu-count "^2.0.0"
 
-"@tensorflow/tfjs-converter@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-converter/-/tfjs-converter-1.4.0.tgz#c864edd2ec7cc89d3ffd53854e79612fc230ef97"
-  integrity sha512-vdZumj6zHcEALtQlonCBbVwGdEEDcPrF7prgzf4HF82QG4RpM1x/kVdvzsGvfUIPYjRImNn0ZSPC3WaKslNcXw==
-
 "@tensorflow/tfjs-core@1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-core/-/tfjs-core-1.4.0.tgz#045c91f93cb3ea77473b664c0d1dbad675d7f046"
@@ -772,40 +767,10 @@
     node-fetch "~2.1.2"
     seedrandom "2.4.3"
 
-"@tensorflow/tfjs-data@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-data/-/tfjs-data-1.4.0.tgz#20c3902dc9a00610ec85a5bed9bb0dd60d92b270"
-  integrity sha512-00N/pe5IYkO3aDI9ZmavQ6mwY4VIepCteusnI7DLiCeqBO0NzGjlH3zH1LVlWIBRypW7JNqYbdl3oVvnd2wWwg==
-  dependencies:
-    "@types/node-fetch" "^2.1.2"
-    node-fetch "~2.1.2"
-
 "@tensorflow/tfjs-layers@1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-layers/-/tfjs-layers-1.4.0.tgz#f4cf6ea7b89b9c612014c7b9a63a4a9563604a92"
   integrity sha512-PXNOShZWDVW9OzX9botHJdDD6ClHEQtkfaFjoGZ2I2qYC9+WaVgxJPxwToTS2H2trwrf34q6hZ1lAjVlTuK0Gg==
-
-"@tensorflow/tfjs@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@tensorflow/tfjs/-/tfjs-1.4.0.tgz#979ba8a751427b1306bd60ed4f871aa776cb55e6"
-  integrity sha512-pvc7arrWZ0NNOpEFVL4e99Bj933ty3tmUR0xLnjKao3psts9xr7w0sfJpuSn98HKjz+dj87UEXZIi0fwsAZdwQ==
-  dependencies:
-    "@tensorflow/tfjs-converter" "1.4.0"
-    "@tensorflow/tfjs-core" "1.4.0"
-    "@tensorflow/tfjs-data" "1.4.0"
-    "@tensorflow/tfjs-layers" "1.4.0"
-
-"@types/node-fetch@^2.1.2":
-  version "2.5.4"
-  resolved "https://registry.yarnpkg.com/@types/node-fetch/-/node-fetch-2.5.4.tgz#5245b6d8841fc3a6208b82291119bc11c4e0ce44"
-  integrity sha512-Oz6id++2qAOFuOlE1j0ouk1dzl3mmI1+qINPNBhi9nt/gVOz0G+13Ao6qjhdF0Ys+eOkhu6JnFmt38bR3H0POQ==
-  dependencies:
-    "@types/node" "*"
-
-"@types/node@*":
-  version "12.12.21"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.21.tgz#aa44a6363291c7037111c47e4661ad210aded23f"
-  integrity sha512-8sRGhbpU+ck1n0PGAUgVrWrWdjSW2aqNeyC15W88GRsMpSwzv6RJGlLhE7s2RhVSOdyDmxbqlWSeThq4/7xqlA==
 
 "@types/node@^12.12.18":
   version "12.12.18"

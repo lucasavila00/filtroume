@@ -193,6 +193,7 @@ export const lines = (
   geometry.vertices.push(
     new THREE.Vector3(0.0, 0.003874, 0.290468),
   );
+
   //righteyerightcorner
   geometry.vertices.push(
     new THREE.Vector3(4.49893, 3.21601, -4.22082),
@@ -205,6 +206,7 @@ export const lines = (
   geometry.vertices.push(
     new THREE.Vector3(0.0, 0.003874, 0.290468),
   );
+
   //lefteyeleftcorner
   geometry.vertices.push(
     new THREE.Vector3(-4.49893, 3.21601, -4.22082),
@@ -213,6 +215,7 @@ export const lines = (
   geometry.vertices.push(
     new THREE.Vector3(-1.9326, 3.14086, -3.78216),
   );
+
   //nose tips
   geometry.vertices.push(
     new THREE.Vector3(0.0, 0.003874, 0.290468),

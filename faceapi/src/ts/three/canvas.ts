@@ -1,8 +1,6 @@
 let _domCanvas: HTMLCanvasElement;
 let _callbackResize: () => void;
 
-let _isFullScreen = false;
-let _isInvFullscreenWH = false;
 let _whCanvasPx = [-1, -1];
 let _timerFullScreen: any = false;
 
@@ -174,9 +172,6 @@ const resize_canvasToFullScreen = () => {
     window["innerWidth"],
     window["innerHeight"],
   ];
-  if (_isInvFullscreenWH) {
-    _whCanvasPx.reverse();
-  }
 
   _domCanvas.setAttribute("width", String(_whCanvasPx[0]));
   _domCanvas.setAttribute("height", String(_whCanvasPx[1]));
@@ -190,8 +185,6 @@ const resize_canvasToFullScreen = () => {
 };
 interface ISizeOptions {
   canvas?: HTMLCanvasElement;
-  isFullScreen?: boolean;
-  isInvWH?: boolean;
   onResize?: () => void;
   callback: (
     isError: boolean,
@@ -200,7 +193,6 @@ interface ISizeOptions {
       idealHeight: number;
     },
   ) => void;
-  CSSFlipX?: boolean;
   canvasId?: string;
 }
 // size canvas to the right resolution
@@ -229,13 +221,6 @@ export const size_canvas = function(options: ISizeOptions) {
   }
 
   _domCanvas = c as HTMLCanvasElement;
-
-  _isFullScreen =
-    typeof options.isFullScreen !== "undefined" &&
-    options.isFullScreen;
-  _isInvFullscreenWH =
-    typeof options.isInvWH !== "undefined" &&
-    options.isInvWH;
 
   // if (_isFullScreen) {
   // we are in fullscreen mode
@@ -276,13 +261,6 @@ export const size_canvas = function(options: ISizeOptions) {
   // }
 
   // flip horizontally if required:
-  if (
-    typeof options.CSSFlipX !== "undefined" &&
-    options.CSSFlipX
-  ) {
-    console.log("add transform");
-    add_CSStransform(_domCanvas, "rotateY(180deg)");
-  }
 
   // compute the best camera resolutions :
   const allResolutions = _cameraResolutions.slice(0);

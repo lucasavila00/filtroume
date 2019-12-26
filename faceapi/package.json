@@ -2,12 +2,13 @@
   "scripts": {
     "start": "node server.js & yarn parcel src/index.html ",
     "build2": "yarn parcel build src/index.html  --out-dir ../gatsby-site/static/view --public-url ./view",
-    "build": "yarn parcel build src/index.html  --out-dir ../gatsby-site/static/view --public-url replacethislinewithadot"
+    "build": "yarn parcel build src/index.html --no-source-maps --detailed-report --out-dir ../gatsby-site/static/view --public-url replacethislinewithadot"
   },
   "author": "justadudewhohacks",
   "license": "MIT",
   "dependencies": {
-    "@tensorflow/tfjs": "^1.4.0",
+    "@tensorflow/tfjs-layers": "1.4.0",
+    "@tensorflow/tfjs-core": "1.4.0",
     "@types/node": "^12.12.18",
     "add": "^2.0.6",
     "cors": "^2.8.5",

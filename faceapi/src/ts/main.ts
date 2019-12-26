@@ -8,16 +8,20 @@ import {
   extractHeadPoseInfo,
   // resetPred,
 } from "./pose/process";
-import { openCvReady } from "./pose/ready";
-import { size_canvas } from "./three/canvas";
-import * as tf from "@tensorflow/tfjs";
+import {
+  loadLayersModel,
+  LayersModel,
+} from "@tensorflow/tfjs-layers";
+import * as tf from "@tensorflow/tfjs-core";
+
+// import {loadLayersModel, LayersModel} from "@tensorflow/tfjs-layers/dist/exports"
+// import {} from "@tensorflow/tfjs/dist/"
 // declare var WebGLDebugUtils: any;
-let i = 0;
 let _videoEl: HTMLVideoElement | null = null;
 let _videoTexture: WebGLTexture | null = null;
 let _gl: WebGLRenderingContext | null = null;
-let _fb: WebGLFramebuffer | null = null;
-
+let _frameBuffer: WebGLFramebuffer | null = null;
+let i = 0;
 const toPython = (x: any[]) => {
   let temp: any = [];
   for (let index = 0; index < x.length; index += 2) {
@@ -28,7 +32,29 @@ const toPython = (x: any[]) => {
 
   // console.log(JSON.stringify(temp));
 };
-
+let pixels: Uint8Array;
+const extractTensorFromFrameBuffer = (): tf.Tensor3D => {
+  const x = 0;
+  const y = 0;
+  const width = _videoEl?.videoWidth!;
+  const height = _videoEl?.videoHeight!;
+  const format = _gl!.RGB;
+  const type = _gl!.UNSIGNED_BYTE;
+  if (pixels == null) {
+    pixels = new Uint8Array(width * height * 3);
+  }
+  _gl!.bindFramebuffer(_gl!.FRAMEBUFFER, _frameBuffer);
+  _gl!.readPixels(
+    x,
+    y,
+    width,
+    height,
+    format,
+    type,
+    pixels,
+  );
+  return tf.tensor(pixels, [height, width, 3]);
+};
 const renderLoop = async () => {
   // console.log("renderLoop started");
   if (
@@ -39,6 +65,9 @@ const renderLoop = async () => {
     setTimeout(() => renderLoop());
     return;
   }
+  drawOnVideoTexture(_gl!, _videoTexture!, _videoEl);
+
+  // const tensorData = extractTensorFromFrameBuffer();
 
   const options = getFaceDetectorOptions();
 
@@ -46,7 +75,6 @@ const renderLoop = async () => {
   let result = await faceapi
     .detectSingleFace(_videoEl, options)
     .withFaceLandmarks(true);
-  drawOnVideoTexture(_gl!, _videoTexture!, _videoEl);
 
   updateTimeStats(Date.now() - ts);
 
@@ -61,26 +89,34 @@ const renderLoop = async () => {
       dims,
     );
     extractHeadPoseInfo(resizedResult, async example => {
+      toPython(example);
       const prediction = model?.predict(
-        [tf.tensor([...example.data64F], [1, 10, 2])],
+        [
+          tf.tensor(
+            [...example],
+            // .map((p, i) =>
+            //   i % 2 == 0 ? p : 1 - p,
+            // )
+            [1, 10, 2],
+          ),
+        ],
         { batchSize: 1 },
       );
-      toPython([...example.data64F]);
+      // console.log(JSON.stringify([...example]));
+      // toPython([...example]);
       if (prediction instanceof Array) {
         throw "awaited one";
         // prediction.forEach(x => console.warn(x.dataSync()));
       } else {
         const data = await prediction.data();
 
-        return {
-          rvec: [data[0], data[1], data[2]],
-          tvec: [data[3], data[4], data[5]],
-        };
+        return { data: [...data] };
         // console.log();
       }
       // console.log({ example, prediction });
     });
   } else {
+    // console.log("did not get resul");
     // resetPred();
   }
   threeManager.render(!!result);
@@ -147,11 +183,13 @@ const prepareSceneAndRun = async () => {
 
   _videoTexture = _gl.createTexture();
 
-  _fb = _gl.createFramebuffer();
+  _frameBuffer = _gl.createFramebuffer();
   _gl.bindTexture(_gl.TEXTURE_2D, _videoTexture);
 
+  drawOnVideoTexture(_gl!, _videoTexture!, _videoEl);
+  // check if you can read from this type of texture.
   // make this the current frame buffer
-  _gl.bindFramebuffer(_gl.FRAMEBUFFER, _fb);
+  _gl.bindFramebuffer(_gl.FRAMEBUFFER, _frameBuffer);
 
   // attach the texture to the framebuffer.
   _gl.framebufferTexture2D(
@@ -161,8 +199,6 @@ const prepareSceneAndRun = async () => {
     _videoTexture,
     0,
   );
-  drawOnVideoTexture(_gl!, _videoTexture!, _videoEl);
-  // check if you can read from this type of texture.
   // const canRead =
   //   _gl.checkFramebufferStatus(_gl.FRAMEBUFFER) ==
   //   _gl.FRAMEBUFFER_COMPLETE;
@@ -182,7 +218,7 @@ const prepareSceneAndRun = async () => {
   console.log("prepareSceneAndRun ended");
 };
 
-let model: tf.LayersModel;
+let model: LayersModel;
 
 const prepareModels = async () => {
   console.log("prepareModels started");
@@ -195,8 +231,8 @@ const prepareModels = async () => {
     "https://filterme.firebaseapp.com/weights/",
   );
   try {
-    model = await tf.loadLayersModel(
-      "https://localhost:3007/mdl/model.json",
+    model = await loadLayersModel(
+      "https://filterme.firebaseapp.com/mdl/model.json",
     );
   } catch (err) {
     console.error(err);
@@ -205,26 +241,37 @@ const prepareModels = async () => {
   console.log("prepareModels ended");
 };
 
-const prepareVideo = async ({
-  idealWidth,
-  idealHeight,
-}: {
+const prepareVideo = async ({}: // idealWidth,
+// idealHeight,
+{
   idealWidth: number;
   idealHeight: number;
 }) => {
   console.log("prepareVideo started");
+  const canvas: HTMLCanvasElement | null = document.getElementById(
+    "overlay",
+  ) as HTMLCanvasElement;
   // try to access users webcam and stream the images
   // to the video element
   const stream = await navigator.mediaDevices.getUserMedia({
+    audio: false,
     video: {
-      width: {
-        ideal: idealWidth,
-      },
-      height: {
-        ideal: idealHeight,
-      },
+      width: { max: 720 },
+      height: { max: 720 },
+      aspectRatio:
+        window.innerHeight > window.innerWidth
+          ? canvas.height / canvas.width
+          : canvas.width / canvas.height,
       facingMode: "user",
     },
+    // video: {
+    //   width: {
+    //     ideal: idealWidth,
+    //   },
+    //   height: {
+    //     ideal: idealHeight,
+    //   },
+    // },
   });
 
   const video = document.createElement("video");
@@ -242,36 +289,73 @@ const prepareVideo = async ({
   console.log("prepareVideo ended");
 };
 
+const size_canvas = (cb: () => void) => {
+  const canvas: HTMLCanvasElement | null = document.getElementById(
+    "overlay",
+  ) as HTMLCanvasElement;
+
+  if (!canvas) {
+    console.log("camvas not found");
+    setTimeout(() => size_canvas(cb), 16);
+    return;
+    // throw Error("canvas not found on size canvas");
+  }
+  const sizes = [
+    window["innerWidth"],
+    window["innerHeight"],
+  ];
+
+  canvas.setAttribute("width", String(sizes[0]));
+  canvas.setAttribute("height", String(sizes[1]));
+  cb();
+};
 const main = async () => {
   console.log("main started");
 
-  size_canvas({
-    isFullScreen: true,
-    canvasId: "overlay",
+  //   size_canvas({
+  //     canvasId: "overlay",
+  //     callback: async function(isError, bestVideoSettings) {
+  //       if (isError) {
+  //         // showError("jeeliz");
+  //       } else {
+  // init_faceFilter(bestVideoSettings, info);
+  // showTutorial();
+  // if (info.pathname) {
+  // showInfoPathname(info.pathname);
+  //   // }
+  // const  fixOrientation = function(w, h)  {
+  //     var md = new MobileDetect(window.navigator.userAgent),  d = {
+  //         w: w,
+  //         h: h
+  //     };
 
-    callback: async function(isError, bestVideoSettings) {
-      if (isError) {
-        // showError("jeeliz");
-      } else {
-        // init_faceFilter(bestVideoSettings, info);
-        // showTutorial();
-        // if (info.pathname) {
-        // showInfoPathname(info.pathname);
-        // }
-        await Promise.all([
-          prepareModels(),
-          prepareVideo(bestVideoSettings),
-        ]);
+  //     if (md.phone() || md.tablet()) {
+  //         if (window.matchMedia('(orientation:portrait)').matches) {
+  //             if (md.userAgent() !== 'Safari') {
+  //                 d.w = h;
+  //                 d.h = w;
+  //             }
+  //         }
+  //     }
 
-        prepareSceneAndRun();
-        console.log(
-          "main ended... we depend on the render loop",
-        );
-      }
-    },
-    onResize: function() {
-      // THREE.JeelizHelper.update_camera(THREECAMERA);
-    },
+  //     return d;
+  // }
+  size_canvas(async () => {
+    await Promise.all([
+      prepareModels(),
+      prepareVideo({ idealHeight: 720, idealWidth: 1280 }),
+    ]);
+
+    prepareSceneAndRun();
+    console.log(
+      "main ended... we depend on the render loop",
+    );
   });
+  // }
+  //     },
+  //     onResize: function() {
+  //       // THREE.JeelizHelper.update_camera(THREECAMERA);
+  //     },
+  //   });
 };
 main();

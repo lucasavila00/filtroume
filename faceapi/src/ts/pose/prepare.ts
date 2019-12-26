@@ -1,10 +1,7 @@
 import * as faceapi from "face-api.js";
 
-import { CV } from "../opencv";
-import { Mat } from "../opencv/Mat";
 import KalmanFilter from "../kalman";
 
-declare var cv: CV;
 const kalmanconfig = { R: 0.8, Q: 1 };
 
 let ks = [
@@ -33,22 +30,22 @@ let ks = [
 });
 
 const applyKalman = (xs: number[]): number[] => {
-  return xs.map((x, index) => ks[index].filter(x));
+  return xs;
+  // return xs.map((x, index) => ks[index].filter(x));
 };
 
 export const generateImageAndObjectPoints = (
   positions: faceapi.Point[],
 ): {
-  imagePoints: Mat;
-  objectPoints: Mat;
+  imagePoints: number[];
 } => {
   const noseTip = positions[30];
   const bottomNose = positions[33];
 
   const lefteyeleftcorner = positions[36];
-  const lefteyerightcorner = positions[39];
-
   const righteyerightcorner = positions[45];
+
+  const lefteyerightcorner = positions[39];
   const righteyeleftcorner = positions[42];
 
   const leftmouth = positions[48];
@@ -57,139 +54,103 @@ export const generateImageAndObjectPoints = (
   const leftnostril = positions[31];
   const rightnostril = positions[35];
 
-  const imagePoints = cv.matFromArray(
-    10,
-    2,
-    cv.CV_64F,
+  const imagePoints =
+    // cv.matFromArray(
+    //   10,
+    //   2,
+    //   cv.CV_64F,
+    // a rede neural foi treinada com x e y invertidos.
+    // o faceapijs ja inverte o y, precisamos inverter o x
     applyKalman([
-      noseTip.x,
+      1 - noseTip.x,
       noseTip.y,
-
-      bottomNose.x,
+      1 - bottomNose.x,
       bottomNose.y,
 
-      leftnostril.x,
+      1 - leftnostril.x,
       leftnostril.y,
 
-      rightnostril.x,
+      1 - rightnostril.x,
       rightnostril.y,
 
-      lefteyeleftcorner.x,
+      1 - lefteyeleftcorner.x,
       lefteyeleftcorner.y,
-      lefteyerightcorner.x,
+      1 - lefteyerightcorner.x,
       lefteyerightcorner.y,
 
-      righteyerightcorner.x,
+      1 - righteyerightcorner.x,
       righteyerightcorner.y,
-      righteyeleftcorner.x,
+      1 - righteyeleftcorner.x,
       righteyeleftcorner.y,
 
-      leftmouth.x,
+      1 - leftmouth.x,
       leftmouth.y,
-      rightmouth.x,
+      1 - rightmouth.x,
       rightmouth.y,
-    ]),
-  );
+    ]);
+  // );
 
   //from sparkar
-  const objectPoints = cv.matFromArray(10, 3, cv.CV_64F, [
-    //nose tips
-    0.0,
-    -1 * 0.003874,
-    -1 * 0.290468,
-
-    // bottom nose
-    0.0,
-    -1 * -1.26207,
-    -1 * -1.14108,
-
-    // left nostril
-    -0.85877,
-    -1 * -1.05017,
-    -1 * -1.53035,
-
-    // right nostril
-    0.85877,
-    -1 * -1.05017,
-    -1 * -1.53035,
-
-    //chin
-    // 0.0,g
-    // -8.01629,
-    // -3.32839,
-
-    //lefteyeleftcorner
-    -4.49893,
-    -1 * 3.21601,
-    -1 * -4.22082,
-
-    //lefteyerightcorner
-    -1.9326,
-    -1 * 3.14086,
-    -1 * -3.78216,
-
-    //righteyerightcorner
-    4.49893,
-    -1 * 3.21601,
-    -1 * -4.22082,
-
-    //righteyeleftcorner
-    1.9326,
-    -1 * 3.14086,
-    -1 * -3.78216,
-
-    // left mouth corner
-    -2.17298,
-    -1 * -3.62696,
-    -1 * -3.15651,
-    //rightmouthcorner
-    2.17298,
-    -1 * -3.62696,
-    -1 * -3.15651,
-  ]);
-
-  // imagePoints = (cv).matFromArray(6, 2, (cv).CV_64F, [
-  //     noseTip.x ,
-  //     noseTip.y ,
-  //     chin.x ,
-  //     chin.y ,
-  //     lefteyeleftcorner.x ,
-  //     lefteyeleftcorner.y ,
-  //     righteyerightcorner.x ,
-  //     righteyerightcorner.y ,
-  //     leftmouth.x ,
-  //     leftmouth.y ,
-  //     rightmouth.x ,
-  //     rightmouth.y
-  // ]);
-  // objectPoints = (cv).matFromArray(6, 3, (cv).CV_64F, [
-  //   //nose
+  // const objectPoints =
+  //   //  cv.matFromArray(10, 3, cv.CV_64F,
+  //   [
+  //     //nose tips0
   //     0.0,
+  //     -1 * 0.003874,
+  //     -1 * 0.290468,
+
+  //     // bottom nose1
   //     0.0,
-  //     0.0,
-  //           //chin
-  //     0.0,
-  //     -330.0,
-  //     -65.0,
+  //     -1 * -1.26207,
+  //     -1 * -1.14108,
 
-  //     -225.0,
-  //     170.0,
-  //     -135.0,
+  //     // left nostril2
+  //     -0.85877,
+  //     -1 * -1.05017,
+  //     -1 * -1.53035,
 
-  //     225.0,
-  //     170.0,
-  //     -135.0,
+  //     // right nostril3
+  //     0.85877,
+  //     -1 * -1.05017,
+  //     -1 * -1.53035,
 
-  //     -150.0,
-  //     -150.0,
-  //     -125.0,
+  //     //chin
+  //     // 0.0,g
+  //     // -8.01629,
+  //     // -3.32839,
 
-  //     150.0,
-  //     -150.0,
-  //     -125.0
-  // ]);
+  //     //lefteyeleftcorner4
+  //     -4.49893,
+  //     -1 * 3.21601,
+  //     -1 * -4.22082,
+
+  //     //lefteyerightcorner5
+  //     -1.9326,
+  //     -1 * 3.14086,
+  //     -1 * -3.78216,
+
+  //     //righteyerightcorner6
+  //     4.49893,
+  //     -1 * 3.21601,
+  //     -1 * -4.22082,
+
+  //     //righteyeleftcorner7
+  //     1.9326,
+  //     -1 * 3.14086,
+  //     -1 * -3.78216,
+
+  //     // left mouth corner8
+  //     -2.17298,
+  //     -1 * -3.62696,
+  //     -1 * -3.15651,
+  //     //rightmouthcorner9
+  //     2.17298,
+  //     -1 * -3.62696,
+  //     -1 * -3.15651,
+  //   ];
+  // );
+
   return {
     imagePoints,
-    objectPoints,
   };
 };
