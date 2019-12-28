@@ -1,39 +1,5 @@
 import * as faceapi from "face-api.js";
 
-import KalmanFilter from "../kalman";
-
-const kalmanconfig = { R: 0.8, Q: 1 };
-
-let ks = [
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  0,
-].map(_ => {
-  return new KalmanFilter(kalmanconfig);
-});
-
-const applyKalman = (xs: number[]): number[] => {
-  return xs;
-  // return xs.map((x, index) => ks[index].filter(x));
-};
-
 export const generateImageAndObjectPoints = (
   positions: faceapi.Point[],
 ): {
@@ -55,13 +21,9 @@ export const generateImageAndObjectPoints = (
   const rightnostril = positions[35];
 
   const imagePoints =
-    // cv.matFromArray(
-    //   10,
-    //   2,
-    //   cv.CV_64F,
-    // a rede neural foi treinada com x e y invertidos.
-    // o faceapijs ja inverte o y, precisamos inverter o x
-    applyKalman([
+    // The neural network was trained with x and y inverted.
+    // Faceapijs alerady inverts y, so we only need to invert x here.
+    [
       1 - noseTip.x,
       noseTip.y,
       1 - bottomNose.x,
@@ -87,68 +49,7 @@ export const generateImageAndObjectPoints = (
       leftmouth.y,
       1 - rightmouth.x,
       rightmouth.y,
-    ]);
-  // );
-
-  //from sparkar
-  // const objectPoints =
-  //   //  cv.matFromArray(10, 3, cv.CV_64F,
-  //   [
-  //     //nose tips0
-  //     0.0,
-  //     -1 * 0.003874,
-  //     -1 * 0.290468,
-
-  //     // bottom nose1
-  //     0.0,
-  //     -1 * -1.26207,
-  //     -1 * -1.14108,
-
-  //     // left nostril2
-  //     -0.85877,
-  //     -1 * -1.05017,
-  //     -1 * -1.53035,
-
-  //     // right nostril3
-  //     0.85877,
-  //     -1 * -1.05017,
-  //     -1 * -1.53035,
-
-  //     //chin
-  //     // 0.0,g
-  //     // -8.01629,
-  //     // -3.32839,
-
-  //     //lefteyeleftcorner4
-  //     -4.49893,
-  //     -1 * 3.21601,
-  //     -1 * -4.22082,
-
-  //     //lefteyerightcorner5
-  //     -1.9326,
-  //     -1 * 3.14086,
-  //     -1 * -3.78216,
-
-  //     //righteyerightcorner6
-  //     4.49893,
-  //     -1 * 3.21601,
-  //     -1 * -4.22082,
-
-  //     //righteyeleftcorner7
-  //     1.9326,
-  //     -1 * 3.14086,
-  //     -1 * -3.78216,
-
-  //     // left mouth corner8
-  //     -2.17298,
-  //     -1 * -3.62696,
-  //     -1 * -3.15651,
-  //     //rightmouthcorner9
-  //     2.17298,
-  //     -1 * -3.62696,
-  //     -1 * -3.15651,
-  //   ];
-  // );
+    ];
 
   return {
     imagePoints,

@@ -18,14 +18,7 @@ const _cameraResolutions: [number, number][] = [
   // [960, 720],
   // [1920, 1080],
 ];
-function add_CSStransform(
-  domElement: HTMLElement,
-  CSS: string,
-) {
-  const CSStransform = domElement.style.transform;
-  if (CSStransform.indexOf(CSS) !== -1) return;
-  domElement.style.transform = CSS + " " + CSStransform;
-}
+
 function compute_overlap(
   whA: [number, number],
   whB: [number, number],
@@ -209,7 +202,7 @@ interface ISizeOptions {
 //  - <function> onResize: function called when the window is resized. Only enabled if isFullScreen=true
 //  - <boolean> isInvWH: if we should invert width and height for fullscreen mode only. default=false
 
-export const size_canvas = function(options: ISizeOptions) {
+const size_canvas = function(options: ISizeOptions) {
   const c = options.canvas
     ? options.canvas
     : document.getElementById(options.canvasId ?? "");

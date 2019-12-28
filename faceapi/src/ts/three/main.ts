@@ -14,8 +14,6 @@ import {
   makeIdentityLutTexture,
 } from "./lut";
 import { calcCameraParams } from "./camera";
-import { lines } from "../debugPaint";
-import { Vector3 } from "three";
 
 const clock = new THREE.Clock();
 
@@ -66,7 +64,11 @@ const getFaceThingVisible = (foundFace: boolean) => {
   return _lock > 0;
 };
 
-export const render = (foundFace: boolean) => {
+export const render = ({
+  foundFace,
+}: {
+  foundFace: boolean;
+}) => {
   _threeRenderer?.state.reset();
   _threeCompositeObject.visible = getFaceThingVisible(
     foundFace,

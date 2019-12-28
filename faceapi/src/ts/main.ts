@@ -2,66 +2,44 @@ import * as faceapi from "face-api.js";
 import { getFaceDetectorOptions } from "./controls";
 import { updateTimeStats } from "./stats";
 import * as threeManager from "./three/main";
-// import { cameraConfig } from "./constants";
 import { drawOnVideoTexture } from "./three/video";
-import {
-  extractHeadPoseInfo,
-  // resetPred,
-} from "./pose/process";
+import { extractHeadPoseInfo } from "./pose/process";
 import {
   loadLayersModel,
   LayersModel,
 } from "@tensorflow/tfjs-layers";
-import * as tf from "@tensorflow/tfjs-core";
+const CANVAS_ID = "overlay";
 
-// import {loadLayersModel, LayersModel} from "@tensorflow/tfjs-layers/dist/exports"
-// import {} from "@tensorflow/tfjs/dist/"
-// declare var WebGLDebugUtils: any;
 let _videoEl: HTMLVideoElement | null = null;
 let _videoTexture: WebGLTexture | null = null;
 let _gl: WebGLRenderingContext | null = null;
 let _frameBuffer: WebGLFramebuffer | null = null;
-let i = 0;
-const toPython = (x: any[]) => {
-  let temp: any = [];
-  for (let index = 0; index < x.length; index += 2) {
-    const element = x[index];
-    const element2 = x[index + 1];
-    temp = [...temp, [element, element2]];
-  }
 
-  // console.log(JSON.stringify(temp));
-};
-let pixels: Uint8Array;
-const extractTensorFromFrameBuffer = (): tf.Tensor3D => {
-  const x = 0;
-  const y = 0;
-  const width = _videoEl?.videoWidth!;
-  const height = _videoEl?.videoHeight!;
-  const format = _gl!.RGB;
-  const type = _gl!.UNSIGNED_BYTE;
-  if (pixels == null) {
-    pixels = new Uint8Array(width * height * 3);
-  }
-  _gl!.bindFramebuffer(_gl!.FRAMEBUFFER, _frameBuffer);
-  _gl!.readPixels(
-    x,
-    y,
-    width,
-    height,
-    format,
-    type,
-    pixels,
-  );
-  return tf.tensor(pixels, [height, width, 3]);
-};
+// let pixels: Uint8Array;
+// const extractTensorFromFrameBuffer = (): tf.Tensor3D => {
+//   const x = 0;
+//   const y = 0;
+//   const width = _videoEl?.videoWidth!;
+//   const height = _videoEl?.videoHeight!;
+//   const format = _gl!.RGB;
+//   const type = _gl!.UNSIGNED_BYTE;
+//   if (pixels == null) {
+//     pixels = new Uint8Array(width * height * 3);
+//   }
+//   _gl!.bindFramebuffer(_gl!.FRAMEBUFFER, _frameBuffer);
+//   _gl!.readPixels(
+//     x,
+//     y,
+//     width,
+//     height,
+//     format,
+//     type,
+//     pixels,
+//   );
+//   return tf.tensor(pixels, [height, width, 3]);
+// };
 const renderLoop = async () => {
-  // console.log("renderLoop started");
-  if (
-    _videoEl == null ||
-    // _videoEl.paused ||
-    _videoEl.ended
-  ) {
+  if (_videoEl == null || _videoEl.ended) {
     setTimeout(() => renderLoop());
     return;
   }
@@ -88,43 +66,10 @@ const renderLoop = async () => {
       result,
       dims,
     );
-    extractHeadPoseInfo(resizedResult, async example => {
-      toPython(example);
-      const prediction = model?.predict(
-        [
-          tf.tensor(
-            [...example],
-            // .map((p, i) =>
-            //   i % 2 == 0 ? p : 1 - p,
-            // )
-            [1, 10, 2],
-          ),
-        ],
-        { batchSize: 1 },
-      );
-      // console.log(JSON.stringify([...example]));
-      // toPython([...example]);
-      if (prediction instanceof Array) {
-        throw "awaited one";
-        // prediction.forEach(x => console.warn(x.dataSync()));
-      } else {
-        const data = await prediction.data();
-
-        return { data: [...data] };
-        // console.log();
-      }
-      // console.log({ example, prediction });
-    });
-  } else {
-    // console.log("did not get resul");
-    // resetPred();
+    extractHeadPoseInfo(resizedResult, model!);
   }
-  threeManager.render(!!result);
-  // if (i < 25) {
-  // i++;
+  threeManager.render({ foundFace: !!result });
   setTimeout(() => renderLoop());
-  // }
-  // console.log("renderLoop ended");
 };
 
 const prepareSceneAndRun = async () => {
@@ -149,34 +94,15 @@ const prepareSceneAndRun = async () => {
     return;
   }
   const canvas: HTMLCanvasElement | null = document.getElementById(
-    "overlay",
+    CANVAS_ID,
   ) as HTMLCanvasElement;
-
-  // canvas.width = window.innerWidth;
-  // canvas.height = window.innerHeight;
-  // canvas.width = _videoEl.videoWidth;
-  // canvas.height = _videoEl.videoHeight;
-
-  // const canvas2: HTMLCanvasElement | null = document.getElementById(
-  //   "overlay2",
-  // ) as HTMLCanvasElement;
-
-  // canvas2.width = _videoEl.videoWidth;
-  // canvas2.height = _videoEl.videoHeight;
-
-  // canvas2.width = window.innerWidth;
-  // canvas2.height = window.innerHeight;
-
-  // _gl = WebGLDebugUtils.makeDebugContext(
-  //   canvas.getContext("webgl"),
-  // );
 
   _gl = canvas.getContext("webgl");
 
-  // ctx = WebGLDebugUtils.makeDebugContext(canvas.getContext("webgl"));
-
   if (_gl == null) {
-    console.error("does not have gl");
+    console.error(
+      "Webgl context could not be found... Trying again in 16ms.",
+    );
     setTimeout(prepareSceneAndRun, 16);
     return;
   }
@@ -199,14 +125,11 @@ const prepareSceneAndRun = async () => {
     _videoTexture,
     0,
   );
-  // const canRead =
-  //   _gl.checkFramebufferStatus(_gl.FRAMEBUFFER) ==
-  //   _gl.FRAMEBUFFER_COMPLETE;
-  // console.log({ canRead });
+
   _gl.bindTexture(_gl.TEXTURE_2D, null);
 
-  // Unbind the framebuffer
   _gl.bindFramebuffer(_gl.FRAMEBUFFER, null);
+
   await threeManager.start({
     videoElement: _videoEl!,
     canvasElement: canvas,
@@ -215,7 +138,6 @@ const prepareSceneAndRun = async () => {
   });
 
   renderLoop();
-  console.log("prepareSceneAndRun ended");
 };
 
 let model: LayersModel;
@@ -241,18 +163,15 @@ const prepareModels = async () => {
   console.log("prepareModels ended");
 };
 
-const prepareVideo = async ({}: // idealWidth,
-// idealHeight,
-{
-  idealWidth: number;
-  idealHeight: number;
-}) => {
-  console.log("prepareVideo started");
-  const canvas: HTMLCanvasElement | null = document.getElementById(
-    "overlay",
+const prepareVideo = async () => {
+  // we assume that the canvas was created and it will be found,
+  // that's why the cast is safe.
+  const canvas: HTMLCanvasElement = document.getElementById(
+    CANVAS_ID,
   ) as HTMLCanvasElement;
-  // try to access users webcam and stream the images
-  // to the video element
+
+  // TODO: try optimizing the app so that bigger resolutions
+  // could be supported
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: false,
     video: {
@@ -264,17 +183,12 @@ const prepareVideo = async ({}: // idealWidth,
           : canvas.width / canvas.height,
       facingMode: "user",
     },
-    // video: {
-    //   width: {
-    //     ideal: idealWidth,
-    //   },
-    //   height: {
-    //     ideal: idealHeight,
-    //   },
-    // },
   });
 
   const video = document.createElement("video");
+  // I really don't know if all of this is needed but if
+  // all of this is set this way then it will work on iPhone.
+  // Sadly I don't have and iPhone at hands to see what's really needed.
   video.setAttribute("autoplay", "true");
   video.setAttribute("playsinline", "true");
   video.setAttribute("muted", "true");
@@ -282,80 +196,32 @@ const prepareVideo = async ({}: // idealWidth,
   video.setAttribute("controls", "true");
   video.srcObject = stream;
   await video.play();
-  // await openCvReady();
-  // stream.onaddtrack()
-  // video.play();
   _videoEl = video;
-  console.log("prepareVideo ended");
 };
 
-const size_canvas = (cb: () => void) => {
+const delay = (delay: number) =>
+  new Promise(rs => setTimeout(rs, delay));
+
+const sizeCanvas = async (): Promise<void> => {
   const canvas: HTMLCanvasElement | null = document.getElementById(
-    "overlay",
+    CANVAS_ID,
   ) as HTMLCanvasElement;
 
   if (!canvas) {
-    console.log("camvas not found");
-    setTimeout(() => size_canvas(cb), 16);
-    return;
-    // throw Error("canvas not found on size canvas");
+    // canvas not initialized yet
+    // wait 16ms and try again
+    await delay(16);
+    return sizeCanvas();
   }
-  const sizes = [
-    window["innerWidth"],
-    window["innerHeight"],
-  ];
 
-  canvas.setAttribute("width", String(sizes[0]));
-  canvas.setAttribute("height", String(sizes[1]));
-  cb();
+  canvas.setAttribute("width", String(window.innerWidth));
+  canvas.setAttribute("height", String(window.innerHeight));
 };
 const main = async () => {
-  console.log("main started");
-
-  //   size_canvas({
-  //     canvasId: "overlay",
-  //     callback: async function(isError, bestVideoSettings) {
-  //       if (isError) {
-  //         // showError("jeeliz");
-  //       } else {
-  // init_faceFilter(bestVideoSettings, info);
-  // showTutorial();
-  // if (info.pathname) {
-  // showInfoPathname(info.pathname);
-  //   // }
-  // const  fixOrientation = function(w, h)  {
-  //     var md = new MobileDetect(window.navigator.userAgent),  d = {
-  //         w: w,
-  //         h: h
-  //     };
-
-  //     if (md.phone() || md.tablet()) {
-  //         if (window.matchMedia('(orientation:portrait)').matches) {
-  //             if (md.userAgent() !== 'Safari') {
-  //                 d.w = h;
-  //                 d.h = w;
-  //             }
-  //         }
-  //     }
-
-  //     return d;
-  // }
-  size_canvas(async () => {
-    await Promise.all([
-      prepareModels(),
-      prepareVideo({ idealHeight: 720, idealWidth: 1280 }),
-    ]);
-
-    prepareSceneAndRun();
-    console.log(
-      "main ended... we depend on the render loop",
-    );
-  });
-  // }
-  //     },
-  //     onResize: function() {
-  //       // THREE.JeelizHelper.update_camera(THREECAMERA);
-  //     },
-  //   });
+  await Promise.all([
+    prepareModels(),
+    sizeCanvas().then(prepareVideo),
+  ]);
+  prepareSceneAndRun();
 };
 main();
