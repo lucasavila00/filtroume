@@ -11,8 +11,8 @@
 # Testing just the head tracker
 
 - go to /viewer/ and \$ npm start
-- inside /viewer/src/ts/main.ts uncomment line ~270 to pass any images you want for the plane and the LUT.
-- inside /viewr/src/ts/three/main.ts uncomment line ~238 to show the facial points being tracked in 3d.
+- inside /viewer/src/ts/main.ts uncomment line ~270 ( info = {...} ) to pass any images you want for the plane and the LUT.
+- inside /viewr/src/ts/three/main.ts uncomment line ~232 ( lines(\_threeCompositeObject) )to show the facial points being tracked in 3D.
 
 # Project structure
 

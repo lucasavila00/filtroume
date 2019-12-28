@@ -12,8 +12,6 @@ import {
 } from "./lut";
 import { calcCameraParams } from "./camera";
 import { registerDownloadButton } from "./download";
-import { lines } from "../debugPaint";
-// import { lines } from "../debugPaint";
 
 const clock = new THREE.Clock();
 
@@ -225,17 +223,14 @@ const init_threeScene = (
     new THREE.PlaneGeometry(45, 45),
     planeMaterial,
   );
-  // _threeCompositeObject.position.setZ(-200);
   const _scale = 1;
   _threeCompositeObject.scale.set(_scale, _scale, _scale);
   _threeCompositeObject.add(planeMesh);
   _threeScene!.add(_threeCompositeObject);
-  // if (pathname) {
-  //   console.log("got pathname, will add it to scene");
-  //   _threeScene!.add(generateUrlTextPlane(pathname));
-  // }
 
   // lines(_threeCompositeObject);
+  // make sure to import it
+  // import { lines } from "../debugPaint";
 };
 
 const create_videoScreen = () => {
