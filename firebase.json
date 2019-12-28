@@ -10,7 +10,7 @@
     ]
   },
   "hosting": {
-    "public": "gatsby-site/public",
+    "public": "creator/public",
     "ignore": [
       "firebase.json",
       "**/.*",
