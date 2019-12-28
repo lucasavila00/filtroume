@@ -1,8 +1,7 @@
 {
   "scripts": {
     "start": "node server.js & yarn parcel src/index.html ",
-    "build2": "yarn parcel build src/index.html  --out-dir ../gatsby-site/static/view --public-url ./view",
-    "build": "yarn parcel build src/index.html --no-source-maps --detailed-report --out-dir ../gatsby-site/static/view --public-url replacethislinewithadot"
+    "build": "yarn parcel build src/index.html --no-source-maps --detailed-report --out-dir ../creator/static/view --public-url replacethislinewithadot"
   },
   "author": "justadudewhohacks",
   "license": "MIT",

@@ -1,4 +1,4 @@
-# How to run
+# How to build
 
 - '\$ sh build.sh' on the root folder to build both sites (creator and player),
   put the built versions on the correct folder structure to be used with firebase hosting
@@ -7,6 +7,12 @@
 - 'npm run deploy' inside /functions/ to deploy firebase funtions.
 
 - Also, you may need to set up security rules and cors rules for firebase hosting, storage and firestore.
+
+# Testing just the head tracker
+
+- go to /viewer/ and \$ npm start
+- inside /viewer/src/ts/main.ts uncomment line ~270 to pass any images you want for the plane and the LUT.
+- inside /viewr/src/ts/three/main.ts uncomment line ~238 to show the facial points being tracked in 3d.
 
 # Project structure
 
