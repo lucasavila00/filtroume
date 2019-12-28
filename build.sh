@@ -1,1 +1,1 @@
-cd faceapi/ && yarn build && sed -i '' 's/replacethislinewithadot/\/view/g' ../gatsby-site/static/view/index.html && cd .. && cd gatsby-site && yarn deploy && cd ..
+cd viewer/ && yarn build && sed -i '' 's/replacethislinewithadot/\/view/g' ../creator/static/view/index.html && cd .. && cd creator && yarn deploy && cd ..

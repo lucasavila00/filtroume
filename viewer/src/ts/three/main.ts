@@ -41,6 +41,8 @@ export const gotTvec = (
   const vh = _videoElement.videoHeight;
   const videoAspectRatio = vw / vh;
 
+  // the AI sees the video as a square,
+  // we should deform its projection a bit.
   _threeCompositeObject!.position.set(
     x,
     y / videoAspectRatio,
