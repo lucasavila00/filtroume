@@ -30,6 +30,23 @@ const kalmanConfig = { R: 1, Q: 3 };
 const kx = new KalmanFilter(kalmanConfig);
 const ky = new KalmanFilter(kalmanConfig);
 const kz = new KalmanFilter(kalmanConfig);
+const rx = new KalmanFilter(kalmanConfig);
+const ry = new KalmanFilter(kalmanConfig);
+const rz = new KalmanFilter(kalmanConfig);
+const applyKalman = (
+  q: THREE.Quaternion,
+): THREE.Quaternion => {
+  const euler = new THREE.Euler();
+  euler.setFromQuaternion(q);
+  const euler_opengl = new THREE.Euler(
+    rx.filter(euler.x),
+    ry.filter(euler.y),
+    rz.filter(euler.z),
+  );
+  const nq = new THREE.Quaternion();
+  nq.setFromEuler(euler_opengl);
+  return nq;
+};
 
 export async function extractHeadPoseInfo(
   resizedResult: faceapi.WithFaceLandmarks<
@@ -59,7 +76,7 @@ export async function extractHeadPoseInfo(
       den[3],
     );
 
-    gotRvec(q);
+    gotRvec(applyKalman(q));
 
     gotTvec(
       kx.filter(den[4]),

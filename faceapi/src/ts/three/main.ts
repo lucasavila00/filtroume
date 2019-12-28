@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { decodeRvec } from "./convert";
 import { getInfo, IInfo } from "./info";
 import {
   // BloomEffect,
@@ -52,8 +51,7 @@ export const gotTvec = (
   );
 };
 
-export const gotRvec = (rvec: THREE.Quaternion) => {
-  const q = decodeRvec(rvec);
+export const gotRvec = (q: THREE.Quaternion) => {
   _threeCompositeObject!.rotation.setFromQuaternion(q);
 };
 const MAXLOCK = 9;
