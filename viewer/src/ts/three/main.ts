@@ -220,7 +220,7 @@ const init_threeScene = (
     transparent: true,
   });
   const planeMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(45, 45),
+    new THREE.PlaneGeometry(35, 35),
     planeMaterial,
   );
   const _scale = 1;

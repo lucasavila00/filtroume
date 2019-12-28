@@ -1,0 +1,32 @@
+-- previwe
+  - tutorial (find a face) ?
+
+-- creator (STORYBOARD):
+→ Created with random initial state
+→ A lot of good luts
+→ A lot of good images
+→ A lot of good fonts
+
+FIREBASE FUNCTIONS:
+→ analytics for publish (save when publishing)
+→ analytics for views (save when decoding shortId)
+
+MAKEOVER:
+Icon
+Name
+Titles
+Landing (video on bg)
+Prettier errors, loading and tutorial on player
+
+BUGS:
+Lut preview (on bottom) is gone if you go home and return Reimplement it simpler!!!!!!!
+
+LOW HANGING FRUITS:
+Custom color on color picker
+Whitelist cors to only my domain
+
+FIREBASE FIRESTORE:
+→ index rules
+
+FIREBASE STORAGE:
+→ security rules
