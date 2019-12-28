@@ -1,9 +1,11 @@
-import { PrecisionRound } from "./controls";
-
 let forwardTimes: number[] = [];
 
 const NEEDLE = 90;
 let statsNeedle = 0;
+function PrecisionRound(num: number, prec = 2) {
+  const f = Math.pow(10, prec);
+  return Math.floor(num * f) / f;
+}
 export const updateTimeStats = (timeInMs: number) => {
   statsNeedle++;
   forwardTimes = [timeInMs]

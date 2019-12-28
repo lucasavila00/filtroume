@@ -1,3 +1,5 @@
+// extracted from npm/github cause this would break typescript
+
 /**
  * KalmanFilter
  * @class

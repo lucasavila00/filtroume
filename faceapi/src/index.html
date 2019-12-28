@@ -2,28 +2,19 @@
 <html>
   <head>
     <link rel="stylesheet" href="./css/styles.css" />
-    <!-- <script src="https://filterme.firebaseapp.com/webgl/webgl-debug.js"></script> -->
-    <!-- <script src="https://filterme.firebaseapp.com/opencv/opencv.js"></script> -->
-    <!-- <script>
-      cv["onRuntimeInitialized"] = () => {
-        window._ready = true;
-      };
-    </script> -->
+    <title>filtrou.me</title>
     <script src="./ts/main.ts"></script>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
   </head>
   <body style="color: black">
-    <!-- <div class="center-content page-container"> -->
-    <!-- <div style="position: relative" class="margin"> -->
-    <!-- <video
-      id="inputVideo"
-      autoplay
-      muted
-      playsinline
-    ></video> -->
     <canvas id="overlay"></canvas>
-    <!-- <canvas id="overlay2"></canvas> -->
-
-    <!-- </div> -->
-    <!-- </div> -->
+    <button id="ss_btn"></button>
+    <div class="lds-dual-ring" id="loading"></div>
+    <div id="err_wrapper">
+      <div id="err">Testeee</div>
+    </div>
   </body>
 </html>

@@ -8,6 +8,9 @@ import {
   loadLayersModel,
   LayersModel,
 } from "@tensorflow/tfjs-layers";
+import { getInfo, IInfo } from "./info";
+// import * as tf from "@tensorflow/tfjs-core";
+
 const CANVAS_ID = "overlay";
 
 let _videoEl: HTMLVideoElement | null = null;
@@ -16,6 +19,7 @@ let _gl: WebGLRenderingContext | null = null;
 let _frameBuffer: WebGLFramebuffer | null = null;
 
 // let pixels: Uint8Array;
+
 // const extractTensorFromFrameBuffer = (): tf.Tensor3D => {
 //   const x = 0;
 //   const y = 0;
@@ -44,8 +48,19 @@ const renderLoop = async () => {
     return;
   }
   drawOnVideoTexture(_gl!, _videoTexture!, _videoEl);
+  // const inputSize = 128;
+  // let tensorData = extractTensorFromFrameBuffer();
+  // const td = tf.image
+  //   .resizeBilinear(tensorData, [inputSize, inputSize])
+  //   .as3D(inputSize, inputSize, 3);
+  // let batchTensor = tf
+  //   .stack([td].map(t => t.toFloat()))
+  //   .as4D(1, inputSize, inputSize, 3);
 
-  // const tensorData = extractTensorFromFrameBuffer();
+  // // let batchTensor = tensorData.toBatchTensor(128, false).toFloat()
+  // batchTensor = batchTensor.div(
+  //   tf.scalar(256),
+  // ) as tf.Tensor4D;
 
   const options = getFaceDetectorOptions();
 
@@ -72,7 +87,8 @@ const renderLoop = async () => {
   setTimeout(() => renderLoop());
 };
 
-const prepareSceneAndRun = async () => {
+const BUTTON_ID = "ss_btn";
+const prepareSceneAndRun = async (info: IInfo) => {
   console.log("prepareSceneAndRun started");
   console.log({
     _videoEl,
@@ -135,6 +151,8 @@ const prepareSceneAndRun = async () => {
     canvasElement: canvas,
     videoTexture: _videoTexture!,
     GL: _gl!,
+    buttonId: BUTTON_ID,
+    info,
   });
 
   renderLoop();
@@ -217,11 +235,64 @@ const sizeCanvas = async (): Promise<void> => {
   canvas.setAttribute("width", String(window.innerWidth));
   canvas.setAttribute("height", String(window.innerHeight));
 };
+
+const removeLoading = () => {
+  const el = document.getElementById("loading");
+
+  el!.style.display = "none";
+};
+const showDownloadButton = () => {
+  const el = document.getElementById(BUTTON_ID);
+  el!.style.display = "inline";
+};
+
+enum ErrorKind {
+  noinfo,
+  // nocam,
+  unknown,
+}
+const showErrorMessage = (k: ErrorKind) => {
+  const el = document.getElementById("err_wrapper");
+  el!.style.display = "flex";
+  if (k === ErrorKind.noinfo) {
+    el!.innerHTML = `This filter could not be found<a href="https://filtrou.me">Click here to create a new filter</a>`;
+  } else {
+    el!.innerHTML =
+      "Error loading filter. Check your internet connection and if you have a camera.";
+  }
+};
 const main = async () => {
-  await Promise.all([
-    prepareModels(),
-    sizeCanvas().then(prepareVideo),
-  ]);
-  prepareSceneAndRun();
+  try {
+    let info = await getInfo();
+    if (!info) {
+      showErrorMessage(ErrorKind.noinfo);
+      // info = {
+      //   lut: {
+      //     url: "https://localhost:3007/luts/lut0.png",
+      //     size: 16,
+      //   },
+      //   images: {
+      //     center: "https://localhost:3007/luts/lut0.png",
+      //   },
+      //   pathname: "abc",
+      // };
+      // // return info;
+      // // display error info
+      // console.error("info not found!!!!");
+      return;
+    }
+
+    await Promise.all([
+      prepareModels(),
+      sizeCanvas().then(prepareVideo),
+    ]);
+    await prepareSceneAndRun(info);
+    showDownloadButton();
+  } catch (err) {
+    console.error(err);
+    showErrorMessage(ErrorKind.unknown);
+  } finally {
+    removeLoading();
+  }
 };
 main();

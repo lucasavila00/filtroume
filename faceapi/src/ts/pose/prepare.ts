@@ -21,34 +21,33 @@ export const generateImageAndObjectPoints = (
   const rightnostril = positions[35];
 
   const imagePoints =
-    // The neural network was trained with x and y inverted.
-    // Faceapijs alerady inverts y, so we only need to invert x here.
+    // Faceapijs inverts y, so we invert it back to carthesian coordinates.
     [
-      1 - noseTip.x,
-      noseTip.y,
-      1 - bottomNose.x,
-      bottomNose.y,
+      noseTip.x,
+      1 - noseTip.y,
+      bottomNose.x,
+      1 - bottomNose.y,
 
-      1 - leftnostril.x,
-      leftnostril.y,
+      leftnostril.x,
+      1 - leftnostril.y,
 
-      1 - rightnostril.x,
-      rightnostril.y,
+      rightnostril.x,
+      1 - rightnostril.y,
 
-      1 - lefteyeleftcorner.x,
-      lefteyeleftcorner.y,
-      1 - lefteyerightcorner.x,
-      lefteyerightcorner.y,
+      lefteyeleftcorner.x,
+      1 - lefteyeleftcorner.y,
+      lefteyerightcorner.x,
+      1 - lefteyerightcorner.y,
 
-      1 - righteyerightcorner.x,
-      righteyerightcorner.y,
-      1 - righteyeleftcorner.x,
-      righteyeleftcorner.y,
+      righteyerightcorner.x,
+      1 - righteyerightcorner.y,
+      righteyeleftcorner.x,
+      1 - righteyeleftcorner.y,
 
-      1 - leftmouth.x,
-      leftmouth.y,
-      1 - rightmouth.x,
-      rightmouth.y,
+      leftmouth.x,
+      1 - leftmouth.y,
+      rightmouth.x,
+      1 - rightmouth.y,
     ];
 
   return {

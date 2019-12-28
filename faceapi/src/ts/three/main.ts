@@ -1,19 +1,18 @@
 import * as THREE from "three";
-import { getInfo, IInfo } from "./info";
+import { IInfo } from "../info";
 import {
   // BloomEffect,
   EffectComposer,
   EffectPass,
   RenderPass,
 } from "postprocessing";
-// import EffectComposer from "postprocessing/build/EffectComposer";
-// import EffectPass from "postprocessing/build/EffectPass";
-// import RenderPass from "postprocessing/build/RenderPass";
 import {
   ColorTransformEffect,
   makeIdentityLutTexture,
 } from "./lut";
 import { calcCameraParams } from "./camera";
+import { registerDownloadButton } from "./download";
+// import { lines } from "../debugPaint";
 
 const clock = new THREE.Clock();
 
@@ -73,8 +72,16 @@ export const render = ({
   _threeCompositeObject.visible = getFaceThingVisible(
     foundFace,
   );
-  // _threeRenderer?.render(_threeScene!, _threeCamera!);
+
   _threeComposer.render(clock.getDelta());
+
+  // ugly hack to fix threejs (or threejs postprocessing lib) clearing canvas
+  // and making download impossible
+  if ((window as any).dlnow) {
+    (window as any).dlnow();
+
+    (window as any).dlnow = undefined;
+  }
 };
 
 export const start = async ({
@@ -82,40 +89,37 @@ export const start = async ({
   canvasElement,
   videoTexture,
   GL,
+  buttonId,
+  info,
 }: {
   videoElement: HTMLVideoElement;
   canvasElement: HTMLCanvasElement;
   videoTexture: WebGLTexture;
   GL: WebGLRenderingContext;
+  buttonId: string;
+  info: IInfo;
 }) => {
   _glVideoTexture = videoTexture;
   _gl = GL;
   _faceFilterCv = canvasElement;
   _videoElement = videoElement;
 
-  let info = await getInfo();
-  if (!info) {
-    info = {
-      lut: {
-        url: "https://localhost:3007/luts/lut0.png",
-        size: 16,
-      },
-      images: {
-        center: "https://localhost:3007/luts/lut0.png",
-      },
-      pathname: "abc",
-    };
-    // return info;
-    // display error info
-    console.error("info not found!!!!");
-    // return;
-  }
-
   _threeRenderer = new THREE.WebGLRenderer({
     context: _gl!,
     canvas: _faceFilterCv!,
-    alpha: false,
+    // alpha: false,
+    // For screenshots to work with WebGL renderer, preserveDrawingBuffer should be set to true.
+    preserveDrawingBuffer: true,
   });
+  // setTimeout(() => {
+  registerDownloadButton({
+    buttonId,
+    renderer: _threeRenderer,
+    url: info.pathname
+      ? pathnameToUrl(info.pathname)
+      : undefined,
+  });
+  // }, 300);
 
   _threeScene = new THREE.Scene();
 
@@ -201,8 +205,14 @@ const initComposer = (info: IInfo) => {
     _faceFilterCv!.height,
   );
 };
+const pathnameToUrl = (p: string) => {
+  return "filtrou.me/" + p;
+};
 
-const init_threeScene = (imgUrl: string) => {
+const init_threeScene = (
+  imgUrl: string,
+  // pathname?: string,
+) => {
   _threeCompositeObject = new THREE.Object3D();
   const planeMaterial = new THREE.MeshBasicMaterial({
     map: new THREE.TextureLoader().load(imgUrl),
@@ -217,6 +227,10 @@ const init_threeScene = (imgUrl: string) => {
   _threeCompositeObject.scale.set(_scale, _scale, _scale);
   _threeCompositeObject.add(planeMesh);
   _threeScene!.add(_threeCompositeObject);
+  // if (pathname) {
+  //   console.log("got pathname, will add it to scene");
+  //   _threeScene!.add(generateUrlTextPlane(pathname));
+  // }
   // lines(_threeCompositeObject);
 };
 
@@ -237,9 +251,9 @@ const create_videoScreen = () => {
     gl_FragColor = texture2D(samplerVideo, vec2(vUV.x, vUV.y));\n\
   }";
 
-  //init video texture with red
+  //init video texture with black
   _threeVideoTexture = new THREE.DataTexture(
-    new Uint8Array([255, 0, 0]),
+    new Uint8Array([0, 0, 0]),
     1,
     1,
     THREE.RGBFormat,
@@ -295,6 +309,7 @@ const create_videoScreen = () => {
         );
         _threeVideoTexture!.magFilter = THREE.LinearFilter;
         _threeVideoTexture!.minFilter = THREE.LinearFilter;
+
         _isVideoTextureReady = true;
         // console.log("updated...");
       } catch (e) {
@@ -318,8 +333,6 @@ const create_camera = function(zNear = 0.1, zFar = 10000) {
   const videoAspectRatio = vw / vh;
 
   const {
-    // canvasAspectRatio,
-    // fov,
     cvws,
     cvhs,
     offsetX,
