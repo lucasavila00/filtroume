@@ -66,8 +66,8 @@ export const registerDownloadButton = ({
     buttonId,
   ) as HTMLButtonElement;
 
-  // ugly hack to fix threejs (or threejs postprocessing lib, IDK which is broken) clearing canvas
-  // and making download impossible
+  // ugly hack to fix threejs (or threejs postprocessing lib, IDK which is broken)
+  // clearing the canvas and making download impossible
   btn.onclick = () => {
     (window as any).dlnow = () => takeScreenshot();
   };
