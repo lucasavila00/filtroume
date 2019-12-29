@@ -1,24 +1,23 @@
--- creator (STORYBOARD):
-→ A lot of good luts
-→ Landing (video on bg) / slide show q lembra flash de foto
-→ check if SEO should be used on all pages
+VIEWER
+→ tutorial (find a face)
+→ web share
 
--- blog
-  finish the 2 posts
+BLOG
+→ finish the 2 posts
 
--- viewer
-  tutorial (find a face)
-  add meta-data to viewer (posts on social media are prettier)
-  web share
-
-FIREBASE FUNCTIONS:
-→ analytics for publish (save when publishing)
-→ analytics for views (save when decoding shortId)
-
-Whitelist cors to only my domain
+CORS:
+→ Whitelist cors to only my domain
 
 FIREBASE FIRESTORE:
 → index rules
 
 FIREBASE STORAGE:
 → security rules
+
+FIREBASE FUNCTIONS:
+→ analytics for publish (save when publishing)
+→ analytics for views (save when decoding shortId)
+
+CREATOR:
+→ Landing (video on bg) / slide show q lembra flash de foto
+

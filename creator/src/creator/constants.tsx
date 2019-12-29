@@ -1,4 +1,15 @@
-export const luts = ["/luts/lut0.png", "/luts/lut1.png", "/luts/lut2.png"];
+export const luts = [
+  "/luts/lut0.png",
+  "/luts/lut1.png",
+  "/luts/lut2.png",
+  "/luts/lut3.png",
+  "/luts/lut4.png",
+  "/luts/lut5.png",
+  "/luts/lut6.png",
+  "/luts/lut7.png",
+  "/luts/lut8.png",
+  "/luts/lut9.png",
+];
 
 export const colors = [
   { id: "a", label: "red", color: "#a4262c" },
