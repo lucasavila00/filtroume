@@ -1,6 +1,7 @@
 import React from "react";
 
 import { initializeIcons } from "office-ui-fabric-react";
+import SEO from "../components/seo";
 import { makeNotificationNone } from "../creator/imgedit/helpers";
 import { ImageEditor } from "../creator/imgedit/main";
 import {
@@ -9,8 +10,8 @@ import {
   NotificationType,
   NotificationTypeEnum,
 } from "../creator/types";
-import "./index.css";
-import "./normalize.css";
+import "../css/index.css";
+import "../css/normalize.css";
 initializeIcons(/* optional base url */);
 
 const createCentralizeStyle = {
@@ -88,14 +89,17 @@ const Create: React.FunctionComponent = () => {
     setNotif(makeNotificationNone());
   };
   return (
-    <div style={createCentralizeStyle}>
-      <ImageEditor
-        onPublish={onPublish}
-        notification={notif}
-        onDismissNotification={onDismissNotification}
-        loading={loading}
-      />
-    </div>
+    <>
+      <SEO title="Create" />
+      <div style={createCentralizeStyle}>
+        <ImageEditor
+          onPublish={onPublish}
+          notification={notif}
+          onDismissNotification={onDismissNotification}
+          loading={loading}
+        />
+      </div>
+    </>
   );
 };
 

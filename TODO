@@ -1,4 +1,6 @@
--- previwe
+-- blog posts
+-- check if SEO should be used on all pages
+-- preview
   - tutorial (find a face) ?
 
 -- creator (STORYBOARD):
@@ -12,11 +14,7 @@ FIREBASE FUNCTIONS:
 → analytics for views (save when decoding shortId)
 
 MAKEOVER:
-Icon
-Name
-Titles
-Landing (video on bg)
-Prettier errors, loading and tutorial on player
+Landing (video on bg) / slide show q lembra flash de foto
 
 BUGS:
 Lut preview (on bottom) is gone if you go home and return Reimplement it simpler!!!!!!!

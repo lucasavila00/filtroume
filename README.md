@@ -14,10 +14,15 @@
 - inside /viewer/src/ts/main.ts uncomment line ~270 ( info = {...} ) to pass any images you want for the plane and the LUT.
 - inside /viewr/src/ts/three/main.ts uncomment line ~232 ( lines(\_threeCompositeObject) )to show the facial points being tracked in 3D.
 
+# The notebook used to generate fake data and train solvepnp
+
+- /tf/all.ipynb (runs in ~15min on a Google Colab with GPU)
+- /tf/to_js.ipynb converts from Keras (.h5) to TF.JS
+
 # Project structure
 
 - /viewer/ is the visualizer, where all the 3D and AI code lives. It's a typescript project built with Parcel.
-- /creator/ is the creator of the filters. It uses /faceapi/ inside an iframe. It's a typescript project built with Gatsby.
+- /creator/ is the creator of the filters. It uses /viewer/ inside an iframe. It's a typescript project built with Gatsby.
 - /functions/ are firebase functions. They're only used because I don't want to donwload firebase sdk and would rather make a simple HTTP request in the clients.
 - /tf/ contains the notebook used to generate fake data, train the model and then convert it to tf.js. It also has the trained model as a Keras export and tf.js export (quantized to 1 byte)
 
