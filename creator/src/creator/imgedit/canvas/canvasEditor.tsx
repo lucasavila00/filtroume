@@ -6,6 +6,7 @@ import {
   getEditingTypeAndData,
   registerCanvasOnWindow,
 } from "./canvasController";
+import { randomInit } from "./randomInit";
 
 /// a class is used to have lifecycle control over fabricjs
 export class CanvasEditor extends React.Component<{
@@ -28,8 +29,8 @@ export class CanvasEditor extends React.Component<{
     canvas.setDimensions({ width: size, height: size });
 
     // // on mouse up lets save some state
-    canvas.on("mouse:up", () => {
-      // changeData(canvas.toObject());
+    canvas.on("mouse:up", (options) => {
+      options?.target?.bringToFront();
       changeEditing(getEditingTypeAndData(canvas.getActiveObject()));
     });
 
@@ -43,6 +44,8 @@ export class CanvasEditor extends React.Component<{
     canvas.on("object:selected", (options) => {
       options?.target?.bringToFront();
     });
+
+    randomInit({ canvasSize: size });
   }
 
   public render() {

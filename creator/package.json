@@ -21,6 +21,8 @@
         "@storybook/react": "^4.1.1",
         "@types/react-helmet": "^5.0.14",
         "@types/rehype-react": "^3.1.0",
+        "@types/vfile": "^4.0.0",
+        "@types/vfile-message": "^2.0.0",
         "@uifabric/fluent-theme": "^0.16.7",
         "core-js": "^3.5.0",
         "fabric": "^3.5.1",

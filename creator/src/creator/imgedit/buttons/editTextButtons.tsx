@@ -10,7 +10,7 @@ import {
   SwatchColorPicker,
 } from "office-ui-fabric-react";
 import React from "react";
-import { colors, fonts } from "../../contants";
+import { colors, fonts } from "../../constants";
 import { IFabricEditingText } from "../../types";
 import { iconClass, sliderStyles, spacerStyle } from "./common";
 enum MenuTypesKind {
@@ -308,10 +308,14 @@ const FontPicker: React.FunctionComponent<{
 }> = ({ changeFont }) => {
   const renderItems = () => {
     return fonts.map((f) => {
-      const onChangeFont = () => changeFont(f);
+      const onChangeFont = () => changeFont(f.family);
       return (
-        <DefaultButton key={f} style={{ fontFamily: f }} onClick={onChangeFont}>
-          {f}
+        <DefaultButton
+          key={f.family}
+          style={{ fontFamily: f.family, fontWeight: 400 }}
+          onClick={onChangeFont}
+        >
+          {f.display}
         </DefaultButton>
       );
     });

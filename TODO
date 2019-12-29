@@ -1,26 +1,20 @@
--- blog posts
--- check if SEO should be used on all pages
--- preview
-  - tutorial (find a face) ?
-
 -- creator (STORYBOARD):
-→ Created with random initial state
 → A lot of good luts
-→ A lot of good images
-→ A lot of good fonts
+→ Landing (video on bg) / slide show q lembra flash de foto
+→ check if SEO should be used on all pages
+
+-- blog
+  finish the 2 posts
+
+-- viewer
+  tutorial (find a face)
+  add meta-data to viewer (posts on social media are prettier)
+  web share
 
 FIREBASE FUNCTIONS:
 → analytics for publish (save when publishing)
 → analytics for views (save when decoding shortId)
 
-MAKEOVER:
-Landing (video on bg) / slide show q lembra flash de foto
-
-BUGS:
-Lut preview (on bottom) is gone if you go home and return Reimplement it simpler!!!!!!!
-
-LOW HANGING FRUITS:
-Custom color on color picker
 Whitelist cors to only my domain
 
 FIREBASE FIRESTORE:

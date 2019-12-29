@@ -1,7 +1,7 @@
 import { Stack } from "office-ui-fabric-react";
 import React, { useState } from "react";
 import useDimensions from "react-use-dimensions";
-import { luts } from "../contants";
+import { luts } from "../constants";
 import { FabricEditing, FabricEditingTypes, NotificationType } from "../types";
 import { ImageEditorButtons } from "./buttons/main";
 import { exportCanvasAsPng, unfocusOnCanvas } from "./canvas/canvasController";

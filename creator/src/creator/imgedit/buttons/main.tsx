@@ -30,8 +30,9 @@ export const ImageEditorButtons: React.FunctionComponent<{
   }
   switch (fabricEditing.type) {
     case FabricEditingTypes.none: {
-      const onAddNewText = () => addNewText(width);
-      const onAddNewImage = (url: string) => addNewImage(url, width);
+      const onAddNewText = () => addNewText({ canvasSize: width });
+      const onAddNewImage = (url: string) =>
+        addNewImage({ url, canvasSize: width });
       const onUploadImage = (image: File) => uploadNewImage(image, width);
       return (
         <InsertButtons

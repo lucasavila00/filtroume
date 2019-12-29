@@ -1,6 +1,6 @@
 import { Dialog, PrimaryButton, Stack, Text } from "office-ui-fabric-react";
 import React, { CSSProperties } from "react";
-import { galleryImages } from "../../contants";
+import { galleryImages } from "../../constants";
 
 export const ImageDialog: React.FunctionComponent<{
   onAddNewImage: (url: string) => void;
@@ -63,7 +63,8 @@ export const ImageDialog: React.FunctionComponent<{
 function makeImageStyle(opt: { src: string }): React.CSSProperties | undefined {
   return {
     backgroundImage: `url(${opt.src})`,
-    backgroundSize: "cover",
+    backgroundSize: "contain",
+    backgroundRepeat: "no-repeat",
     backgroundPosition: "center",
     width: 64,
     height: 64,

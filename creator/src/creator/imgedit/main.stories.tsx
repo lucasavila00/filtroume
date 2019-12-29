@@ -11,7 +11,7 @@ import { ImageEditor } from "./main";
 
 const notificationUploaded: INotificationUploaded = {
   type: NotificationTypeEnum.uploaded,
-  url: "https://filtre.me/a34nd",
+  url: "https://fitrou.me/a34nd",
 };
 const notificationError: INotificationError = {
   type: NotificationTypeEnum.error,

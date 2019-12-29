@@ -38,8 +38,7 @@ const postData = async (url = "", data = {}) => {
   return response.json(); // parses JSON response into native JavaScript objects
 };
 
-const shortIdToUrl = (shortId: string) =>
-  "https://filterme.firebaseapp.com/" + shortId;
+const shortIdToUrl = (shortId: string) => "https://filtrou.me/" + shortId;
 
 const Create: React.FunctionComponent = () => {
   const [loading, setLoading] = React.useState(false);

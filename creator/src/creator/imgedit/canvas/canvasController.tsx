@@ -18,7 +18,7 @@ const defaultStrokeColor = "black";
 const defaultStrokeWidth = 0;
 const defaultShadowSize = 0;
 
-const generateShadow = (color: string, size: number) =>
+export const generateShadow = (color: string, size: number) =>
   `${color} ${Math.round(size / 4)}px ${Math.round(size / 2)}px ${Math.round(
     size,
   )}px`;
@@ -31,21 +31,41 @@ const getId = () => {
   return id;
 };
 // create objects
-export const addNewText = (canvasSize: number) => {
+export const addNewText = ({
+  canvasSize,
+  text = "Sample text",
+  top,
+  left,
+  fontFamily,
+  fill,
+  stroke,
+  shadow,
+  strokeWidth,
+}: {
+  canvasSize: number;
+  text?: string;
+  top?: number;
+  left?: number;
+  strokeWidth?: number;
+  fontFamily?: string;
+  fill?: string;
+  stroke?: string;
+  shadow?: string;
+}) => {
   const canvas = castedCanvas();
   const nameId = getId();
   canvas.add(
-    new fabric.IText("Sample Text", {
+    new fabric.IText(text, {
       name: nameId,
-      top: canvasSize / 4,
-      left: canvasSize / 4,
+      top: top ?? canvasSize / 4,
+      left: left ?? canvasSize / 4,
       textAlign: "center",
       fontSize: canvasSize / 10,
-      fontFamily: defaultFontFamily,
-      fill: defaultTextColor,
-      stroke: defaultStrokeColor,
-      strokeWidth: defaultStrokeWidth,
-      shadow: generateShadow(defaultShadowColor, defaultShadowSize),
+      fontFamily: fontFamily ?? defaultFontFamily,
+      fill: fill ?? defaultTextColor,
+      stroke: stroke ?? defaultStrokeColor,
+      strokeWidth: strokeWidth ?? defaultStrokeWidth,
+      shadow: shadow ?? generateShadow(defaultShadowColor, defaultShadowSize),
     }),
   );
   // TODO nao ta ativando o criado!!!
@@ -59,40 +79,54 @@ export const addNewText = (canvasSize: number) => {
   canvas.fire("saveData", {});
 };
 
-export const addNewImage = (url: string, canvasSize: number) => {
+export const addNewImage = ({
+  url,
+  canvasSize,
+  top,
+  left,
+}: {
+  url: string;
+  canvasSize: number;
+  top?: number;
+  left?: number;
+}): Promise<void> => {
   const canvas = castedCanvas();
   const nameId = getId();
 
-  fabric.Image.fromURL(
-    url,
-    (oImg) => {
-      // scale image down, and flip it, before adding it onto canvas
-      // oImg.scale(0.5).set("flipX", true);
+  return new Promise((rs) => {
+    fabric.Image.fromURL(
+      url,
+      (oImg) => {
+        // scale image down, and flip it, before adding it onto canvas
+        // oImg.scale(0.5).set("flipX", true);
 
-      const originalWidth = oImg.width ?? 512;
+        const originalWidth = oImg.width ?? 512;
 
-      const newWidth = canvasSize / 3;
+        const newWidth = canvasSize / 2;
 
-      const factor = newWidth / originalWidth;
+        const factor = newWidth / originalWidth;
 
-      oImg.set("width", (oImg.width ?? 512) * factor);
-      oImg.set("height", (oImg.height ?? 512) * factor);
+        oImg.set("width", oImg.width ?? 512);
+        oImg.set("height", oImg.height ?? 512);
+        oImg.set("scaleX", factor);
+        oImg.set("scaleY", factor);
+        oImg.set("name", nameId);
+        oImg.set("top", top ?? canvasSize / 4);
+        oImg.set("left", left ?? canvasSize / 4);
+        canvas.add(oImg);
+        canvas.getObjects().forEach((o) => {
+          if (o.name === nameId) {
+            canvas.setActiveObject(o);
+          }
+        });
 
-      oImg.set("name", nameId);
-      oImg.set("top", canvasSize / 3);
-      oImg.set("left", canvasSize / 3);
-      canvas.add(oImg);
-      canvas.getObjects().forEach((o) => {
-        if (o.name === nameId) {
-          canvas.setActiveObject(o);
-        }
-      });
-
-      // when we are done makeing changes send the state from fabric
-      canvas.fire("saveData", {});
-    },
-    { crossOrigin: "anonymous" },
-  );
+        // when we are done makeing changes send the state from fabric
+        canvas.fire("saveData", {});
+        rs();
+      },
+      { crossOrigin: "anonymous" },
+    );
+  });
 };
 export const uploadNewImage = (file: File, canvasSize: number) => {
   const reader = new FileReader();
@@ -100,7 +134,7 @@ export const uploadNewImage = (file: File, canvasSize: number) => {
   // reader.readAsDataURL(file);
   reader.onload = (e) => {
     const data = String(e?.target?.result ?? "");
-    addNewImage(data, canvasSize);
+    addNewImage({ url: data, canvasSize });
   };
 
   reader.readAsDataURL(file);
