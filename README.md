@@ -1,29 +1,29 @@
-# How to build
+# How to build/deploy
 
-- '\$ sh build.sh' on the root folder to build both sites (creator and player),
-  put the built versions on the correct folder structure to be used with firebase hosting
+- '\$ sh deploy.sh' on the root folder to build both sites (creator and player),
+  put the built versions in the correct folder structure to be used with firebase hosting
   and deploy it.
 
 - 'npm run deploy' inside /functions/ to deploy firebase funtions.
 
-- Also, you may need to set up security rules and cors rules for firebase hosting, storage and firestore.
+- You also need to set up security rules and cors rules for firebase hosting, storage and firestore.
 
 # Testing just the head tracker
 
 - go to /viewer/ and \$ npm start
-- inside /viewer/src/ts/main.ts uncomment line ~270 ( info = {...} ) to pass any images you want for the plane and the LUT.
-- inside /viewr/src/ts/three/main.ts uncomment line ~232 ( lines(\_threeCompositeObject) )to show the facial points being tracked in 3D.
 
-# The notebook used to generate fake data and train solvepnp
+# The notebook used to generate data and train the AI to solve PnP
 
 - /tf/all.ipynb (runs in ~15min on a Google Colab with GPU)
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lucasavila00/filtroume/blob/master/tf/all.ipynb)
+
 - /tf/to_js.ipynb converts from Keras (.h5) to TF.JS
 
 # Project structure
 
 - /viewer/ is the visualizer, where all the 3D and AI code lives. It's a typescript project built with Parcel.
 - /creator/ is the creator of the filters. It uses /viewer/ inside an iframe. It's a typescript project built with Gatsby.
-- /functions/ are firebase functions. They're only used because I don't want to donwload firebase sdk and would rather make a simple HTTP request in the clients.
+- /functions/ are firebase functions. They're only used because I don't want to download the Firebase SDK and would rather make a simple HTTP request in the clients.
 - /tf/ contains the notebook used to generate fake data, train the model and then convert it to tf.js. It also has the trained model as a Keras export and tf.js export (quantized to 1 byte)
 
 # Acknowledgments and good links (these really helped me)

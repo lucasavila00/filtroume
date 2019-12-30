@@ -1,5 +1,4 @@
 VIEWER
-→ web share (?)
-
-BLOG
-→ finish the 2 posts
+→ web share is broken, just download is working
+  I guess that it's because user interaction gets "redirected" a lot.
+  I should probably make another screen after the photo was taken with two buttons: download and share.

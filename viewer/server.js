@@ -12,14 +12,18 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, "./static")));
 
-https
-  .createServer(
-    {
-      key: fs.readFileSync("server.key"),
-      cert: fs.readFileSync("server.cert"),
-    },
-    app,
-  )
-  .listen(3007, () =>
-    console.log("Listening on port 3007!"),
-  );
+app.listen(3007, () =>
+  console.log("Listening on port 3007!"),
+);
+
+// https
+//   .createServer(
+//     {
+//       key: fs.readFileSync("server.key"),
+//       cert: fs.readFileSync("server.cert"),
+//     },
+//     app,
+//   )
+//   .listen(3007, () =>
+//     console.log("Listening on port 3007!"),
+//   );

@@ -7,7 +7,7 @@
 
 import { graphql, useStaticQuery } from "gatsby";
 import Image from "gatsby-image";
-import { Stack, Text } from "office-ui-fabric-react";
+import { Link, Stack, Text } from "office-ui-fabric-react";
 import React from "react";
 import { rhythm } from "../utils/typography";
 
@@ -63,6 +63,9 @@ const Bio = () => {
         <Text variant="large">
           He types on the keyboard and sometimes clicks the mouse.
         </Text>
+        <Link href="https://twitter.com/lucasavila00">
+          Get in touch via Twitter
+        </Link>
       </Stack>
     </Stack>
   );

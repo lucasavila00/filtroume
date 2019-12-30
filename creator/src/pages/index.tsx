@@ -156,9 +156,9 @@ const footerStyle: CSSProperties = {
 const Footer: React.FunctionComponent = () => {
   return (
     <div style={footerStyle}>
-      <Link href="/blog">Filtrou.me Blog</Link>
+      <Link href="/blog">Blog</Link>
       <div style={{ width: 32 }} />
-      <Link href="https://github.com/lucasavila00/ff">Source Code</Link>
+      <Link href="https://github.com/lucasavila00/filtroume">Github</Link>
       <div style={{ width: 32 }} />
       <Link href="https://twitter.com/lucasavila00">Contact</Link>
     </div>
