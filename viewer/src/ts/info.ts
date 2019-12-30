@@ -34,13 +34,7 @@ function parseURL(url: string) {
     hash: parser.hash,
   };
 }
-const preloadImage = (url: string) => {
-  return new Promise(rs => {
-    const image = new Image();
-    image.src = url;
-    image.onload = rs;
-  });
-};
+
 export const getInfo = async (): Promise<IInfo | null> => {
   if (
     window.parent &&
@@ -72,13 +66,9 @@ export const getInfo = async (): Promise<IInfo | null> => {
       console.error({ data });
       return null;
     } else {
-      console.log("got data...");
-      console.log({ data });
-      await preloadImage(data.url);
-      await preloadImage(data.image);
       return {
         lut: {
-          url: data.url,
+          url: data.lut,
           size: 16,
         },
         images: {
