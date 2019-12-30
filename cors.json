@@ -1,6 +1,6 @@
 [
   {
-    "origin": ["*"],
+    "origin": ["https://filtrou.me"],
     "method": ["GET"],
     "maxAgeSeconds": 3600
   }

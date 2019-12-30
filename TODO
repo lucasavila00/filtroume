@@ -1,23 +1,5 @@
 VIEWER
-→ tutorial (find a face)
-→ web share
+→ web share (?)
 
 BLOG
 → finish the 2 posts
-
-CORS:
-→ Whitelist cors to only my domain
-
-FIREBASE FIRESTORE:
-→ index rules
-
-FIREBASE STORAGE:
-→ security rules
-
-FIREBASE FUNCTIONS:
-→ analytics for publish (save when publishing)
-→ analytics for views (save when decoding shortId)
-
-CREATOR:
-→ Landing (video on bg) / slide show q lembra flash de foto
-

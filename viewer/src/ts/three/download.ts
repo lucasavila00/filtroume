@@ -13,8 +13,6 @@ export const flipAndAddText = (
         ctx.canvas.width = image.width;
         ctx.canvas.height = image.height;
 
-        // draw text
-
         ctx.translate(image.width, 0);
         ctx.scale(-1, 1);
         ctx.drawImage(image, 0, 0);
@@ -50,17 +48,36 @@ export const registerDownloadButton = ({
   const takeScreenshot = async () => {
     // For screenshots to work with WebGL renderer, preserveDrawingBuffer should be set to true.
     // download file like this.
-    const invertedData = renderer.domElement
-      .toDataURL()
-      .replace("image/png", "image/octet-stream");
+    const invertedData = renderer.domElement.toDataURL();
 
-    const a = document.createElement("a");
-    a!.href = await flipAndAddText(invertedData, url);
+    const dataUrl = await flipAndAddText(invertedData, url);
 
-    const id = new Date().getTime() % 10000;
-    a!.download = "img" + id + ".png";
+    try {
+      const blob = await fetch(dataUrl).then(res =>
+        res.blob(),
+      );
+      const file = new File([blob], "image.png");
 
-    a!.click();
+      const filesArray = [file];
+      if (
+        navigator.canShare &&
+        navigator.canShare({ files: filesArray })
+      ) {
+        console.log("can share");
+        await navigator.share({
+          files: filesArray,
+          title: "Filtrou.me photo",
+        });
+      } else {
+        console.log("cannot share");
+        doDownload(dataUrl);
+      }
+    } catch (err) {
+      console.error(err);
+      console.log("got error");
+
+      doDownload(dataUrl);
+    }
   };
   const btn = document.getElementById(
     buttonId,
@@ -72,3 +89,13 @@ export const registerDownloadButton = ({
     (window as any).dlnow = () => takeScreenshot();
   };
 };
+function doDownload(dataUrl: string) {
+  const a = document.createElement("a");
+  a!.href = dataUrl.replace(
+    "image/png",
+    "image/octet-stream",
+  );
+  const id = new Date().getTime() % 10000;
+  a!.download = "img" + id + ".png";
+  a!.click();
+}

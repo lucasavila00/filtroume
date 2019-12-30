@@ -3,12 +3,13 @@ import * as admin from "firebase-admin";
 import * as c from "cors";
 import { generateShortId } from "./shortId";
 import { uploadBase64 } from "./upload";
+import { openedFilter } from "./analytics";
 
 admin.initializeApp();
 
 // CORS Express middleware to enable CORS Requests.
 const cors = c({
-  origin: true,
+  origin: "https://filtrou.me",
 });
 
 // const sign = async ({
@@ -49,7 +50,10 @@ export const filterUrls = functions.https.onRequest(
             if (foundValue) {
               return;
             }
-            // TODO: add to analytics that it was shown
+
+            // tslint:disable-next-line: no-floating-promises
+            openedFilter({ db, longId: doc.id });
+
             foundValue = true;
             const data = doc.data();
             const image = data.imageUrl;
@@ -65,7 +69,7 @@ export const filterUrls = functions.https.onRequest(
         }
       }, // end cors cb
     ); // end cors
-  }, // end handler cn
+  }, // end handler cb
 ); // end handler
 
 // shell: createFilter.post().json({lut: "", image: ""})
@@ -107,9 +111,8 @@ export const createFilter = functions.https.onRequest(
           });
 
           response.json({ shortId });
-          // TODO: add to analytics that it was created
         }
       }, // end cors cb
     ); // end cors
-  }, // end handler cn
+  }, // end handler cb
 ); // end handler

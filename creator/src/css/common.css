@@ -1,0 +1,10 @@
+@import url("https://fonts.googleapis.com/css?family=Bangers|Hanalei+Fill|Long+Cang|Luckiest+Guy|Monoton|Pacifico|Permanent+Marker|Press+Start+2P|Rye|VT323&display=swap");
+body,
+html,
+#___gatsby,
+#gatsby-focus-wrapper {
+  height: 100%;
+}
+a {
+  box-shadow: none;
+}

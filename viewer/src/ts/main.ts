@@ -89,23 +89,11 @@ const renderLoop = async () => {
 
 const BUTTON_ID = "ss_btn";
 const prepareSceneAndRun = async (info: IInfo) => {
-  console.log("prepareSceneAndRun started");
-  console.log({
-    _videoEl,
-    paused: _videoEl?.paused,
-    ended: _videoEl?.ended,
-  });
   if (
     _videoEl == null ||
     _videoEl.paused ||
     _videoEl.ended
   ) {
-    console.log({
-      _videoEl,
-      paused: _videoEl?.paused,
-      ended: _videoEl?.ended,
-    });
-    console.log("does not have _videoEl");
     setTimeout(prepareSceneAndRun, 16);
     return;
   }
@@ -180,7 +168,48 @@ const prepareModels = async () => {
 
   console.log("prepareModels ended");
 };
+const getStream = async (canvas: HTMLCanvasElement) => {
+  const commonOpts = {
+    width: { max: 720 },
+    height: { max: 720 },
+    aspectRatio:
+      window.innerHeight > window.innerWidth
+        ? canvas.height / canvas.width
+        : canvas.width / canvas.height,
+  };
 
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia(
+      {
+        audio: false,
+        video: {
+          ...commonOpts,
+          // we try with exact because otherwise iPhones will use
+          // the back camera
+          facingMode: { exact: "user" },
+        },
+      },
+    );
+
+    return stream;
+  } catch (err) {
+    console.error("error while getting media...");
+    // using exact with a chromebook will error
+    // even though it only has one camera and is facing the user
+    // using the facingMode contraint like this works, though
+    const stream = await navigator.mediaDevices.getUserMedia(
+      {
+        audio: false,
+        video: {
+          ...commonOpts,
+          facingMode: "user",
+        },
+      },
+    );
+
+    return stream;
+  }
+};
 const prepareVideo = async () => {
   // we assume that the canvas was created and it will be found,
   // that's why the cast is safe.
@@ -190,18 +219,8 @@ const prepareVideo = async () => {
 
   // TODO: try optimizing the app so that bigger resolutions
   // could be supported
-  const stream = await navigator.mediaDevices.getUserMedia({
-    audio: false,
-    video: {
-      width: { max: 720 },
-      height: { max: 720 },
-      aspectRatio:
-        window.innerHeight > window.innerWidth
-          ? canvas.height / canvas.width
-          : canvas.width / canvas.height,
-      facingMode: "user",
-    },
-  });
+
+  const stream = await getStream(canvas);
 
   const video = document.createElement("video");
   // I really don't know if all of this is needed but if
@@ -263,29 +282,31 @@ const showErrorMessage = (k: ErrorKind) => {
 };
 const main = async () => {
   try {
-    let info = await getInfo();
-    if (!info) {
-      showErrorMessage(ErrorKind.noinfo);
-      // info = {
-      //   lut: {
-      //     url: "https://localhost:3007/luts/lut0.png",
-      //     size: 16,
-      //   },
-      //   images: {
-      //     center: "https://localhost:3007/luts/lut0.png",
-      //   },
-      //   pathname: "abc",
-      // };
-      // // return info;
-      // // display error info
-      // console.error("info not found!!!!");
-      return;
-    }
-
-    await Promise.all([
+    const res = await Promise.all([
+      getInfo(),
       prepareModels(),
       sizeCanvas().then(prepareVideo),
     ]);
+
+    let info = res[0];
+    if (!info) {
+      if (process.env.NODE_ENV === "development") {
+        info = {
+          lut: {
+            url: "https://localhost:3007/luts/hpbb.png",
+            size: 16,
+          },
+          images: {
+            center: "https://localhost:3007/luts/lut0.png",
+          },
+          pathname: "abc",
+        };
+      } else {
+        showErrorMessage(ErrorKind.noinfo);
+        return;
+      }
+    }
+
     await prepareSceneAndRun(info);
     showDownloadButton();
   } catch (err) {

@@ -7,7 +7,7 @@ import {
   Stack,
 } from "office-ui-fabric-react";
 import React from "react";
-import "../css/index.css";
+import "../css/common.css";
 import "../css/normalize.css";
 import { rhythm } from "../utils/typography";
 

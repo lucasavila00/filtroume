@@ -48,7 +48,7 @@ export const Header: React.FunctionComponent<{
       horizontalAlign="space-between"
       verticalAlign="center"
     >
-      <Link href="/">Filtre.me</Link>
+      <Link href="/">Filtrou.me</Link>
       <Stack horizontal={true} gap="s1">
         <NotificationRenderer
           notification={notification}

@@ -143,13 +143,16 @@ const makeLUTTexture = function(info: {
   const texture = makeIdentityLutTexture(
     THREE.LinearFilter,
   );
+  console.log("make lut texture called");
+  console.log({ info, ctx });
   if (info.url && ctx) {
     const lutSize = info.size;
-
+    console.log("will load image");
     // set the size to 2 (the identity size). We'll restore it when the
     // image has loaded. This way the code using the lut doesn't have to
     // care if the image has loaded or not
     imgLoader.load(info.url, function(image) {
+      console.log("image loaded");
       const width = lutSize * lutSize;
       const height = lutSize;
       ctx.canvas.width = width;

@@ -1,6 +1,6 @@
 let forwardTimes: number[] = [];
 
-const NEEDLE = 90;
+const NEEDLE = 250;
 let statsNeedle = 0;
 function PrecisionRound(num: number, prec = 2) {
   const f = Math.pow(10, prec);

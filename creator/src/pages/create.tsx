@@ -10,7 +10,7 @@ import {
   NotificationType,
   NotificationTypeEnum,
 } from "../creator/types";
-import "../css/index.css";
+import "../css/common.css";
 import "../css/normalize.css";
 initializeIcons(/* optional base url */);
 

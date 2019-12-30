@@ -39,7 +39,6 @@ const lutButtonStyle: CSSProperties = {
   padding: 0,
   border: "none",
   background: "none",
-  backgroundColor: "red",
   borderRadius: "100%",
   backgroundPosition: "center",
   backgroundSize: "cover",
