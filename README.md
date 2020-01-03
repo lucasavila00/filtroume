@@ -1,3 +1,6 @@
+# Read Filtrou.me blog
+https://filtrou.me/blog
+
 # How to build/deploy
 
 - '\$ sh deploy.sh' on the root folder to build both sites (creator and player),
