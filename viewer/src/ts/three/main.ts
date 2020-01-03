@@ -223,7 +223,7 @@ const init_threeScene = (
     transparent: true,
   });
   const planeMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(35, 35),
+    new THREE.PlaneGeometry(55, 55),
     planeMaterial,
   );
   const _scale = 1;
@@ -233,8 +233,8 @@ const init_threeScene = (
 
   // lines(_threeCompositeObject);
   // make sure to import it
-  // import { lines } from "../debugPaint";
 };
+// import { lines } from "../debugPaint";
 
 const create_videoScreen = () => {
   const videoScreenVertexShaderSource =

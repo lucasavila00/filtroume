@@ -1,5 +1,3 @@
-import * as faceapi from "face-api.js";
-import { generateImageAndObjectPoints } from "./prepare";
 import { gotTvec, gotRvec } from "../three/main";
 import * as THREE from "three";
 import KalmanFilter from "../kalman";
@@ -8,22 +6,22 @@ import * as tf from "@tensorflow/tfjs-core";
 
 const denormalizeOutput = (output: number[]) => {
   const scale = [
-    0.27886152,
-    0.27881693,
-    0.28100003,
-    0.06806152,
-    20.15907429,
-    20.19870753,
-    14.49564505,
+    0.2757907,
+    0.27300393,
+    0.2815135,
+    0.06738858,
+    19.90217464,
+    20.18727223,
+    14.15780724,
   ];
   const mean = [
-    -2.12522415e-3,
-    2.64508744e-4,
-    -1.33624768e-3,
-    8.72294454e-1,
-    2.55325474e-2,
-    -2.17989691e-1,
-    -6.12684035e1,
+    -7.08806138e-3,
+    -1.44241489e-3,
+    2.81328166e-4,
+    8.7496564e-1,
+    6.67847506e-2,
+    -5.86922866e-1,
+    -6.17359176e1,
   ];
 
   return output.map((x, i) => x * scale[i] + mean[i]);
@@ -57,7 +55,7 @@ const pnpWithAi = async (
   model: LayersModel,
 ) => {
   const prediction = model.predict(
-    [tf.tensor([...imagePoints], [1, 10, 2])],
+    [tf.tensor([...imagePoints], [1, 6, 2])],
     { batchSize: 1 },
   );
   if (prediction instanceof Array) {
@@ -70,19 +68,15 @@ const pnpWithAi = async (
 };
 
 export async function extractHeadPoseInfo(
-  resizedResult: faceapi.WithFaceLandmarks<
-    { detection: faceapi.FaceDetection },
-    faceapi.FaceLandmarks68
-  >,
+  resizedResult: number[][],
   model: LayersModel,
 ) {
-  const positions = resizedResult.landmarks.positions;
-  const { imagePoints } = generateImageAndObjectPoints(
-    positions,
+  const flattenedResults = resizedResult.reduce(
+    (p, c) => [...p, ...c],
+    [],
   );
-
   const denormalizedResponse = denormalizeOutput(
-    await pnpWithAi(imagePoints, model),
+    await pnpWithAi(flattenedResults, model),
   );
 
   var q = new THREE.Quaternion(

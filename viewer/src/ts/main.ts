@@ -1,5 +1,3 @@
-import * as faceapi from "face-api.js";
-import { getFaceDetectorOptions } from "./controls";
 import { updateTimeStats } from "./stats";
 import * as threeManager from "./three/main";
 import { drawOnVideoTexture } from "./three/video";
@@ -9,6 +7,9 @@ import {
   LayersModel,
 } from "@tensorflow/tfjs-layers";
 import { getInfo, IInfo } from "./info";
+import * as blazeface from "@tensorflow-models/blazeface";
+import { BlazeFaceModel } from "@tensorflow-models/blazeface/dist/face";
+
 // import * as tf from "@tensorflow/tfjs-core";
 
 const CANVAS_ID = "overlay";
@@ -42,6 +43,26 @@ let _frameBuffer: WebGLFramebuffer | null = null;
 //   );
 //   return tf.tensor(pixels, [height, width, 3]);
 // };
+const getBestPrediction = (
+  ps: blazeface.NormalizedFace[],
+): blazeface.NormalizedFace => {
+  return ps.sort((a, b) => {
+    const ap = a.probability;
+    const bp = b.probability;
+    if (typeof ap === "number" && typeof bp === "number") {
+      return bp - ap;
+    }
+    return 0;
+  })[0];
+};
+const normalizeLandmarks = (lmks: number[][]) => {
+  return lmks.map(point => {
+    const x = point[0] / _videoEl!.videoWidth;
+    const y = 1 - point[1] / _videoEl!.videoHeight;
+
+    return [x, y];
+  });
+};
 const renderLoop = async () => {
   if (_videoEl == null || _videoEl.ended) {
     setTimeout(() => renderLoop());
@@ -62,28 +83,26 @@ const renderLoop = async () => {
   //   tf.scalar(256),
   // ) as tf.Tensor4D;
 
-  const options = getFaceDetectorOptions();
-
+  const returnTensors = false; // Pass in `true` to get tensors back, rather than values.
   const ts = Date.now();
-  let result = await faceapi
-    .detectSingleFace(_videoEl, options)
-    .withFaceLandmarks(true);
 
+  const predictions = await model2.estimateFaces(
+    _videoEl,
+    returnTensors,
+  );
   updateTimeStats(Date.now() - ts);
 
-  if (result) {
-    const dims = {
-      width: 1,
-      height: 1,
-    };
-
-    const resizedResult = faceapi.resizeResults(
-      result,
-      dims,
+  if (predictions.length > 0) {
+    const { landmarks } = getBestPrediction(predictions);
+    const normalized = normalizeLandmarks(
+      landmarks as number[][],
     );
-    extractHeadPoseInfo(resizedResult, model!);
+    extractHeadPoseInfo(normalized, model!);
   }
-  threeManager.render({ foundFace: !!result });
+
+  threeManager.render({
+    foundFace: predictions.length > 0,
+  });
   setTimeout(() => renderLoop());
 };
 
@@ -147,20 +166,16 @@ const prepareSceneAndRun = async (info: IInfo) => {
 };
 
 let model: LayersModel;
+let model2: BlazeFaceModel;
 
 const prepareModels = async () => {
   console.log("prepareModels started");
 
-  await faceapi.nets.tinyFaceDetector.loadFromUri(
-    "https://filterme.firebaseapp.com/weights/",
-  );
+  model2 = await blazeface.load();
 
-  await faceapi.nets.faceLandmark68TinyNet.loadFromUri(
-    "https://filterme.firebaseapp.com/weights/",
-  );
   try {
     model = await loadLayersModel(
-      "https://filterme.firebaseapp.com/mdl/model.json",
+      "https://filterme.firebaseapp.com/mdl2/model.json",
     );
   } catch (err) {
     console.error(err);

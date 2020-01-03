@@ -755,6 +755,16 @@
     "@parcel/utils" "^1.11.0"
     physical-cpu-count "^2.0.0"
 
+"@tensorflow-models/blazeface@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@tensorflow-models/blazeface/-/blazeface-0.0.2.tgz#212b264097abc8336ff0804be1e530c8f3c4e852"
+  integrity sha512-U9vyp59mwpbOhD0CD1+E76sOTyrQ8laIp0S9kn5zl3xn5CeB3U7RLrAqbVUs96MG4ppMzLHT2nLYXl/ooxlu5Q==
+
+"@tensorflow/tfjs-converter@^1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-converter/-/tfjs-converter-1.5.1.tgz#13b76266d51c7e7f3aeee27cdc65444a48e01538"
+  integrity sha512-M9tl2/ep8ntcZpmncHwKuvThsS7TaUWqJ9vJSgJmkazwTfAvlAJmZ8/p1miJ+m5sH1EJO4oTjiEmch6g8IA5IQ==
+
 "@tensorflow/tfjs-core@1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-core/-/tfjs-core-1.4.0.tgz#045c91f93cb3ea77473b664c0d1dbad675d7f046"
