@@ -40,6 +40,11 @@ The way it works is best explained at the [project's page](https://github.com/ju
 
 - Now that you have only the cropped face apply it to another Neural Network, this one will output positions for the keypoints.
 
+## Update
+
+Filtrou.me doesn't use Face-api.js anymore. It uses Blazeface now.
+[Check this blog post to know more!](/blazeface)
+
 ## Solve Perspective-n-Point
 
 Given where the keypoints are we can use an estimated 3D model of the human face and try to rotate and move it around so that it's projection would be the same as the one observed.

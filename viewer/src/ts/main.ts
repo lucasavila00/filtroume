@@ -175,7 +175,7 @@ const prepareModels = async () => {
 
   try {
     model = await loadLayersModel(
-      "https://filterme.firebaseapp.com/mdl2/model.json",
+      "https://filtrou.me/mdl2/model.json",
     );
   } catch (err) {
     console.error(err);
